@@ -1,0 +1,126 @@
+Local database / server:
+    - buy a ~1TB hard drive to store the library of music
+        - HDD is probably fine bc there won't be many users accessing it at once
+    - Set up a server on my desktop to access library
+    - could have it always on... probably not ideal
+        - or could try booting up the server remotely upon starting the app?
+        - ChatGPT gave options: 
+            1. Wake-on-LAN (WoL) – Wake Your PC Over the Network
+                If your desktop is asleep or hibernating (not fully powered off), you can send a "magic packet" to wake it.
+                Requirements:
+                    - Your BIOS must support and enable Wake-on-LAN.
+                    - Your PC must be connected via Ethernet (more reliable than Wi-Fi).
+                    - You'll need your PC's MAC address.
+                    - Your router needs to allow "broadcast" packets (sometimes tricky if you're behind NAT or CGNAT).
+
+                Example Tool:
+                    From another device, use something like:
+                    - wakeonlan 00:11:22:33:44:55
+                    Or an app like:
+                    - Depicus WoL (Windows)
+                    - WakeMeOnLan by NirSoft
+                    - Unified Remote (mobile app)
+
+            2. Remote Access Software – If PC is Already On
+                - If your desktop is running (or wakes via WoL), then you can:
+                - SSH in (for Linux/macOS)
+                - Use Remote Desktop (RDP) for Windows Pro
+                - Use Chrome Remote Desktop, AnyDesk, TeamViewer, etc.
+                
+            - Important: Security Tips
+                - If you're exposing a way to wake or access your desktop over the internet:
+                - Use strong passwords / SSH keys
+                - Only open necessary ports
+                - Consider using a VPN like Tailscale or ZeroTier for secure access
+    
+    - Could use Ngrok? Talal told use abt this
+        - What is ngrok? (ChatGPT response)
+            ngrok is a tool that lets you securely expose your local server to the internet using a public URL.
+
+            Think of it like:
+            "A temporary bridge between your laptop and the web."
+
+            🛠️ What It Does:
+            You run a local server (like your music API on http://localhost:5000), and ngrok gives you a public URL like:
+                - https://abc123.ngrok.io
+                - This URL forwards traffic to your local server, so people (or devices) outside your network can access it — even if you're behind a firewall or NAT.
+
+            🔐 Why It's Useful:
+            ✅ Test your local app on your phone
+            ✅ Share your local project with a teammate or client
+            ✅ Use webhooks (e.g., from Stripe, GitHub, OpenAI)
+            ✅ Host temporary APIs, bots, dashboards, etc.
+
+            🧠 How It Works (Simplified):
+                1. You run a command like:
+                    - ngrok http 5000
+                2. ngrok opens a secure tunnel from a public URL to localhost:5000
+                3. Requests from the internet → go through ngrok → hit your local server
+
+            💡 Example Use Cases:
+                - Testing webhooks (/api/webhook) without deploying
+                - Sharing your music streaming app with a friend
+                - Running a demo site for someone without deploying to Vercel or Netlify
+
+            🆓 Free vs Paid
+            Feature	            Free Plan	  Paid Plan
+            Random URLs	        ✅ Yes	    ✅ Yes
+            Custom Subdomains	❌ No	    ✅ Yes
+            Persistent URLs	    ❌ No	    ✅ Yes
+            Auth/Access Control	❌ No	    ✅ Yes
+
+        - Using ngrok with Your Local Music Server
+            1. Install ngrok
+                If you haven’t already:
+                - npm install -g ngrok
+                - Or download it from https://ngrok.com/download
+
+            2. Run Your Local Server
+                Start your music-server:
+                    - node server.js
+                Make sure it says something like:
+                    - Music server running at http://localhost:5000
+            3. Expose It with ngrok
+                In a new terminal window, run:
+                    - ngrok http 5000
+                You’ll get a public URL like:
+                    - Forwarding    https://a1b2c3d4.ngrok.io -> http://localhost:5000
+                Copy that https://...ngrok.io URL — it’s now your public music server!
+
+            4. Access It From Anywhere
+                Go to https://a1b2c3d4.ngrok.io/api/tracks → lists your music
+
+                Songs will stream from URLs like:
+                    - https://a1b2c3d4.ngrok.io/music/chill.mp3
+                Plug that into your frontend app or even your phone’s browser/audio player.
+
+            🎧 Example Integration (Frontend)
+                const track = {
+                name: 'chill.mp3',
+                url: 'https://a1b2c3d4.ngrok.io/music/chill.mp3'
+                };
+
+                <audio controls src={track.url}></audio>
+            
+            🔒 Pro Tips
+            - Free ngrok accounts rotate URLs every time you restart unless you sign in and use ngrok config.
+            - If you want persistent URLs or custom subdomains, you’ll need a paid ngrok plan.
+            - Don’t share your ngrok URL publicly unless you're okay with others accessing your music.
+
+================================================================================================================================
+
+OpenAI API: 
+
+- I don't think the AI can directly query the DB... 
+- to do this, our own server must be the one making the API call, or we need to use the OpenAI model as a tool inside your app, 
+  not as a self-contained API-only source of truth
+- Think of It Like This:
+    - We send a request from our Next.js frontend (or any app)
+    - That request hits our server
+    - Our server:
+        - Optionally queries local data (like our music API)
+        - Crafts a custom prompt with this data
+        - Sends that to OpenAI via their API
+    - OpenAI responds
+    - Our server sends that combined response back to our frontend
+
