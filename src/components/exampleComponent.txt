@@ -1,0 +1,6 @@
+Reusable components go here in the components folder e.g.
+    AudioPlayer.js
+    SearchResultCard.js
+    Header.js
+    etc.
+(these are just examples... i don't know what components we need yet)

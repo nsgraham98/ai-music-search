@@ -1,0 +1,3 @@
+Static files e.g.: 
+    logos, icons, audio samples, etc.
+go here in the assets folder 
