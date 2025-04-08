@@ -1,29 +1,16 @@
 "use client";
 import React, { useState } from "react";
-import Results from "./components/Results"; // Adjust path as needed
-import trackData from "./assets/TestTracks.json"; // Adjust path to your JSON file
+//import { getHaiku } from "../api/openai/generatehaiku";
 
 function App() {
   const [query, setQuery] = useState("");
   const [aiResponse, setAiResponse] = useState("");
   const [loading, setLoading] = useState(false);
-  const [matchedTracks, setMatchedTracks] = useState([]);
 
   const handleSearch = async () => {
     if (!query.trim()) return;
     setLoading(true);
 
-    // Filter local JSON data
-    const lowerQuery = query.toLowerCase();
-    const filtered = trackData.filter(
-      (track) =>
-        track.title.toLowerCase().includes(lowerQuery) ||
-        track.genre.toLowerCase().includes(lowerQuery) ||
-        track.description.toLowerCase().includes(lowerQuery)
-    );
-    setMatchedTracks(filtered);
-
-    // Fetch from OpenAI
     try {
       const response = await fetch(
         "https://api.openai.com/v1/chat/completions",
@@ -31,16 +18,14 @@ function App() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
+            Authorization: `Bearer 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`,
           },
           body: JSON.stringify({
             model: "gpt-4o-mini",
             messages: [
               {
                 role: "user",
-                content: `You are a music assistant helping users search for royalty-free tracks. Here is the track list: ${JSON.stringify(
-                  tracks
-                )}.\n\nUser query: "${query}".\n\nPlease provide a summary of the best matching tracks.`,
+                content: `Write a poetic description of "${query}" as a song or artist.`,
               },
             ],
           }),
@@ -68,7 +53,7 @@ function App() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Enter a song or artist..."
-            className="w-full md:w-2/3 px-4 py-2 text-white rounded-md bg-gray-700 focus:outline-none"
+            className="w-full md:w-2/3 px-4 py-2 text-white rounded-md focus:outline-none"
           />
           <button
             onClick={handleSearch}
@@ -86,9 +71,6 @@ function App() {
             </pre>
           </div>
         )}
-
-        {/* Matching Tracks Display */}
-        <Results tracks={matchedTracks} />
       </div>
     </div>
   );

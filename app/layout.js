@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { AudioPlayerProvider } from "./context/audio-player-context.jsx";
+// import { AuthContextProvider } from "./_utils/auth-context";
+import { AudioPlayerProvider } from "../context/audioPlayerContext.jsx";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
