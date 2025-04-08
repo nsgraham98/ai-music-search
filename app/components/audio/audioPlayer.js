@@ -1,10 +1,8 @@
+"use client";
 import { useState } from "react";
-import { RiMenuAddLine } from "react-icons/ri";
-import { TrackInfo } from "./trackInfo";
-import { Controls } from "./controls";
-import { ProgressBar } from "./progressBar";
-import { VolumeControl } from "./VolumeControl";
-import { PlayList } from "./PlayList";
+import { TrackInfo } from "./trackInfo.js";
+import { Controls } from "./controls.js";
+import { ProgressBar } from "./progressBar.js";
 
 export const AudioPlayer = () => {
   // const handleOnClick = () => {

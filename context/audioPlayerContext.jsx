@@ -1,54 +1,41 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 const AudioPlayerContext = createContext(undefined);
 
 export const AudioPlayerProvider = ({ children }) => {
-  const [currentTrack, setCurrentTrack] = useState(tracks[0]); // tracks[0] could be changed
-
+  const [currentTrack, setCurrentTrack] = useState(null); // Initially null for no track
   const [tracks, setTracks] = useState([]);
+
   const contextValue = {
     currentTrack,
     setCurrentTrack,
+    tracks,
+    setTracks,
   };
 
   useEffect(() => {
-    // loads ALL the tracks from the JSON file
     const loadTracks = async () => {
-      const response = await fetch("/assets/testTracks.json");
-      const data = await response.json();
-      console.log(data.tracks); // Logs the tracks data
-      setTracks(data.tracks); // Set the tracks state with the fetched data
+      try {
+        const response = await fetch("/assets/testTracks/testTracks.json");
+        const data = await response.json();
+        console.log("Fetched Data: ", data.tracks); // Log the tracks data for debugging
+
+        if (data.tracks && data.tracks.length > 0) {
+          setTracks(data.tracks); // Set the tracks state with the fetched data
+          setCurrentTrack(data.tracks[0]); // Set the first track as the current track
+          console.log("First Track Set: ", data.tracks[0]); // Confirm the first track data
+        } else {
+          console.log("No tracks found in data."); // Handle the case where no tracks are found
+        }
+      } catch (error) {
+        console.error("Error fetching tracks: ", error); // Catch and log any errors
+      }
     };
 
     loadTracks();
-  }, []);
-
-  const track = {
-    id,
-    name,
-    artist,
-    album,
-    path,
-    descriptors: [
-      {
-        description,
-        instruments,
-        feel,
-        genre,
-        duration,
-        bpm,
-      },
-    ],
-    credits: [
-      {
-        url,
-        license,
-        full_credits,
-      },
-    ],
-  };
+  }, []); // Empty dependency array ensures this runs once when the component mounts
 
   return (
     <AudioPlayerContext.Provider value={contextValue}>
