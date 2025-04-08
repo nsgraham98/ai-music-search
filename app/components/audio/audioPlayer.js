@@ -1,10 +1,11 @@
+"use client";
 import { useState } from "react";
 import { RiMenuAddLine } from "react-icons/ri";
 import { TrackInfo } from "./trackInfo";
 import { Controls } from "./controls";
 import { ProgressBar } from "./progressBar";
-import { VolumeControl } from "./VolumeControl";
-import { PlayList } from "./PlayList";
+import { VolumeControl } from "./volumeControl";
+// import { PlayList } from "./playList";
 
 export const AudioPlayer = () => {
   // const handleOnClick = () => {
@@ -18,6 +19,9 @@ export const AudioPlayer = () => {
         <div className="w-full flex flex-col items-center gap-1 m-auto flex-1">
           <Controls />
           <ProgressBar />
+          <div className="flex items-center gap-2 text-gray-400">
+            <VolumeControl />
+          </div>
         </div>
       </div>
     </div>

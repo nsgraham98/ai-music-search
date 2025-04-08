@@ -1,5 +1,3 @@
-<<<<<<< Updated upstream
-=======
 "use client";
 
 import React, { useState } from "react";
@@ -32,4 +30,3 @@ const SearchBar = ({ onSearch }) => {
 };
 
 export default SearchBar;
->>>>>>> Stashed changes
