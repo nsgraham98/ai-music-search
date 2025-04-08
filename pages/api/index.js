@@ -1,4 +1,4 @@
-// THIS IS WHERE THE USERS API CALL GOES TO
+// THIS IS WHERE THE USERS API CALL TO OUR APP GOES TO
 
 // import { collection, getDocs, query } from "firebase/firestore";
 // import { db } from "../../../utils/firebase";
@@ -10,5 +10,8 @@ export default async function handler(req, res) {
   //   querySnapshot.forEach((doc) => {
   //     items.push({ ...doc.data(), id: doc.id });
   //   });
-  res.status(200).json({ message: "Hello world!" });
+
+  // example of how to get the data from the database
+  //   res.status(200).json( {myData: "example"} );
+  res.status(200).json({ message: dataReturned });
 }
