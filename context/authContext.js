@@ -17,6 +17,12 @@ import { auth } from "./firebase";
 
 const AuthContext = createContext();
 
+const track = {
+  src: "/assets/testTracks/track1.mp3",
+  title: "Track 1",
+  artist: "Artist 1",
+};
+
 export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
