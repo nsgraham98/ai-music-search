@@ -1,6 +1,6 @@
 import { ChangeEvent, useState, useEffect } from "react";
 import { IoMdVolumeHigh, IoMdVolumeOff, IoMdVolumeLow } from "react-icons/io";
-import { useAudioPlayerContext } from "../../../context/audioPlayerContext";
+import { useAudioPlayerContext } from "../../../context/audio-player-context";
 
 export const VolumeControl = () => {
   const { audioRef } = useAudioPlayerContext();
@@ -33,7 +33,7 @@ export const VolumeControl = () => {
           min={0}
           max={100}
           value={volume}
-          className="volumn"
+          className="volume"
           onChange={handleVolumeChange}
           style={{
             background: `linear-gradient(to right, #f50 ${volume}%, #ccc ${volume}%)`,
