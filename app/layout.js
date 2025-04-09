@@ -1,5 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import "/styles/globals.css";
+import "/styles/customize-progress-bar.css";
 // import { AuthContextProvider } from "./_utils/auth-context";
 import { AudioPlayerProvider } from "../context/audioPlayerContext.jsx";
 

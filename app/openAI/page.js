@@ -65,7 +65,7 @@ function App() {
 
         {aiResponse && (
           <div className="mt-8 bg-gray-800 p-6 rounded-lg shadow-md text-left">
-            <h2 className="text-xl font-semibold mb-3">🎤 AI Response:</h2>
+            <h2 className="text-xl font-semibold mb-3">🎤 AIs Response:</h2>
             <pre className="whitespace-pre-wrap font-mono text-sm">
               {aiResponse}
             </pre>
