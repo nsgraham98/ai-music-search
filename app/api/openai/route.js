@@ -1,10 +1,20 @@
 // API route to handle OpenAI requests
 // should be changed in the future to send request to pages/api/openAI.js (backend)
 import OpenAI from "openai";
+import { readFileSync } from "fs";
+import path from "path";
 
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
+
+// temporary testing solution to read the testTracks.json file from the public directory
+const filePath = path.join(
+  process.cwd(),
+  "public/assets/testTracks/testTracks.json"
+);
+const fileContent = readFileSync(filePath, "utf-8");
+const jsonText = JSON.stringify(JSON.parse(fileContent));
 
 export async function POST(request) {
   try {
@@ -23,7 +33,7 @@ export async function POST(request) {
         messages: [
           {
             role: "user",
-            content: prompt.query, // Your prompt
+            content: `Here is a JSON list of songs:\n\n${jsonText}\n\n return all song names+artists for this query: ${prompt.query}`, // ~3000 tokens for 314 line json file: 12 songs
           },
         ],
       }),
