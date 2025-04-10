@@ -1,8 +1,16 @@
+// UI that is shared among all pages in the app. This is the root layout.
+
+// It is used to set up the global styles, fonts, and other UI elements that
+// are common across all pages.
+
+// It is also used to wrap the app in context providers, such as the AuthContextProvider
+// and AudioPlayerProvider.
+
 import { Geist, Geist_Mono } from "next/font/google";
 import "/styles/globals.css";
 import "/styles/customize-progress-bar.css";
-// import { AuthContextProvider } from "./_utils/auth-context";
-import { AudioPlayerProvider } from "../context/audioPlayerContext.jsx";
+import { AuthContextProvider } from "../context/auth-context";
+import { AudioPlayerProvider } from "../context/audio-player-context.jsx";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

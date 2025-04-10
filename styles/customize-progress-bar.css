@@ -62,7 +62,7 @@ input[type="range"]::-webkit-slider-thumb {
   position: relative;
 }
 
-.volumn::-webkit-slider-thumb {
+.volume::-webkit-slider-thumb {
   background-color: #f50;
 }
 

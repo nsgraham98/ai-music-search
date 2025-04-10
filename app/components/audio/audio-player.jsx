@@ -1,18 +1,11 @@
 "use client";
-"use client";
-import { useState } from "react";
-import { RiMenuAddLine } from "react-icons/ri";
-import { TrackInfo } from "./trackInfo";
+
+import { TrackInfo } from "./track-info";
 import { Controls } from "./controls";
-import { ProgressBar } from "./progressBar";
-import { VolumeControl } from "./volumeControl";
-// import { PlayList } from "./playList";
+import { ProgressBar } from "./progress-bar";
+import { VolumeControl } from "./volume-control";
 
 export const AudioPlayer = () => {
-  // const handleOnClick = () => {
-  //     // do something
-  // };
-
   return (
     <div>
       <div className="min-h-8 bg-[#2e2d2d] flex flex-col gap-9 lg:flex-row justify-between items-center text-white p-[0.5rem_10px]">

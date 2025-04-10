@@ -3,6 +3,8 @@ import { initializeApp } from "firebase/app";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 import { getAuth } from "firebase/auth";
+// We will only use firestore once we want to implement the favorites feature
+// because we do not need to track any user data yet (i think..)
 import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration

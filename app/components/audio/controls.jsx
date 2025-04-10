@@ -6,7 +6,7 @@
 "use client";
 import { useState, useRef, useCallback, useEffect } from "react";
 import { BsFillPauseFill, BsFillPlayFill } from "react-icons/bs";
-import { useAudioPlayerContext } from "../../../context/audioPlayerContext";
+import { useAudioPlayerContext } from "../../../context/audio-player-context";
 
 export const Controls = () => {
   const {
@@ -65,6 +65,7 @@ export const Controls = () => {
     };
   }, [isPlaying, startAnimation, updateProgress, audioRef]);
 
+  // displaying track duration as soon as the audio is loaded (onLoadedMetadata in <audio>)
   const onLoadedMetadata = () => {
     const seconds = audioRef.current?.duration;
     if (seconds !== undefined) {
@@ -76,10 +77,11 @@ export const Controls = () => {
   };
 
   if (!currentTrack) {
-    return;
-    <div>
-      <p className="text-gray-500">No track selected</p>
-    </div>; // or some loading state
+    return (
+      <div>
+        <p className="text-gray-500">No track selected</p>
+      </div>
+    ); // or some loading state
   }
   return (
     <div className="flex gap-4 items-center">
