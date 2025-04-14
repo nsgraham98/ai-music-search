@@ -56,9 +56,9 @@ export const AudioPlayerProvider = ({ children }) => {
       const response = await fetch("/assets/testTracks/testTracks.json"); // .json file is hard coded for now
       const data = await response.json();
       setTracks(data.tracks);
-      setCurrentTrack(data.tracks[1]); // data.tracks[1] is hard coded for now
-      console.log("tracks[0]: ", data.tracks[1]);
-      console.log("currentTrack: ", data.tracks[1]);
+      setCurrentTrack(data.tracks[0]); // data.tracks[0] is hard coded for now
+      console.log("tracks[0]: ", data.tracks[0]);
+      console.log("currentTrack: ", data.tracks[0]);
     };
     loadTracks();
   }, []);

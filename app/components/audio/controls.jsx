@@ -5,7 +5,14 @@
 
 "use client";
 import { useState, useRef, useCallback, useEffect } from "react";
-import { BsFillPauseFill, BsFillPlayFill } from "react-icons/bs";
+import {
+  BsFillPauseFill,
+  BsFillPlayFill,
+  BsSkipStartFill,
+  BsSkipEndFill,
+  BsFillFastForwardFill,
+  BsFillRewindFill,
+} from "react-icons/bs";
 import { useAudioPlayerContext } from "../../../context/audio-player-context";
 
 export const Controls = () => {
@@ -76,6 +83,19 @@ export const Controls = () => {
     }
   };
 
+  const skipForward = () => {
+    // Logic for skipping forward (if needed)
+  };
+  const skipBackward = () => {
+    // Logic for skipping backward (if needed)
+  };
+  const handlePrevious = () => {
+    // Logic for previous track (if needed)
+  };
+  const handleNext = () => {
+    // Logic for next track (if needed)
+  };
+
   if (!currentTrack) {
     return (
       <div>
@@ -90,12 +110,24 @@ export const Controls = () => {
         ref={audioRef}
         onLoadedMetadata={onLoadedMetadata}
       />
+      <button onClick={handlePrevious}>
+        <BsSkipStartFill size={20} />
+      </button>
+      <button onClick={skipBackward}>
+        <BsFillRewindFill size={20} />
+      </button>
       <button onClick={() => setIsPlaying((prev) => !prev)}>
         {isPlaying ? (
           <BsFillPauseFill size={30} />
         ) : (
           <BsFillPlayFill size={30} />
         )}
+      </button>
+      <button onClick={skipForward}>
+        <BsFillFastForwardFill size={20} />
+      </button>
+      <button onClick={handleNext}>
+        <BsSkipEndFill size={20} />
       </button>
     </div>
   );

@@ -6,22 +6,33 @@ const tagsFilePath = path.join(process.cwd(), "public/assets/search-tags.json");
 const fileContent = readFileSync(tagsFilePath, "utf-8");
 const tags = JSON.parse(fileContent);
 
+export const input = [
+  {
+    role: "user",
+    content: prompt.userQuery,
+  },
+];
+
 export const tools = [
   {
     type: "function",
     name: "searchJamendo",
     description:
-      "Generate a string of search parameters for the Jamendo API call. We pass the search parameters to the function as an object and it returns a url to the Jamendo API with the search parameters included. All parameters are optional except fuzzytags.",
+      "Generate search parameters for the Jamendo API call. We pass the search parameters to the searchJamendo function as an object. All parameters are optional except fuzzytags. Prioritize using fuzzytags, and use other parameters as you deem necessary.",
     strict: false,
     parameters: {
       type: "object",
       properties: {
         acousticelectric: {
           type: "array",
+          description:
+            "Only include if the user specifies a preference for acoustic or electric tracks. Otherwise omit this parameter, and both acoustic and electric tracks will be included.",
           items: { type: "string", enum: tags.acousticelectric },
         },
         vocalinstrumental: {
           type: "array",
+          description:
+            "Only include if the user specifies a preference for vocal or instrumental tracks. Otherwise omit this parameter, and both vocal and instrumental tracks will be included.",
           items: { type: "string", enum: tags.vocalinstrumental },
         },
         gender: {
@@ -35,7 +46,7 @@ export const tools = [
         lang: {
           type: "string",
           description:
-            "The lyrics language. We accept the standard 2 letters format",
+            "The lyrics language. We accept the standard 2 letters format. Use 'en' by default, unless the user specifies otherwise.",
         },
         durationbetween: {
           type: "string",
@@ -87,7 +98,7 @@ export const tools = [
         fuzzytags: {
           type: "object",
           description:
-            "Search by one or more tags. We interpret this request as fuzzy. Result with more corresponding tags will be ranked higher.",
+            "Search by one or more tags. We interpret this request as 'fuzzy'. Result with more corresponding tags will be ranked higher.",
           properties: {
             energy: {
               type: "array",

@@ -1,12 +1,8 @@
 // calls the Jamendo API to get the search results
 export async function searchJamendo(searchObj) {
-  console.log("in searchJamendo function"); // Log to check if the function is called
-  console.log("Search Object: ", searchObj); // Log the search object for debugging
-
   const url = createSearchString(searchObj);
-  console.log("Created URL from createSearchString: ", url); // Log the query string for debugging
 
-  // Fetch the data from the Jamendo API
+  // Fetch the data from the Jamendo API at app/api/jamendo/route.js
   const response = await fetch(url, {
     method: "GET",
     headers: {
@@ -14,15 +10,18 @@ export async function searchJamendo(searchObj) {
     },
   });
   const data = await response.json();
-  // console.log("Jamendo API Response (in searchJamendo): ", data); // Log the response for debugging
-  // do something with the data
+
+  // do something with the data - this will be the response from the Jamendo API
+  // maybe process the data here or just return it - end goal is display it to Result Cards
+  if (!response.ok) {
+    console.error("API Error:", response.statusText);
+  }
+  return data; // I think openAI requires the data to be returned, can maybe instead just return a string "success" or "error" or something
 }
 
 // creates a url to use to call the Jamendo API at app/api/jamendo/route.js
 // with the search parameters included in the url
-export function createSearchString(searchObj) {
-  console.log("in createSearchString function"); // Log to check if the function is called
-
+function createSearchString(searchObj) {
   const staticSearchParams = {
     client_id: process.env.JAMENDO_CLIENT_ID,
     format: "json",
@@ -34,13 +33,11 @@ export function createSearchString(searchObj) {
   const flattenedFuzzyTags = Object.values(searchObj.fuzzytags)
     .flat()
     .join("+");
-  console.log("Flattened Fuzzy Tags: ", flattenedFuzzyTags); // Log the flattened fuzzy tags for debugging
 
   const dynamicSearchParams = {
     ...searchObj,
     fuzzytags: flattenedFuzzyTags,
   };
-  console.log("Dynamic Search Params: ", dynamicSearchParams); // Log the dynamic search params for debugging
 
   // flattens any other dynamic tags
   const flattenedDynamicSearchParams = Object.fromEntries(
@@ -50,20 +47,41 @@ export function createSearchString(searchObj) {
     ])
   );
 
-  console.log(
-    "Flattened Dynamic Search Params: ",
-    flattenedDynamicSearchParams
-  ); // Log the flattened dynamic search params for debugging
-
   const searchParams = {
     ...staticSearchParams,
     ...flattenedDynamicSearchParams,
   };
 
-  console.log("Combined Search Params: ", searchParams); // Log the combined search params for debugging
-
   const urlSearchParams = new URLSearchParams(searchParams).toString();
   const url = new URL(`http://localhost:3000/api/jamendo?${urlSearchParams}`); // will need to be changed to production URL
-  console.log("Generated URL:", url.toString());
+
   return url.toString();
 }
+
+// maybe not needed
+// const callFunction = async (name, args) => {
+//   switch (name) {
+//     case "searchJamendo":
+//       return await searchJamendo(args);
+//     case "createSearchString":
+//       return createSearchString(args);
+//     // can add more functions here as needed
+//     // case "anotherFunction":
+//     //   return anotherFunction(args);
+//     default:
+//       throw new Error(`Function ${name} not found`);
+//   }
+// };
+
+// export { callFunction };
+
+// maybe not needed
+// export function getNameArtistJamendo(response) {
+//   const nameArtist = [];
+//   for (const track of response.results) {
+//     const name = track.name;
+//     const artist = track.artist_name;
+//     nameArtist.push({ name, artist });
+//   }
+//   return nameArtist;
+// }
