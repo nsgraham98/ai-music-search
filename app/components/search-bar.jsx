@@ -3,11 +3,11 @@
 import React, { useState } from "react";
 
 const SearchBar = () => {
-  const [query, setQuery] = useState("");
+  const [userQuery, setUserQuery] = useState("");
   const [isLoading, setIsLoading] = React.useState(false);
 
   async function handleSearch() {
-    if (!query) return;
+    if (!userQuery) return;
     setIsLoading(true);
 
     const response = await fetch("/api/openAI", {
@@ -15,14 +15,14 @@ const SearchBar = () => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ query }), // sends query as a JSON object e.g. { query: "query text here" }
+      body: JSON.stringify({ userQuery }), // sends query as a JSON object e.g. { userQuery: "query text here" }
     });
 
     // maybe add error handling here
     // maybe add alert and/or toast here
 
-    const data = await response.json();
-    console.log("Response: ", data.output_text);
+    // const data = await response.json();
+    // console.log("Response: ", data.output_text);
     setIsLoading(false);
     // send data to result cards
   }
@@ -33,8 +33,8 @@ const SearchBar = () => {
         type="text"
         className="border p-2 rounded w-full"
         placeholder="Search by title, genre, mood..."
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        value={userQuery}
+        onChange={(e) => setUserQuery(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && handleSearch()}
       />
       <button

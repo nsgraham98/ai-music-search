@@ -1,3 +1,0 @@
-Context files go in this folder e.g.
-    AudioContext, AuthContext, UserContext
-(just for example... i don't know what context files we need yet)
