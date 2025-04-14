@@ -11,7 +11,7 @@
 // 10. We return the final response from OpenAI to the client
 import OpenAI from "openai";
 import { searchJamendo } from "./search-funcs.js";
-import { tools } from "./tools.js";
+import { getTools } from "./tools.js";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -20,6 +20,7 @@ const openai = new OpenAI({
 export async function POST(request) {
   try {
     const userPrompt = await request.json();
+    const tools = await getTools(); // load the tools from the tools.js file
     const input = [
       {
         role: "user",
@@ -57,19 +58,21 @@ export async function POST(request) {
       store: true,
     });
 
-    // do something with result.results - this will be the response from the Jamendo API
-    console.log(
-      "Results from Jamendo API Call (result.results in openAI/route.js): ",
-      result.results
-    ); // Log the tool call result for debugging
-    console.log("OpenAI Final Response: ", newResponse.output_text);
+    // newResponse.jamendoResults = result.results; // add the results to the response object
+    console.log("OpenAI Final Response: ", newResponse);
 
-    return new Response(JSON.stringify(newResponse.output), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    return new Response(
+      JSON.stringify({
+        output_text: newResponse.output_text,
+        jamendoResults: result.results,
+      }),
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
   } catch (error) {
     console.error("Error fetching OpenAI:", error);
     return new Response(JSON.stringify({ error: "Something went wrong" }), {

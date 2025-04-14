@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
+import { useAudioPlayerContext } from "../../context/audio-player-context"; // import this from the context
 
 const SearchBar = () => {
   const [userQuery, setUserQuery] = useState("");
   const [isLoading, setIsLoading] = React.useState(false);
+  const { setTracks } = useAudioPlayerContext(); // import this from the context
 
   async function handleSearch() {
     if (!userQuery) return;
@@ -18,13 +20,19 @@ const SearchBar = () => {
       body: JSON.stringify({ userQuery }), // sends query as a JSON object e.g. { userQuery: "query text here" }
     });
 
-    // maybe add error handling here
-    // maybe add alert and/or toast here
+    if (!response.ok) {
+      console.error("Error fetching data:", response.statusText);
+      setIsLoading(false);
+      return;
+    }
 
-    // const data = await response.json();
-    // console.log("Response: ", data.output_text);
+    const data = await response.json();
+    console.log("In search bar "); // Log the response for debugging
+    console.log("Data: ", data);
+
+    setTracks(data.jamendoResults); // set the tracks in the context
+
     setIsLoading(false);
-    // send data to result cards
   }
 
   return (

@@ -57,31 +57,3 @@ function createSearchString(searchObj) {
 
   return url.toString();
 }
-
-// maybe not needed
-// const callFunction = async (name, args) => {
-//   switch (name) {
-//     case "searchJamendo":
-//       return await searchJamendo(args);
-//     case "createSearchString":
-//       return createSearchString(args);
-//     // can add more functions here as needed
-//     // case "anotherFunction":
-//     //   return anotherFunction(args);
-//     default:
-//       throw new Error(`Function ${name} not found`);
-//   }
-// };
-
-// export { callFunction };
-
-// maybe not needed
-// export function getNameArtistJamendo(response) {
-//   const nameArtist = [];
-//   for (const track of response.results) {
-//     const name = track.name;
-//     const artist = track.artist_name;
-//     nameArtist.push({ name, artist });
-//   }
-//   return nameArtist;
-// }
