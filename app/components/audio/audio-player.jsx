@@ -4,6 +4,7 @@ import { TrackInfo } from "./track-info";
 import { Controls } from "./controls";
 import { ProgressBar } from "./progress-bar";
 import { VolumeControl } from "./volume-control";
+import { PlayList } from "./playlist";
 
 export const AudioPlayer = () => {
   return (
@@ -15,6 +16,9 @@ export const AudioPlayer = () => {
           <ProgressBar />
           <div className="flex items-center gap-2 text-gray-400">
             <VolumeControl />
+          </div>
+          <div>
+            <PlayList />
           </div>
         </div>
       </div>

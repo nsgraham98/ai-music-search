@@ -1,10 +1,17 @@
-// API route to handle OpenAI requests
-// should be changed in the future to send request to pages/api/openAI.js (backend)
+// Current work flow:
+// 1. From the searchbar component, user sends a request to the OpenAI API (this file) with a prompt
+// 2. Using OpenAI function calling, we make our initial call to OpenAI with the user's prompt
+// 3. OpenAI returns args to use to call the Jamendo API
+// 4. The Jamendo API is called with the args from OpenAI (searchJamendo(args))
+// 5. The entire Response (header + results) from the Jamendo API are returned to OpenAI
+// 6. OpenAI adds those results to the conversation history (input.push())
+// 7. We create one more response to OpenAI with the entire conversation history (input) and the tools (searchJamendo)
+// 8. OpenAI returns its final response
+// 9. We can do something with the data returned earlier from the Jamendo API (result.results)
+// 10. We return the final response from OpenAI to the client
 import OpenAI from "openai";
-import { readFileSync } from "fs";
-import path from "path";
 import { searchJamendo } from "./search-funcs.js";
-import { tools } from "./tools.js";
+import { getTools } from "./tools.js";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -12,32 +19,60 @@ const openai = new OpenAI({
 
 export async function POST(request) {
   try {
-    // Parse the incoming request body as JSON
-    const prompt = await request.json();
-    console.log("Prompt: ", prompt);
+    const userPrompt = await request.json();
+    const tools = await getTools(); // load the tools from the tools.js file
+    const input = [
+      {
+        role: "user",
+        content: userPrompt.userQuery,
+      },
+    ];
+
     // Send the prompt to OpenAI API
     const response = await openai.responses.create({
       model: "gpt-4o",
-      input: [{ role: "user", content: prompt.userQuery }],
+      input,
       tools,
       tool_choice: { type: "function", name: "searchJamendo" },
     });
 
-    console.log("Response: ", response.output);
-
     // perform the tool call (searchJamendo) with the arguments from the response
+    // can make this more elaborate later if needed - eg. more than one tool call
     const toolCall = response.output[0];
     const args = JSON.parse(toolCall.arguments);
-    const data = await searchJamendo(args);
+    const result = await searchJamendo(args);
 
-    // console.log("Response: ", data.choices?.[0]?.message?.content);
-
-    return new Response(JSON.stringify(data), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
+    // append model's function call message
+    input.push(toolCall);
+    input.push({
+      type: "function_call_output",
+      call_id: toolCall.call_id,
+      output: result.toString(),
     });
+
+    // Send the tool call result back to OpenAI API for final response
+    const newResponse = await openai.responses.create({
+      model: "gpt-4o",
+      input,
+      tools,
+      store: true,
+    });
+
+    // newResponse.jamendoResults = result.results; // add the results to the response object
+    console.log("OpenAI Final Response: ", newResponse);
+
+    return new Response(
+      JSON.stringify({
+        output_text: newResponse.output_text,
+        jamendoResults: result.results,
+      }),
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
   } catch (error) {
     console.error("Error fetching OpenAI:", error);
     return new Response(JSON.stringify({ error: "Something went wrong" }), {
@@ -45,47 +80,3 @@ export async function POST(request) {
     });
   }
 }
-
-// export async function POST(request) {
-//   try {
-//     // Parse the incoming request body as JSON
-//     const prompt = await request.json();
-
-//     // Send the prompt to OpenAI API
-//     const response = await fetch("https://api.openai.com/v1/chat/completions", {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-//       },
-//       body: JSON.stringify({
-//         model: "gpt-4o-mini",
-//         messages: [
-//           {
-//             role: "user",
-//             content: `Here is a JSON list of songs:\n\n${jsonText}\n\n return all song names+artists for this query: ${prompt.query}`, // ~3000 tokens for 314 line json file: 12 songs
-//           },
-//         ],
-//       }),
-//     });
-
-//     // Parse the OpenAI response
-//     const data = await response.json();
-
-//     // You can now handle or log the OpenAI response data
-//     console.log("Data: ", data);
-//     console.log("Response: ", data.choices?.[0]?.message?.content);
-
-//     return new Response(JSON.stringify(data), {
-//       status: 200,
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//     });
-//   } catch (error) {
-//     console.error("Error fetching OpenAI:", error);
-//     return new Response(JSON.stringify({ error: "Something went wrong" }), {
-//       status: 500,
-//     });
-//   }
-// }

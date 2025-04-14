@@ -18,8 +18,12 @@ export const TrackInfo = () => {
     <div className="flex items-center gap-4">
       <div className="w-24 h-24 flex items-center justify-center bg-gray-200 rounded-md overflow-hidden"></div>
       <div>
-        <p className="font-bold lg:truncate lg:max-w-64">{currentTrack.name}</p>
-        <p className="text-sm text-gray-400">{currentTrack.artist}</p>
+        <p className="font-bold lg:truncate lg:max-w-64">
+          Song: {currentTrack.name}
+        </p>
+        <p className="text-sm text-gray-400">
+          Artist: {currentTrack.artist_name}
+        </p>
       </div>
     </div>
   );

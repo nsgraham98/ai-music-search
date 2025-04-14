@@ -1,0 +1,336 @@
+export const testTracks = [
+  {
+    id: 1,
+    name: "That Zen Moment",
+    artist_name: "Kevin MacLeod",
+    album: null,
+    audio: "/assets/audio/That-Zen-Moment.mp3",
+    descriptors: [
+      {
+        description:
+          "I picked up a round metal tongue drum from a local music store a while back, and thought the chords were beautiful. End of story! Enjoy the zen. :-)",
+        instruments: ["Strings", "Bowl Drum"],
+        feel: ["Calming", "Relaxed", "Mystical"],
+        genre: "World",
+        duration: 602,
+        bpm: null,
+      },
+    ],
+    credits: [
+      {
+        url: "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN2400001",
+        license: "CC BY 4.0",
+        full_credits:
+          "That Zen Moment Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/",
+      },
+    ],
+  },
+  {
+    id: 2,
+    name: "Sergios Magic Dustbin",
+    artist_name: "Kevin MacLeod",
+    album: null,
+    audio: "/assets/audio/Sergios-Magic-Dustbin.mp3",
+    descriptors: [
+      {
+        description:
+          "This piece starts very slow and builds... like Bolero. Unlike Bolero, this piece builds beyond the safety limit and gets crazy. I recommend you check out the piece from 1 minute 48 seconds in. There are several break points you can start from to get to the crazy payoff faster, or use the whole thing!",
+        instruments: [
+          "Drums",
+          "Tuba",
+          "Marimba",
+          "Percussion",
+          "Clarinets",
+          "Flutes",
+          "Trumpet",
+          "French Horns",
+          "Trombones",
+          "Glockenspiel",
+          "Bassoons",
+          "Chimes",
+          "Whistles",
+          "Cymbals",
+        ],
+        feel: ["Bouncy", "Driving", "Humorous"],
+        genre: "Soundtrack",
+        duration: 151,
+        bpm: 204,
+      },
+    ],
+    credits: [
+      {
+        url: "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN2300012",
+        license: "CC BY 4.0",
+        full_credits:
+          "Sergio's Magic Dustbin Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/",
+      },
+    ],
+  },
+  {
+    id: 3,
+    name: "Mesmerizing Galaxy",
+    artist_name: "Kevin MacLeod",
+    album: null,
+    audio: "/assets/audio/Mesmerizing-Galaxy-Loop.mp3",
+    descriptors: [
+      {
+        description:
+          'TThis piece was written for a 2d-bullet-hell space shooter. It loops seamlessly to allow variable-length gameplay. There is no percussion because of all the explosions in the game itself. The piece probably has some utility beyond bullet-hell; paranormal investigation comes to mind. If you are doing paranormal investigations, I would like to see the following shows: -"Ghosts of the Galaxy" -"The Otherworld Unit" -"Whispers from the Unknown" -"Unearthly Encounters" -"Phantom Photons" These would also make excellent science/astronomy shows.',
+        instruments: ["Synths"],
+        feel: ["Grooving", "Mysterious"],
+        genre: "Electronica",
+        duration: 92,
+        bpm: 124,
+      },
+    ],
+    credits: [
+      {
+        url: "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN2300011",
+        license: "CC BY 4.0",
+        full_credits:
+          "Mesmerizing Galaxy Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 3.0 License http://creativecommons.org/licenses/by/3.0/",
+      },
+    ],
+  },
+  {
+    id: 4,
+    name: "Lord of the Rangs",
+    artist_name: "Kevin MacLeod",
+    album: null,
+    audio: "/assets/audio/Lord-of-the-Rangs.mp3",
+    descriptors: [
+      {
+        description:
+          "It's all about Australia! Bop along with this cheery piece from down under. It was designed for the Australian-themed level of a tower defense game. There are a lot of boomerangs flying around when you upgrade your towers to level 3.",
+        instruments: ["Didgeridoo", "Marimba", "Flute", "Percussion"],
+        feel: ["Grooving", "Relaxed"],
+        genre: "World",
+        duration: 154,
+        bpm: 104,
+      },
+    ],
+    credits: [
+      {
+        url: "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN2300010",
+        license: "CC BY 3.0",
+        full_credits:
+          "Lord of the Rangs Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 3.0 License http://creativecommons.org/licenses/by/3.0/",
+      },
+    ],
+  },
+  {
+    id: 5,
+    name: "Galactic Rap",
+    artist_name: "Kevin MacLeod",
+    album: null,
+    audio: "/assets/audio/Galactic-Rap.mp3",
+    descriptors: [
+      {
+        description:
+          "The cool thing about these kinds of pieces is that they leave a lot of room for your own creativity. It is 98% voice-over friendly! Talk all you want over the top of this piece! But watch out for the key change at 1:34... it will steal attention.",
+        instruments: ["Synths", "Percussion"],
+        feel: ["Grooving", "Mysterious", "Relaxed"],
+        genre: "Electronica",
+        duration: 142,
+        bpm: 120,
+      },
+    ],
+    credits: [
+      {
+        url: "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN2300009",
+        license: "CC BY 3.0",
+        full_credits:
+          "Galactic Rap Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 3.0 License http://creativecommons.org/licenses/by/3.0/",
+      },
+    ],
+  },
+  {
+    id: 6,
+    name: "Equatorial Complex",
+    artist_name: "Kevin MacLeod",
+    album: null,
+    audio: "/assets/audio/Equatorial-Complex.mp3",
+    descriptors: [
+      {
+        description:
+          "Enjoy a serene sanctuary where time stands still. Envelop yourself in a warm, nostalgic embrace, evoking the feeling of a sun-drenched afternoon in a hidden garden. The air is filled with the echoes of a distant, yet familiar, world, inviting you to lose yourself in the comforting simplicity of the moment... Synthwave textures weave an intricate matrix around you, leaving you entangled in its cybernetic allure. Deck in, chummer, and let the futuristic soundscape rewrite your reality. Wait... what universe is this set in?",
+        instruments: ["Synths", "Vocal Pad"],
+        feel: ["Bright", "Mystical", "Relaxed"],
+        genre: "Electronica",
+        duration: 180,
+        bpm: 0,
+      },
+    ],
+    credits: [
+      {
+        url: "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN2300008",
+        license: "CC BY 3.0",
+        full_credits:
+          "Equatorial Complex Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 3.0 License http://creativecommons.org/licenses/by/3.0/",
+      },
+    ],
+  },
+  {
+    id: 7,
+    name: "Cloud Dancer",
+    artist_name: "Kevin MacLeod",
+    album: null,
+    audio: "/assets/audio/Cloud-Dancer.mp3",
+    descriptors: [
+      {
+        description:
+          "Upbeat EDM track with a fast tempo and modern vibe. It is joyful, optimistic, and playful. Good for dynamic, high-energy sequences. A straightforward, mood-lifting piece that adds excitement and movement. Synthwave textures weave an intricate matrix around you, leaving you entangled in its cybernetic allure. Deck in, chummer, and let the futuristic soundscape rewrite your reality. Wait... what universe is this set in?",
+        instruments: ["Synths"],
+        feel: ["Grooving", "Bouncy", "Bright"],
+        genre: "Electronica",
+        duration: 220,
+        bpm: 214,
+      },
+    ],
+    credits: [
+      {
+        url: "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN2300007",
+        license: "CC BY 3.0",
+        full_credits:
+          "Cloud Dancer Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 3.0 License http://creativecommons.org/licenses/by/3.0/",
+      },
+    ],
+  },
+  {
+    id: 8,
+    name: "Brain Dance",
+    artist_name: "Kevin MacLeod",
+    album: null,
+    audio: "/assets/audio/Brain-Dance.mp3",
+    descriptors: [
+      {
+        description:
+          'Immerse yourself in the pulsating beats of "Brain Dance," a sonic experience that plunges you deep into the heart of the Sixth World. Conjured amidst the neon glow and astral currents of a dystopian Seattle, this track is the essence of a Decker\'s paradise. Synthwave textures weave an intricate matrix around you, leaving you entangled in its cybernetic allure. Deck in, chummer, and let the futuristic soundscape rewrite your reality. Wait... what universe is this set in?',
+        instruments: ["Synths", "Percussion"],
+        feel: ["Grooving", "Driving"],
+        genre: "Electronica",
+        duration: 215,
+        bpm: 124,
+      },
+    ],
+    credits: [
+      {
+        url: "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN2300006",
+        license: "CC BY 3.0",
+        full_credits:
+          "Brain Dance Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 3.0 License http://creativecommons.org/licenses/by/3.0/",
+      },
+    ],
+  },
+  {
+    id: 9,
+    name: "Vibing Over Venus",
+    artist_name: "Kevin MacLeod",
+    album: null,
+    audio: "/assets/audio/Vibing-Over-Venus.mp3",
+    descriptors: [
+      {
+        description:
+          'It is relaxation hour here on Radio Kilimanjaro, the only all-live music, 24-hour frequency on your radio dial! Tonight is going to kick off with Alice Goodworth on her vibraphone, playing along to the famous Radio Kilimanjaro Automaton Ensemble. She calls this piece "Vibing Over Venus"... and you all know why! (It is because she plays vibes... [which is a musical instrument.])',
+        instruments: [
+          "Vibraphone",
+          "Bass",
+          "Drum kit",
+          "Percussion",
+          "Strings",
+          "Piano",
+        ],
+        feel: ["Calm", "Grooving", "Relaxed"],
+        genre: "Jazz",
+        duration: 411,
+        bpm: 94,
+      },
+    ],
+    credits: [
+      {
+        url: "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN2300005",
+        license: "CC BY 3.0",
+        full_credits:
+          "Vibing Over Venus Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 3.0 License http://creativecommons.org/licenses/by/3.0/",
+      },
+    ],
+  },
+  {
+    id: 10,
+    name: "Southern Gothic",
+    artist_name: "Kevin MacLeod",
+    album: null,
+    audio: "/assets/audio/Southern-Gothic.mp3",
+    descriptors: [
+      {
+        description:
+          "Are you cool? Cool like a vampire planking in a graveyard in Alabama? Planking is uncool... so, you gotta be really, REALLY cool to pull off this vibe. Stomp and clap along to the cooperating banjos!",
+        instruments: ["Banjos", "Percussion", "12 String Guitar", "Choir"],
+        feel: ["Dark", "Grooving", "Mysterious"],
+        genre: "Contemporary",
+        duration: 147,
+        bpm: 126,
+      },
+    ],
+    credits: [
+      {
+        url: "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN2300004",
+        license: "CC BY 3.0",
+        full_credits:
+          "Southern Gothic Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 3.0 License http://creativecommons.org/licenses/by/3.0/",
+      },
+    ],
+  },
+  {
+    id: 11,
+    name: "Morning",
+    artist_name: "Kevin MacLeod",
+    album: null,
+    audio: "/assets/audio/Morning.mp3",
+    descriptors: [
+      {
+        description:
+          "Morning. The time of day when you can’t figure out how to get to your drive-thru coffee place because there’s new construction and the sun is super low, so you’re squinting at the signs, trying to figure out if you are supposed to turn left here or if you definitely should NOT turn left here, because you will get three tires shredded by sharp, metal chunks before you fall in a hole. This piece of music is based on the old-timey concept of calm, beautiful, renewing mornings.",
+        instruments: ["Classical Guitar", "Harp", "Flutes"],
+        feel: ["Bright", "Calm", "Relaxed"],
+        genre: "Contemporary",
+        duration: 153,
+        bpm: 60,
+      },
+    ],
+    credits: [
+      {
+        url: "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN2300003",
+        license: "CC BY 3.0",
+        full_credits:
+          "Morning Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 3.0 License http://creativecommons.org/licenses/by/3.0/",
+      },
+    ],
+  },
+  {
+    id: 12,
+    name: "Evening",
+    artist_name: "Kevin MacLeod",
+    album: null,
+    audio: "/assets/audio/Evening.mp3",
+    descriptors: [
+      {
+        description:
+          'Hey Music Supervisors! Are you sick of choosing Claude Debussy\'s "Clair de Lune" or Ravel\'s "Pavane for a Dead Princess" when you\'re placing music for that one scene at the end of Act II where there is a sunset and an overall sense of relief? I got ya, friend!',
+        instruments: ["Guitar", "Cello", "Oboe"],
+        feel: ["Bright", "Calm", "Relaxed"],
+        genre: "Contemporary",
+        duration: 186,
+        bpm: 101,
+      },
+    ],
+    credits: [
+      {
+        url: "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN2300002",
+        license: "CC BY 3.0",
+        full_credits:
+          "Evening Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 3.0 License http://creativecommons.org/licenses/by/3.0/",
+      },
+    ],
+  },
+];
