@@ -12,7 +12,7 @@ const SearchBar = () => {
     if (!userQuery) return;
     setIsLoading(true);
 
-    const response = await fetch("/api/openAI", {
+    const response = await fetch("/api/openai", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

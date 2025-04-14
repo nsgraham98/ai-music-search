@@ -9,7 +9,7 @@ import path from "path";
 const loadTags = async () => {
   const tagsFilePath = path.join(
     process.cwd(),
-    "app/api/openAI/data/search-tags.json"
+    "app/api/openai/data/search-tags.json"
   );
   const file = await readFile(tagsFilePath, "utf-8");
   const parsedFile = JSON.parse(file);
