@@ -15,7 +15,7 @@ import {
   BsRepeat,
   BsShuffle,
 } from "react-icons/bs";
-import { useAudioPlayerContext } from "../../../context/audio-player-context";
+import { useAudioPlayerContext } from "@/context/audio-player-context";
 
 export const Controls = () => {
   const {

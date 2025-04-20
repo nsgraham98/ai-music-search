@@ -1,6 +1,4 @@
-import { BsMusicNoteBeamed } from "react-icons/bs";
-import { useAudioPlayerContext } from "../../../context/audio-player-context";
-import { testTracks } from "../../../data/test-tracks/testTracks.js";
+import { useAudioPlayerContext } from "@/context/audio-player-context";
 
 export function handleSearchResults(searchResults) {}
 

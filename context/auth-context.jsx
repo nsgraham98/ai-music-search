@@ -15,7 +15,7 @@ import {
   GoogleAuthProvider,
   // FacebookAuthProvider,
 } from "firebase/auth";
-import { auth } from "../utils/firebase";
+import { auth } from "@/services/firebase";
 
 const AuthContext = createContext();
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAudioPlayerContext } from "../../context/audio-player-context"; // import this from the context
+import { useAudioPlayerContext } from "@/context/audio-player-context"; // import this from the context
 
 const SearchBar = () => {
   const [userQuery, setUserQuery] = useState("");
@@ -27,10 +27,9 @@ const SearchBar = () => {
     }
 
     const data = await response.json();
-    console.log("In search bar "); // Log the response for debugging
-    console.log("Data: ", data);
 
-    setTracks(data.jamendoResults); // set the tracks in the context
+    setTracks(data.jamendoResponse); // set the tracks in the context
+    const aiResponse = data.aiResponse; // get the AI response
 
     setIsLoading(false);
   }

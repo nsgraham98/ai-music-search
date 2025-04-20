@@ -1,4 +1,4 @@
-import { useAudioPlayerContext } from "../../../context/audio-player-context";
+import { useAudioPlayerContext } from "@/context/audio-player-context";
 
 export const ProgressBar = () => {
   const { progressBarRef, audioRef, timeProgress, setTimeProgress, duration } =
