@@ -60,6 +60,7 @@ export async function POST(request) {
 
     // newResponse.jamendoResults = result.results; // add the results to the response object
     console.log("OpenAI Final Response: ", newResponse);
+    console.log("Jamendo Results: ", result.results);
 
     return new Response(
       JSON.stringify({
