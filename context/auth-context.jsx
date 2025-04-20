@@ -12,6 +12,8 @@ import {
   signOut,
   onAuthStateChanged,
   GithubAuthProvider,
+  GoogleAuthProvider,
+  // FacebookAuthProvider,
 } from "firebase/auth";
 import { auth } from "../utils/firebase";
 
@@ -19,11 +21,20 @@ const AuthContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const gitHubSignIn = () => {
     const provider = new GithubAuthProvider();
     return signInWithPopup(auth, provider);
   };
+  const googleSignIn = () => {
+    const provider = new GoogleAuthProvider();
+    return signInWithPopup(auth, provider);
+  };
+  // const facebookSignIn = () => {
+  //   const provider = new FacebookAuthProvider();
+  //   return signInWithPopup(auth, provider);
+  // };
 
   const firebaseSignOut = () => {
     return signOut(auth);
@@ -32,12 +43,22 @@ export const AuthContextProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+      setLoading(false);
     });
     return () => unsubscribe();
   }, [user]);
 
   return (
-    <AuthContext.Provider value={{ user, gitHubSignIn, firebaseSignOut }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        gitHubSignIn,
+        googleSignIn,
+        // facebookSignIn,
+        firebaseSignOut,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
