@@ -56,8 +56,8 @@ const SearchBar = () => {
         onClick={handleSearch}
         variant="contained"
         sx={{
-          bgcolor: "#f50",
-          "&:hover": { bgcolor: "#d04000" },
+          bgcolor: "#E03FD8",
+          "&:hover": { bgcolor: "#c133b9" }, // slightly darker for hover
           color: "white",
           minWidth: 100,
           px: 3,

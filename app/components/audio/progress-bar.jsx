@@ -19,6 +19,7 @@ export const ProgressBar = () => {
       );
     }
   };
+
   const formatTime = (time) => {
     if (typeof time === "number" && !isNaN(time)) {
       const minutes = Math.floor(time / 60);
@@ -37,10 +38,9 @@ export const ProgressBar = () => {
       <input
         className="max-w-[80%] bg-gray-300"
         ref={progressBarRef}
-        value={timeProgress}
-        onChange={handleProgressChange}
         type="range"
-        max={duration}
+        defaultValue="0"
+        onChange={handleProgressChange}
       />
 
       <Typography variant="caption">{formatTime(duration)}</Typography>
