@@ -1,30 +1,79 @@
 "use client";
 
-import { Box, Grid, Container, Paper } from "@mui/material";
+import { Box, Paper, Divider } from "@mui/material";
 import { TrackInfo } from "./track-info";
 import { Controls } from "./controls";
 import { ProgressBar } from "./progress-bar";
 import { VolumeControl } from "./volume-control";
 import { PlayList } from "./playlist";
-import { Box } from "@mui/material";
-import ResultCard from "../result-card"; // adjust path if needed
 
-export const AudioPlayer = ({ results }) => {
+export const AudioPlayer = () => {
   return (
-    <div>
-      <div className="min-h-8 bg-[#2e2d2d] flex flex-col gap-9 lg:flex-row justify-between items-center text-white p-[0.5rem_10px]">
+    <Paper
+      elevation={4}
+      sx={{
+        bgcolor: "#2e2d2d",
+        color: "white",
+        width: "100%",
+        maxWidth: 900,
+        mx: "auto",
+        mb: 4,
+        p: { xs: 2, md: 4 },
+        borderRadius: 3,
+        display: "flex",
+        flexDirection: { xs: "column", md: "row" },
+        gap: { xs: 3, md: 5 },
+        alignItems: { md: "flex-start" },
+      }}
+    >
+      {/* Track Info */}
+      <Box
+        minWidth={220}
+        flexShrink={0}
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          pb: { xs: 2, md: 0 },
+        }}
+      >
         <TrackInfo />
-        <div className="w-full flex flex-col items-center gap-1 m-auto flex-1">
+      </Box>
+
+      <Divider
+        orientation="vertical"
+        flexItem
+        sx={{ display: { xs: "none", md: "block" }, bgcolor: "#444" }}
+      />
+
+      {/* Center: Playlist */}
+      <Box flex={1} minWidth={0} sx={{ mb: { xs: 2, md: 0 } }}>
+        <PlayList />
+      </Box>
+
+      <Divider
+        orientation="vertical"
+        flexItem
+        sx={{ display: { xs: "none", md: "block" }, bgcolor: "#444" }}
+      />
+
+      {/* Right: Controls, Progress, Volume */}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 2,
+          minWidth: 240,
+          width: { xs: "100%", md: 240 },
+        }}
+      >
+        <ProgressBar />
+        <Box display="flex" alignItems="center" gap={2} width="100%">
+          <VolumeControl />
           <Controls />
-          <ProgressBar />
-          <div className="flex items-center gap-2 text-gray-400">
-            <VolumeControl />
-          </div>
-          <div>
-            <PlayList />
-          </div>
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Box>
+    </Paper>
   );
 };
