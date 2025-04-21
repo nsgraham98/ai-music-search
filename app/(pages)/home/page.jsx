@@ -1,4 +1,3 @@
-// Our apps home page
 "use client";
 
 import { AudioPlayer } from "@/app/components/audio/audio-player.jsx";
@@ -20,7 +19,7 @@ export default function HomePage() {
           mb={4}
         >
           <Typography variant="h4" fontWeight="bold">
-            TUTTi.
+            TUTTi
           </Typography>
           <LogoutButton />
         </Box>

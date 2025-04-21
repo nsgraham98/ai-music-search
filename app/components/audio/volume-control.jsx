@@ -1,20 +1,28 @@
-import { ChangeEvent, useState, useEffect } from "react";
+"use client";
+
+import { useState, useEffect } from "react";
 import { IoMdVolumeHigh, IoMdVolumeOff, IoMdVolumeLow } from "react-icons/io";
-import { useAudioPlayerContext } from "../../../context/audio-player-context";
+import { useAudioPlayerContext } from "@/context/audio-player-context";
+import { Box, IconButton, Slider } from "@mui/material";
 
 export const VolumeControl = () => {
   const { audioRef } = useAudioPlayerContext();
-  const [volume, setVolume] = useState(60);
-  const [muteVolume, setMuteVolume] = useState(false);
-  const handleVolumeChange = (e) => {
-    setVolume(Number(e.target.value));
+
+  const [volume, setVolume] = useState(60); // initial volume %
+  const [muteVolume, setMuteVolume] = useState(false); // mute toggle
+
+  const handleVolumeChange = (e, newValue) => {
+    // update volume slider
+    setVolume(newValue);
   };
+
   useEffect(() => {
     if (audioRef.current) {
+      // apply volume & mute state to audio element
       audioRef.current.volume = volume / 100;
       audioRef.current.muted = muteVolume;
     }
-  }, [volume, audioRef, muteVolume]);
+  }, [volume, muteVolume, audioRef]);
 
   return (
     <Box display="flex" alignItems="center" gap={2}>
@@ -37,7 +45,7 @@ export const VolumeControl = () => {
         onChange={handleVolumeChange}
         sx={{
           width: 120,
-          color: "#E03FD8",
+          color: "#f50",
           "& .MuiSlider-thumb": { width: 12, height: 12 },
         }}
       />

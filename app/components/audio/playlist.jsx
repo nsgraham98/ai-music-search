@@ -1,7 +1,18 @@
-import { BsMusicNoteBeamed } from "react-icons/bs";
-import { useAudioPlayerContext } from "../../../context/audio-player-context";
-import { testTracks } from "../../../data/test-tracks/testTracks.js";
+"use client";
 
+import { useAudioPlayerContext } from "@/context/audio-player-context";
+import {
+  List,
+  ListItemButton,
+  ListItemAvatar,
+  Avatar,
+  ListItemText,
+  Typography,
+  Paper,
+} from "@mui/material";
+import { BsMusicNoteBeamed } from "react-icons/bs";
+
+// placeholder for future search result repurposing
 export function handleSearchResults(searchResults) {}
 
 // i think we can repurpose this component for the search results
@@ -16,45 +27,95 @@ export const PlayList = () => {
 
   // thumbnail might be broken - attribute does not exist in our test tracks
   return (
-    <ul className="bg-[#4c4848] text-white max-h-72  overflow-y-auto">
-      {tracks.map((track, index) => (
-        <li
-          key={index}
-          className={`flex items-center gap-3 p-[0.5rem_10px] cursor-pointer ${
-            currentTrack?.name === track.name ? "bg-[#a66646]" : ""
-          }`}
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleClick(track);
-            }
-          }}
-          onClick={() => handleClick(track)}
-        >
-          <div className="w-16 h-16 flex items-center justify-center bg-gray-200 rounded-sm overflow-hidden"></div>
-          <div>
-            <p className="font-bold text-sm">Song: {track.name}</p>
-            <p className="text-sm text-gray-400">Artist: {track.artist_name}</p>
-            <br />
-          </div>
-        </li>
-      ))}
-    </ul>
+    <Paper
+      elevation={3}
+      sx={{
+        bgcolor: "#4c4848",
+        color: "white",
+        maxHeight: "18rem",
+        overflowY: "auto",
+        borderRadius: 2,
+      }}
+    >
+      <List disablePadding>
+        {tracks.map((track, index) => {
+          const isActive = currentTrack?.name === track.name;
+
+          return (
+            <ListItemButton
+              key={index}
+              selected={isActive}
+              onClick={() => handleClick(track)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleClick(track);
+                }
+              }}
+              sx={{
+                px: 2,
+                py: 1,
+                bgcolor: isActive ? "#a66646" : "transparent",
+                "&:hover": {
+                  bgcolor: isActive ? "#a66646" : "#5a5555",
+                },
+              }}
+            >
+              {track.image ? (
+                <Avatar
+                  src={track.image}
+                  variant="rounded"
+                  sx={{ width: 64, height: 64 }}
+                />
+              ) : (
+                <Avatar
+                  variant="rounded"
+                  sx={{
+                    width: 64,
+                    height: 64,
+                    bgcolor: "grey.300",
+                    color: "grey.600",
+                    fontSize: 24,
+                  }}
+                >
+                  <BsMusicNoteBeamed />
+                </Avatar>
+              )}
+
+              <ListItemText
+                primary={
+                  <Typography
+                    variant="subtitle2"
+                    fontWeight="bold"
+                    sx={{
+                      color: "white",
+                      transition: "color 0.2s",
+                      "&:hover": {
+                        color: "#ff9966",
+                      },
+                    }}
+                  >
+                    Song: {track.name}
+                  </Typography>
+                }
+                secondary={
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: "gray",
+                      transition: "color 0.2s",
+                      "&:hover": {
+                        color: "#ccc",
+                      },
+                    }}
+                  >
+                    Artist: {track.artist_name}
+                  </Typography>
+                }
+              />
+            </ListItemButton>
+          );
+        })}
+      </List>
+    </Paper>
   );
 };
-
-{
-  /* {track.thumbnail ? (
-    <img
-      className="w-full h-full object-cover"
-      src={track.thumbnail}
-      alt="audio avatar"
-    />
-  ) : (
-    <div className="flex items-center justify-center w-full h-full bg-gray-300 rounded-md">
-      <span className="text-xl text-gray-600">
-        <BsMusicNoteBeamed />
-      </span>
-    </div>
-  )} */
-}

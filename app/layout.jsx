@@ -12,7 +12,8 @@ import "/styles/customize-progress-bar.css";
 // import { AuthContextProvider } from "../context/auth-context";
 // import { UserProvider } from "../context/user-context";
 // import { AuthenticatedLayout } from "./authenticated-layout";
-import { AudioPlayerProvider } from "../context/audio-player-context.jsx";
+import { AudioPlayerProvider } from "@/context/audio-player-context.jsx";
+import { AuthContextProvider } from "@/context/auth-context.jsx";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,7 +41,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <AudioPlayerProvider>{children}</AudioPlayerProvider>
+        <AudioPlayerProvider>
+          <AuthContextProvider>{children}</AuthContextProvider>
+        </AudioPlayerProvider>
       </body>
     </html>
   );

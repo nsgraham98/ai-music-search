@@ -1,9 +1,18 @@
-import { useAudioPlayerContext } from "../../../context/audio-player-context";
+"use client";
+
+import { Box, Typography, Slider } from "@mui/material";
+import { useAudioPlayerContext } from "@/context/audio-player-context";
 
 export const ProgressBar = () => {
-  const { progressBarRef, audioRef, timeProgress, setTimeProgress, duration } =
+  const { audioRef, progressBarRef, timeProgress, setTimeProgress, duration } =
     useAudioPlayerContext();
 
+  const handleSliderChange = (_, newValue) => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = newValue;
+      setTimeProgress(newValue);
+    }
+  };
   const handleProgressChange = () => {
     if (audioRef.current && progressBarRef.current) {
       const newTime = Number(progressBarRef.current.value);
@@ -16,22 +25,21 @@ export const ProgressBar = () => {
       );
     }
   };
-
   const formatTime = (time) => {
     if (typeof time === "number" && !isNaN(time)) {
       const minutes = Math.floor(time / 60);
       const seconds = Math.floor(time % 60);
-      // Convert to string and pad with leading zeros if necessary
-      const formatMinutes = minutes.toString().padStart(2, "0");
-      const formatSeconds = seconds.toString().padStart(2, "0");
-      return `${formatMinutes}:${formatSeconds}`;
+      return `${minutes.toString().padStart(2, "0")}:${seconds
+        .toString()
+        .padStart(2, "0")}`;
     }
     return "00:00";
   };
 
   return (
-    <div className="flex items-center justify-center gap-5 w-full">
-      <span>{formatTime(timeProgress)}</span>
+    <Box display="flex" alignItems="center" gap={2} width="100%">
+      <Typography variant="caption">{formatTime(timeProgress)}</Typography>
+
       <input
         className="max-w-[80%] bg-gray-300"
         ref={progressBarRef}
@@ -39,7 +47,8 @@ export const ProgressBar = () => {
         defaultValue="0"
         onChange={handleProgressChange}
       />
-      <span>{formatTime(duration)}</span>
-    </div>
+
+      <Typography variant="caption">{formatTime(duration)}</Typography>
+    </Box>
   );
 };

@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useRef } from "react";
-import { testTracks } from "../data/test-tracks/testTracks.js";
+import { testTracks } from "@/data/test-tracks/testTracks.js";
 
 const AudioPlayerContext = createContext(undefined);
 

@@ -1,29 +1,38 @@
 // calls the Jamendo API to get the search results
 export async function searchJamendo(searchObj) {
-  const url = createSearchString(searchObj);
+  // const url = createSearchString(searchObj);
+  const searchParams = createSearchString(searchObj);
 
-  // Fetch the data from the Jamendo API at app/api/jamendo/route.js
-  const response = await fetch(url, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  const data = await response.json();
+  const data = await getSongsJamendo(searchParams); // call the Jamendo API
+  return data; // I think openAI requires the data to be returned, can maybe instead just return a string "success" or "error" or something
+}
 
-  // do something with the data - this will be the response from the Jamendo API
-  // maybe process the data here or just return it - end goal is display it to Result Cards
+export async function getSongsJamendo(searchParams) {
+  const searchParamsString = searchParams.toString(); // Convert the URL object to a string
+
+  const response = await fetch(
+    `https://api.jamendo.com/v3.0/tracks/?${searchParamsString}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
   if (!response.ok) {
     console.error("API Error:", response.statusText);
+    return;
   }
-  return data; // I think openAI requires the data to be returned, can maybe instead just return a string "success" or "error" or something
+  const data = await response.json(); // Parse the response as JSON
+  return data;
 }
 
 // creates a url to use to call the Jamendo API at app/api/jamendo/route.js
 // with the search parameters included in the url
 function createSearchString(searchObj) {
   const staticSearchParams = {
-    client_id: process.env.JAMENDO_CLIENT_ID,
+    client_id: process.env.NEXT_PUBLIC_JAMENDO_CLIENT_ID,
     format: "json",
     limit: 3,
     type: "single albumtrack",
@@ -52,8 +61,6 @@ function createSearchString(searchObj) {
     ...flattenedDynamicSearchParams,
   };
 
-  const urlSearchParams = new URLSearchParams(searchParams).toString();
-  const url = new URL(`http://localhost:3000/api/jamendo?${urlSearchParams}`); // will need to be changed to production URL
-
-  return url.toString();
+  const urlSearchParams = new URLSearchParams(searchParams);
+  return urlSearchParams;
 }

@@ -1,13 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAudioPlayerContext } from "../../context/audio-player-context"; // import this from the context
+import { useAudioPlayerContext } from "@/context/audio-player-context"; // import this from the context
+import { TextField, Button, Box, CircularProgress } from "@mui/material";
 
 const SearchBar = () => {
   const [userQuery, setUserQuery] = useState("");
   const [isLoading, setIsLoading] = React.useState(false);
   const { setTracks } = useAudioPlayerContext(); // import this from the context
 
+  // sends a POST request with the user's query to the OpenAI API route
   async function handleSearch() {
     if (!userQuery) return;
     setIsLoading(true);
@@ -27,25 +29,30 @@ const SearchBar = () => {
     }
 
     const data = await response.json();
-    console.log("In search bar "); // Log the response for debugging
-    console.log("Data: ", data);
 
-    setTracks(data.jamendoResults); // set the tracks in the context
+    setTracks(data.jamendoResponse); // set the tracks in the context
+    const aiResponse = data.aiResponse; // get the AI response
 
     setIsLoading(false);
   }
 
   return (
-    <div className="p-4 flex gap-2">
-      <input
-        type="text"
-        className="border p-2 rounded w-full"
+    <Box display="flex" gap={2} alignItems="center" px={2}>
+      <TextField
+        fullWidth
+        variant="outlined"
         placeholder="Search by title, genre, mood..."
         value={userQuery}
         onChange={(e) => setUserQuery(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+        sx={{
+          input: { color: "white" },
+          fieldset: { borderColor: "#444" },
+          bgcolor: "#2e2d2d",
+        }}
       />
-      <button
+
+      <Button
         onClick={handleSearch}
         variant="contained"
         sx={{
@@ -57,11 +64,11 @@ const SearchBar = () => {
           py: 1.5,
         }}
         disabled={isLoading}
-        className="bg-blue-500 text-white p-2 rounded"
       >
-        {!isLoading ? <p>Search</p> : <p>Loading...</p>}
-      </button>
-    </div>
+        {/* Conditionally show "Search" or a loading spinner */}
+        {!isLoading ? "Search" : <CircularProgress size={20} color="inherit" />}
+      </Button>
+    </Box>
   );
 };
 
