@@ -37,7 +37,18 @@ const SearchBar = () => {
   }
 
   return (
-    <Box display="flex" gap={2} alignItems="center" px={2}>
+    <Box
+      display="flex"
+      gap={3}
+      alignItems="center"
+      justifyContent="flex-start" // for horizontal spacing
+      px={0}
+      sx={{
+        width: "100%", // full width of parent
+        maxWidth: "1200px", // optional: control how wide you want it
+        mx: "auto", // center the box horizontally
+      }}
+    >
       <TextField
         fullWidth
         variant="outlined"
@@ -60,8 +71,9 @@ const SearchBar = () => {
           "&:hover": { bgcolor: "#c133b9" }, // slightly darker for hover
           color: "white",
           minWidth: 100,
-          px: 3,
+          maxWidth: 200,
           py: 1.5,
+          ml: "auto",
         }}
         disabled={isLoading}
       >

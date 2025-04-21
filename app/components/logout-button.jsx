@@ -25,8 +25,8 @@ export function LogoutButton() {
         color: "white",
         borderColor: "#888",
         "&:hover": {
-          borderColor: "#f50",
-          color: "#f50",
+          borderColor: "#E03FD8",
+          color: "#E03FD8",
         },
       }}
     >
