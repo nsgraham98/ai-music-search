@@ -47,6 +47,15 @@ const SearchBar = () => {
       />
       <button
         onClick={handleSearch}
+        variant="contained"
+        sx={{
+          bgcolor: "#E03FD8",
+          "&:hover": { bgcolor: "#c133b9" }, // slightly darker for hover
+          color: "white",
+          minWidth: 100,
+          px: 3,
+          py: 1.5,
+        }}
         disabled={isLoading}
         className="bg-blue-500 text-white p-2 rounded"
       >
