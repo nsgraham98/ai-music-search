@@ -1,16 +1,4 @@
 "use client";
-<<<<<<< Updated upstream:app/components/audio/audioPlayer.js
-import { useState } from "react";
-import { TrackInfo } from "./trackInfo.js";
-import { Controls } from "./controls.js";
-import { ProgressBar } from "./progressBar.js";
-
-export const AudioPlayer = () => {
-  // const handleOnClick = () => {
-  //     // do something
-  // };
-
-=======
 
 import { Box, Grid, Container, Paper } from "@mui/material";
 import { TrackInfo } from "./track-info";
@@ -21,7 +9,6 @@ import { PlayList } from "./playlist";
 import ResultCard from "../result-card"; // adjust path if needed
 
 export const AudioPlayer = ({ results }) => {
->>>>>>> Stashed changes:app/components/audio/audio-player.jsx
   return (
     <Container maxWidth="xl" sx={{ mt: 4 }}>
       {/* Result Cards Grid */}
@@ -65,11 +52,6 @@ export const AudioPlayer = ({ results }) => {
         >
           <Controls />
           <ProgressBar />
-<<<<<<< Updated upstream:app/components/audio/audioPlayer.js
-        </div>
-      </div>
-    </div>
-=======
           <Box display="flex" alignItems="center" gap={2} color="gray">
             <VolumeControl />
           </Box>
@@ -79,6 +61,5 @@ export const AudioPlayer = ({ results }) => {
         </Box>
       </Paper>
     </Container>
->>>>>>> Stashed changes:app/components/audio/audio-player.jsx
   );
 };

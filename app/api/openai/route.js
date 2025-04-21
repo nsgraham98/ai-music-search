@@ -10,6 +10,10 @@ export async function POST(request) {
     const userPrompt = await request.json();
     const result = await runOpenAISearch(userPrompt.userQuery);
 
+    // console.log("AI Response:", result.aiResponse);
+    // console.log("AI Tags:", result.aiResponse.tools.parameters);
+    console.log("Jamendo Response:", result.jamendoResponse);
+
     return new Response(
       JSON.stringify({
         aiResponse: result.aiResponse,

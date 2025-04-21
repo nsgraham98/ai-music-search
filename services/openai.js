@@ -43,6 +43,8 @@ export async function runOpenAISearch(userQuery) {
     const args = JSON.parse(toolCall.arguments);
     const result = await searchJamendo(args);
 
+    console.log("Args:", args);
+
     // append model's function call message
     input.push(toolCall);
     input.push({

@@ -34,9 +34,10 @@ function createSearchString(searchObj) {
   const staticSearchParams = {
     client_id: process.env.NEXT_PUBLIC_JAMENDO_CLIENT_ID,
     format: "json",
-    limit: 3,
+    limit: 10,
     type: "single albumtrack",
     audioformat: "mp32",
+    audiodownload_allowed: true,
   };
 
   const flattenedFuzzyTags = Object.values(searchObj.fuzzytags)
