@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 
-export default ResultCard = () => {
+const ResultCard = () => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const toggleExpand = () => {
@@ -29,3 +29,5 @@ export default ResultCard = () => {
     </div>
   );
 };
+
+export default ResultCard;
