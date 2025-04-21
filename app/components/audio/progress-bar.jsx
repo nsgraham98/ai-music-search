@@ -41,14 +41,6 @@ export const ProgressBar = () => {
         onChange={handleProgressChange}
         type="range"
         max={duration}
-        sx={{
-          flexGrow: 1,
-          color: "primary.main",
-          "& .MuiSlider-thumb": {
-            width: 12,
-            height: 12,
-          },
-        }}
       />
 
       <Typography variant="caption">{formatTime(duration)}</Typography>
