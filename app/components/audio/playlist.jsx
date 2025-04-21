@@ -60,26 +60,29 @@ export const PlayList = () => {
                 },
               }}
             >
-              {track.image ? (
-                <Avatar
-                  src={track.image}
-                  variant="rounded"
-                  sx={{ width: 64, height: 64 }}
-                />
-              ) : (
-                <Avatar
-                  variant="rounded"
-                  sx={{
-                    width: 64,
-                    height: 64,
-                    bgcolor: "grey.300",
-                    color: "grey.600",
-                    fontSize: 24,
-                  }}
-                >
-                  <BsMusicNoteBeamed />
-                </Avatar>
-              )}
+              <ListItemAvatar>
+                {/* if thumbnail exists, use it — otherwise show fallback */}
+                {track.image ? (
+                  <Avatar
+                    src={track.image}
+                    variant="rounded"
+                    sx={{ width: 64, height: 64 }}
+                  />
+                ) : (
+                  <Avatar
+                    variant="rounded"
+                    sx={{
+                      width: 64,
+                      height: 64,
+                      bgcolor: "grey.300",
+                      color: "grey.600",
+                      fontSize: 24,
+                    }}
+                  >
+                    <BsMusicNoteBeamed />
+                  </Avatar>
+                )}
+              </ListItemAvatar>
 
               <ListItemText
                 primary={
@@ -101,7 +104,7 @@ export const PlayList = () => {
                   <Typography
                     variant="caption"
                     sx={{
-                      color: "gray",
+                      color: "white",
                       transition: "color 0.2s",
                       "&:hover": {
                         color: "#ccc",

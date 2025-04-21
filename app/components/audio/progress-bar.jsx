@@ -7,12 +7,6 @@ export const ProgressBar = () => {
   const { audioRef, progressBarRef, timeProgress, setTimeProgress, duration } =
     useAudioPlayerContext();
 
-  const handleSliderChange = (_, newValue) => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = newValue;
-      setTimeProgress(newValue);
-    }
-  };
   const handleProgressChange = () => {
     if (audioRef.current && progressBarRef.current) {
       const newTime = Number(progressBarRef.current.value);
@@ -43,9 +37,18 @@ export const ProgressBar = () => {
       <input
         className="max-w-[80%] bg-gray-300"
         ref={progressBarRef}
-        type="range"
-        defaultValue="0"
+        value={timeProgress}
         onChange={handleProgressChange}
+        type="range"
+        max={duration}
+        sx={{
+          flexGrow: 1,
+          color: "primary.main",
+          "& .MuiSlider-thumb": {
+            width: 12,
+            height: 12,
+          },
+        }}
       />
 
       <Typography variant="caption">{formatTime(duration)}</Typography>
