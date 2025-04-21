@@ -16,5 +16,9 @@ export default function Home() {
     }
   }, [user, loading, router]);
 
-  return <p>Loading...</p>;
+  return (
+    <div>
+      <p>Loading...</p>
+    </div>
+  );
 }

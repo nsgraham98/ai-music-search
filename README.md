@@ -100,7 +100,3 @@ This web application allows users to search for royalty-free sounds using descri
 - **Dark Mode Toggle**: Switch between light and dark themes
 
 ## Use Case Diagram
-
-_(Optional - insert diagram here if available)_
-
----

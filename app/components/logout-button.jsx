@@ -1,9 +1,13 @@
+"use client";
+
+import { Button } from "@mui/material";
 import { useUserAuth } from "/context/auth-context";
 
 export function LogoutButton() {
   // Use the useUserAuth hook to get the user object and the login and logout functions
   const { firebaseSignOut } = useUserAuth();
-  // Sign in to Firebase with GitHub authentication
+
+  // Sign out of Firebase
   const handleSignOut = async () => {
     try {
       await firebaseSignOut();
@@ -13,13 +17,20 @@ export function LogoutButton() {
   };
 
   return (
-    <div>
-      <button
-        onClick={handleSignOut}
-        className="bg-blue-500 text-white px-4 py-2 rounded"
-      >
-        Logout
-      </button>
-    </div>
+    <Button
+      onClick={handleSignOut}
+      variant="outlined"
+      color="secondary"
+      sx={{
+        color: "white",
+        borderColor: "#888",
+        "&:hover": {
+          borderColor: "#f50",
+          color: "#f50",
+        },
+      }}
+    >
+      Logout
+    </Button>
   );
 }
