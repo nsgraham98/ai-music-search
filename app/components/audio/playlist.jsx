@@ -16,7 +16,6 @@ import { DownloadButton } from "./download-button";
 // placeholder for future search result repurposing
 export function handleSearchResults(searchResults) {}
 
-// i think we can repurpose this component for the search results
 export const PlayList = () => {
   const { currentTrack, setCurrentTrack, setIsPlaying, tracks } =
     useAudioPlayerContext();
@@ -26,7 +25,6 @@ export const PlayList = () => {
     setIsPlaying(true);
   };
 
-  // thumbnail might be broken - attribute does not exist in our test tracks
   return (
     <Paper
       elevation={3}
@@ -36,15 +34,13 @@ export const PlayList = () => {
         maxHeight: "18rem",
         overflowY: "auto",
         borderRadius: 2,
+        width: "100%", // add this
+        maxWidth: 900, // adjust this width to make it wider
+        mx: "auto", // optional: centers it horizontally
       }}
     >
       <List disablePadding>
         {tracks.map((track, index) => {
-          console.log({
-            name: track.name,
-            downloadUrl: track.audiodownload,
-            downloadAllowed: track.download_allowed,
-          });
           const isActive = currentTrack?.name === track.name;
 
           return (
@@ -52,30 +48,23 @@ export const PlayList = () => {
               key={index}
               selected={isActive}
               onClick={() => handleClick(track)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleClick(track);
-                }
-              }}
+              onKeyDown={(e) => e.key === "Enter" && handleClick(track)}
               sx={{
-                px: 2,
-                py: 1,
                 bgcolor: isActive ? "#a66646" : "transparent",
                 "&:hover": {
                   bgcolor: isActive ? "#a66646" : "#5a5555",
                 },
+                px: 2,
+                py: 1,
               }}
             >
-              {/* Wrap left and right side in a flex box */}
               <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  width: "100%",
-                }}
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+                width="100%"
               >
-                {/* Left: Avatar + Song Info */}
+                {/* Left Side: Avatar + Text */}
                 <Box display="flex" alignItems="center" gap={2}>
                   <ListItemAvatar>
                     {track.image ? (
@@ -104,6 +93,7 @@ export const PlayList = () => {
                     <Typography
                       variant="subtitle2"
                       fontWeight="bold"
+                      noWrap
                       sx={{
                         color: "white",
                         transition: "color 0.2s",
@@ -114,13 +104,15 @@ export const PlayList = () => {
                     >
                       Song: {track.name}
                     </Typography>
+
                     <Typography
                       variant="caption"
+                      noWrap
                       sx={{
-                        color: "gray",
+                        color: "white",
                         transition: "color 0.2s",
                         "&:hover": {
-                          color: "#ccc",
+                          color: "#E03FD8",
                         },
                       }}
                     >
@@ -129,10 +121,10 @@ export const PlayList = () => {
                   </Box>
                 </Box>
 
-                {/* Right: Download Button */}
+                {/* Right Side: Download Button */}
                 <DownloadButton
                   downloadUrl={track.audiodownload}
-                  downloadAllowed={track.audiodownload_allowed} // ✅ FIXED
+                  downloadAllowed={track.audiodownload_allowed}
                   filename={`${track.name}.mp3`}
                 />
               </Box>

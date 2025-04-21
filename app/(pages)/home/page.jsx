@@ -23,8 +23,18 @@ export default function HomePage() {
         </Box>
 
         {/* Search Bar */}
-        <Box mb={4}>
-          <SearchBar />
+        <Box
+          sx={{
+            width: "100%",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 4,
+          }}
+        >
+          <Box sx={{ width: "100%", maxWidth: 1000 }}>
+            <SearchBar />
+          </Box>
         </Box>
 
         {/* Audio Player */}

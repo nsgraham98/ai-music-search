@@ -9,62 +9,87 @@ import { PlayList } from "./playlist";
 
 export const AudioPlayer = () => {
   return (
-    <Paper
-      elevation={4}
+    <Box
       sx={{
-        bgcolor: "#2e2d2d",
-        color: "white",
-        width: "100%",
-        maxWidth: "100%",
-        mx: "auto",
-        mb: 4,
-        p: { xs: 2, md: 4 },
-        borderRadius: 3,
         display: "flex",
         flexDirection: "column",
-        gap: 3,
+        minHeight: "100vh",
+        bgcolor: "#1e1e1e",
+        color: "white",
+        justifyContent: "space-between",
       }}
     >
-      {/* Row 1: Track Info */}
+      {/* Main Audio Player Section */}
       <Box
+        component={Paper}
+        elevation={4}
         sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: 160, // increase this from 128 to make the section taller
-          px: 2,
-        }}
-      >
-        <TrackInfo />
-      </Box>
-
-      <Divider sx={{ bgcolor: "#444" }} />
-
-      {/* Row 2: Playlist */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
+          bgcolor: "#2e2d2d",
+          color: "white",
           width: "100%",
+          maxWidth: "100%",
+          mx: "auto",
+          p: { xs: 2, md: 4 },
+          borderRadius: 0,
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "column",
+          gap: 3,
         }}
       >
-        <PlayList />
+        {/* Track Info and Playlist Column */}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 2,
+            maxwidth: "100%",
+            px: 2,
+          }}
+        >
+          {/* Track Info - Left Aligned, Fixed Width */}
+          <Box
+            sx={{
+              width: "100%",
+              maxWidth: "100%",
+            }}
+          >
+            <TrackInfo />
+          </Box>
+
+          {/* Playlist - Slightly Wider */}
+          <Box
+            sx={{
+              width: "100%",
+              px: 2, // optional: keep padding left/right
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            <Box
+              sx={{
+                width: "100%",
+                maxWidth: "100%",
+              }}
+            >
+              <PlayList />
+            </Box>
+          </Box>
+        </Box>
       </Box>
 
-      <Divider sx={{ bgcolor: "#444" }} />
-
-      {/* Row 3: Progress Bar */}
+      {/* Sticky Footer with Progress Bar and Controls */}
       <Box
         sx={{
           position: "sticky",
           bottom: 0,
           bgcolor: "#2e2d2d",
-          zIndex: 10,
-          px: 2,
-          py: 2,
           borderTop: "1px solid #444",
+          zIndex: 100,
           width: "100%",
+          px: 2,
+          py: 1.5,
         }}
       >
         {/* Progress Bar */}
@@ -72,7 +97,7 @@ export const AudioPlayer = () => {
           <ProgressBar />
         </Box>
 
-        {/* Controls + Volume on same row */}
+        {/* Audio Controls + Volume */}
         <Box display="flex" alignItems="center" width="100%">
           <Box sx={{ flex: 1 }} />
           <Box sx={{ flex: 1, display: "flex", justifyContent: "center" }}>
@@ -83,6 +108,6 @@ export const AudioPlayer = () => {
           </Box>
         </Box>
       </Box>
-    </Paper>
+    </Box>
   );
 };
