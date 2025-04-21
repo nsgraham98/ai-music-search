@@ -29,11 +29,11 @@ export const VolumeControl = () => {
       {/* toggle mute/unmute button */}
       <IconButton onClick={() => setMuteVolume((prev) => !prev)}>
         {muteVolume || volume < 5 ? (
-          <IoMdVolumeOff size={25} />
+          <IoMdVolumeOff size={25} color="white" />
         ) : volume < 40 ? (
-          <IoMdVolumeLow size={25} />
+          <IoMdVolumeLow size={25} color="white" />
         ) : (
-          <IoMdVolumeHigh size={25} />
+          <IoMdVolumeHigh size={25} color="white" />
         )}
       </IconButton>
 

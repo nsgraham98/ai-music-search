@@ -88,7 +88,7 @@ export const TrackInfo = () => {
         >
           Song: {currentTrack.name}
         </Typography>
-        <Typography variant="body2" color="text.primary">
+        <Typography variant="body2" color="white">
           Artist: {currentTrack.artist_name}
         </Typography>
       </Box>

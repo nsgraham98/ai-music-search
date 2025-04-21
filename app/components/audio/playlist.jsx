@@ -108,7 +108,7 @@ export const PlayList = () => {
                         color: "white",
                         transition: "color 0.2s",
                         "&:hover": {
-                          color: "#ff9966",
+                          color: "#E03FD8",
                         },
                       }}
                     >
