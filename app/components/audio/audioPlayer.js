@@ -1,4 +1,5 @@
 "use client";
+<<<<<<< Updated upstream:app/components/audio/audioPlayer.js
 import { useState } from "react";
 import { TrackInfo } from "./trackInfo.js";
 import { Controls } from "./controls.js";
@@ -9,15 +10,75 @@ export const AudioPlayer = () => {
   //     // do something
   // };
 
+=======
+
+import { Box, Grid, Container, Paper } from "@mui/material";
+import { TrackInfo } from "./track-info";
+import { Controls } from "./controls";
+import { ProgressBar } from "./progress-bar";
+import { VolumeControl } from "./volume-control";
+import { PlayList } from "./playlist";
+import ResultCard from "../result-card"; // adjust path if needed
+
+export const AudioPlayer = ({ results }) => {
+>>>>>>> Stashed changes:app/components/audio/audio-player.jsx
   return (
-    <div>
-      <div className="min-h-8 bg-[#2e2d2d] flex flex-col gap-9 lg:flex-row justify-between items-center text-white p-[0.5rem_10px]">
+    <Container maxWidth="xl" sx={{ mt: 4 }}>
+      {/* Result Cards Grid */}
+      <Grid container spacing={4}>
+        {results?.map((track, i) => (
+          <Grid item key={i} xs={12} sm={6} md={4}>
+            <ResultCard
+              title={track.name}
+              artist={track.artist_name}
+              albumImage={track.image}
+              audioUrl={track.audio}
+              description={track.album_name}
+            />
+          </Grid>
+        ))}
+      </Grid>
+
+      {/* Audio Player Controls Section */}
+      <Paper
+        elevation={3}
+        sx={{
+          bgcolor: "#2e2d2d",
+          color: "white",
+          mt: 4,
+          p: "0.5rem 10px",
+          display: "flex",
+          flexDirection: { xs: "column", lg: "row" },
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 3,
+        }}
+      >
         <TrackInfo />
-        <div className="w-full flex flex-col items-center gap-1 m-auto flex-1">
+
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          flex={1}
+          gap={1}
+        >
           <Controls />
           <ProgressBar />
+<<<<<<< Updated upstream:app/components/audio/audioPlayer.js
         </div>
       </div>
     </div>
+=======
+          <Box display="flex" alignItems="center" gap={2} color="gray">
+            <VolumeControl />
+          </Box>
+          <Box>
+            <PlayList />
+          </Box>
+        </Box>
+      </Paper>
+    </Container>
+>>>>>>> Stashed changes:app/components/audio/audio-player.jsx
   );
 };
