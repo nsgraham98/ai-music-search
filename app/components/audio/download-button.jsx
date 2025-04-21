@@ -8,7 +8,15 @@ export const DownloadButton = ({
   filename = "track.mp3",
   downloadAllowed = false,
 }) => {
-  if (!downloadUrl || !downloadAllowed) return null; // Don't render if not allowed or no URL
+  const isDownloadLinkValid = !!downloadUrl && downloadUrl.startsWith("http");
+  const isDownloadPermitted = downloadAllowed === true;
+  if (!downloadUrl || !downloadAllowed) {
+    console.warn("Download button not shown:", {
+      downloadUrl,
+      downloadAllowed,
+    });
+    return null; // Don't render if not allowed or no URL
+  }
 
   return (
     <Button

@@ -15,63 +15,72 @@ export const AudioPlayer = () => {
         bgcolor: "#2e2d2d",
         color: "white",
         width: "100%",
-        maxWidth: 900,
+        maxWidth: "100%",
         mx: "auto",
         mb: 4,
         p: { xs: 2, md: 4 },
         borderRadius: 3,
         display: "flex",
-        flexDirection: { xs: "column", md: "row" },
-        gap: { xs: 3, md: 5 },
-        alignItems: { md: "flex-start" },
+        flexDirection: "column",
+        gap: 3,
       }}
     >
-      {/* Track Info */}
+      {/* Row 1: Track Info */}
       <Box
-        minWidth={220}
-        flexShrink={0}
         sx={{
           display: "flex",
-          alignItems: "center",
           justifyContent: "center",
-          pb: { xs: 2, md: 0 },
+          alignItems: "center",
+          minHeight: 160, // increase this from 128 to make the section taller
+          px: 2,
         }}
       >
         <TrackInfo />
       </Box>
 
-      <Divider
-        orientation="vertical"
-        flexItem
-        sx={{ display: { xs: "none", md: "block" }, bgcolor: "#444" }}
-      />
+      <Divider sx={{ bgcolor: "#444" }} />
 
-      {/* Center: Playlist */}
-      <Box flex={1} minWidth={0} sx={{ mb: { xs: 2, md: 0 } }}>
-        <PlayList />
-      </Box>
-
-      <Divider
-        orientation="vertical"
-        flexItem
-        sx={{ display: { xs: "none", md: "block" }, bgcolor: "#444" }}
-      />
-
-      {/* Right: Controls, Progress, Volume */}
+      {/* Row 2: Playlist */}
       <Box
         sx={{
           display: "flex",
-          flexDirection: "column",
+          justifyContent: "center",
           alignItems: "center",
-          gap: 2,
-          minWidth: 240,
-          width: { xs: "100%", md: 240 },
+          width: "100%",
         }}
       >
-        <ProgressBar />
-        <Box display="flex" alignItems="center" gap={2} width="100%">
-          <VolumeControl />
-          <Controls />
+        <PlayList />
+      </Box>
+
+      <Divider sx={{ bgcolor: "#444" }} />
+
+      {/* Row 3: Progress Bar */}
+      <Box
+        sx={{
+          position: "sticky",
+          bottom: 0,
+          bgcolor: "#2e2d2d",
+          zIndex: 10,
+          px: 2,
+          py: 2,
+          borderTop: "1px solid #444",
+          width: "100%",
+        }}
+      >
+        {/* Progress Bar */}
+        <Box mb={1}>
+          <ProgressBar />
+        </Box>
+
+        {/* Controls + Volume on same row */}
+        <Box display="flex" alignItems="center" width="100%">
+          <Box sx={{ flex: 1 }} />
+          <Box sx={{ flex: 1, display: "flex", justifyContent: "center" }}>
+            <Controls />
+          </Box>
+          <Box sx={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
+            <VolumeControl />
+          </Box>
         </Box>
       </Box>
     </Paper>

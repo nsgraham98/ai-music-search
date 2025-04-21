@@ -2,15 +2,13 @@
 
 import { AudioPlayer } from "@/app/components/audio/audio-player.jsx";
 import SearchBar from "@/app/components/search-bar.jsx";
-import { useRouter } from "next/navigation";
 import { LogoutButton } from "@/app/components/logout-button";
-
-import { Box, Typography, Container, Paper } from "@mui/material";
+import { Box, Typography, Container } from "@mui/material";
 
 export default function HomePage() {
   return (
     <Box minHeight="100vh" bgcolor="#1e1e1e" color="white" py={4}>
-      <Container maxWidth="md">
+      <Container maxWidth="lg">
         {/* Header and Logout */}
         <Box
           display="flex"
@@ -19,7 +17,7 @@ export default function HomePage() {
           mb={4}
         >
           <Typography variant="h4" fontWeight="bold">
-            TUTTi
+            TUTTi.
           </Typography>
           <LogoutButton />
         </Box>

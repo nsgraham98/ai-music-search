@@ -45,7 +45,7 @@ export const VolumeControl = () => {
         onChange={handleVolumeChange}
         sx={{
           width: 120,
-          color: "#f50",
+          color: "#E03FD8",
           "& .MuiSlider-thumb": { width: 12, height: 12 },
         }}
       />

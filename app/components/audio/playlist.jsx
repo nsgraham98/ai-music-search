@@ -6,11 +6,12 @@ import {
   ListItemButton,
   ListItemAvatar,
   Avatar,
-  ListItemText,
   Typography,
   Paper,
+  Box,
 } from "@mui/material";
 import { BsMusicNoteBeamed } from "react-icons/bs";
+import { DownloadButton } from "./download-button";
 
 // placeholder for future search result repurposing
 export function handleSearchResults(searchResults) {}
@@ -39,6 +40,11 @@ export const PlayList = () => {
     >
       <List disablePadding>
         {tracks.map((track, index) => {
+          console.log({
+            name: track.name,
+            downloadUrl: track.audiodownload,
+            downloadAllowed: track.download_allowed,
+          });
           const isActive = currentTrack?.name === track.name;
 
           return (
@@ -60,58 +66,76 @@ export const PlayList = () => {
                 },
               }}
             >
-              {track.image ? (
-                <Avatar
-                  src={track.image}
-                  variant="rounded"
-                  sx={{ width: 64, height: 64 }}
-                />
-              ) : (
-                <Avatar
-                  variant="rounded"
-                  sx={{
-                    width: 64,
-                    height: 64,
-                    bgcolor: "grey.300",
-                    color: "grey.600",
-                    fontSize: 24,
-                  }}
-                >
-                  <BsMusicNoteBeamed />
-                </Avatar>
-              )}
+              {/* Wrap left and right side in a flex box */}
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  width: "100%",
+                }}
+              >
+                {/* Left: Avatar + Song Info */}
+                <Box display="flex" alignItems="center" gap={2}>
+                  <ListItemAvatar>
+                    {track.image ? (
+                      <Avatar
+                        src={track.image}
+                        variant="rounded"
+                        sx={{ width: 64, height: 64 }}
+                      />
+                    ) : (
+                      <Avatar
+                        variant="rounded"
+                        sx={{
+                          width: 64,
+                          height: 64,
+                          bgcolor: "grey.300",
+                          color: "grey.600",
+                          fontSize: 24,
+                        }}
+                      >
+                        <BsMusicNoteBeamed />
+                      </Avatar>
+                    )}
+                  </ListItemAvatar>
 
-              <ListItemText
-                primary={
-                  <Typography
-                    variant="subtitle2"
-                    fontWeight="bold"
-                    sx={{
-                      color: "white",
-                      transition: "color 0.2s",
-                      "&:hover": {
-                        color: "#ff9966",
-                      },
-                    }}
-                  >
-                    Song: {track.name}
-                  </Typography>
-                }
-                secondary={
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      color: "gray",
-                      transition: "color 0.2s",
-                      "&:hover": {
-                        color: "#ccc",
-                      },
-                    }}
-                  >
-                    Artist: {track.artist_name}
-                  </Typography>
-                }
-              />
+                  <Box>
+                    <Typography
+                      variant="subtitle2"
+                      fontWeight="bold"
+                      sx={{
+                        color: "white",
+                        transition: "color 0.2s",
+                        "&:hover": {
+                          color: "#ff9966",
+                        },
+                      }}
+                    >
+                      Song: {track.name}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "gray",
+                        transition: "color 0.2s",
+                        "&:hover": {
+                          color: "#ccc",
+                        },
+                      }}
+                    >
+                      Artist: {track.artist_name}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                {/* Right: Download Button */}
+                <DownloadButton
+                  downloadUrl={track.audiodownload}
+                  downloadAllowed={track.audiodownload_allowed} // ✅ FIXED
+                  filename={`${track.name}.mp3`}
+                />
+              </Box>
             </ListItemButton>
           );
         })}

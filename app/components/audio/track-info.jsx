@@ -14,8 +14,8 @@ export const TrackInfo = () => {
         <Avatar
           variant="rounded"
           sx={{
-            width: 96, // same as w-24
-            height: 96,
+            width: 120, // same as w-24
+            height: 120,
             bgcolor: "grey.200",
             color: "grey.600",
             fontSize: 28,
