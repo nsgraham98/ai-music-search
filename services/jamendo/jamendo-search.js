@@ -32,7 +32,7 @@ export async function getSongsJamendo(searchParams) {
 // with the search parameters included in the url
 function createSearchString(searchObj) {
   const staticSearchParams = {
-    client_id: process.env.JAMENDO_CLIENT_ID,
+    client_id: process.env.NEXT_PUBLIC_JAMENDO_CLIENT_ID,
     format: "json",
     limit: 3,
     type: "single albumtrack",

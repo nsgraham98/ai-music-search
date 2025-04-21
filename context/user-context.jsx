@@ -1,11 +1,11 @@
 "use client";
 
-import React, { createContext } from "react";
+import { createContext, useState } from "react";
 
 export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-  const [user, setUser] = React.useState();
+  const [user, setUser] = useState();
 
   const signIn = async (email, password) => {
     debugger;

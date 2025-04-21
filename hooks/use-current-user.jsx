@@ -5,30 +5,33 @@ import { useContext, useEffect } from "react";
 
 const useCurrentUser = () => {
   const { user, setUser } = useContext(UserContext);
+
   useEffect(() => {
-    fetch("/api/current_user", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      credentials: "include",
-    })
-      .then((res) => {
-        if (res.ok) {
-          return res.json();
+    const fetchUser = async () => {
+      try {
+        const response = await fetch("@/app/api/session/route.js", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          credentials: "include",
+        });
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
         }
-        throw new Error("Network response was not ok.");
-      })
-      .then((data) => {
-        if (!data) {
-          return;
+        const data = await response.json();
+        if (data.sessionData) {
+          setUser(data.sessionData);
+        } else {
+          console.error("No session data found in response:", data);
         }
-        setUser(data);
-      })
-      .catch((error) => {
-        console.error("There was a problem with the fetch operation:", error);
-      });
+      } catch {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUser();
   }, [setUser]);
   return user;
 };
