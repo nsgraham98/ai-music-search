@@ -7,7 +7,7 @@ import { Box, Typography, Container } from "@mui/material";
 
 export default function HomePage() {
   return (
-    <Box minHeight="100vh" bgcolor="#1e1e1e" color="white" py={4}>
+    <Box minHeight="100vh" bgcolor="#1e1e1e" color="white" pt={4}>
       <Container maxWidth="lg">
         {/* Header and Logout */}
         <Box
