@@ -13,7 +13,18 @@ export const ProgressBar = () => {
       setTimeProgress(newValue);
     }
   };
-
+  const handleProgressChange = () => {
+    if (audioRef.current && progressBarRef.current) {
+      const newTime = Number(progressBarRef.current.value);
+      audioRef.current.currentTime = newTime;
+      setTimeProgress(newTime);
+      // if progress bar changes while audio is on pause
+      progressBarRef.current.style.setProperty(
+        "--range-progress",
+        `${(newTime / duration) * 100}%`
+      );
+    }
+  };
   const formatTime = (time) => {
     if (typeof time === "number" && !isNaN(time)) {
       const minutes = Math.floor(time / 60);
@@ -29,19 +40,12 @@ export const ProgressBar = () => {
     <Box display="flex" alignItems="center" gap={2} width="100%">
       <Typography variant="caption">{formatTime(timeProgress)}</Typography>
 
-      <Slider
+      <input
+        className="max-w-[80%] bg-gray-300"
         ref={progressBarRef}
-        value={timeProgress}
-        onChange={handleSliderChange}
-        max={duration}
-        sx={{
-          flexGrow: 1,
-          color: "primary.main",
-          "& .MuiSlider-thumb": {
-            width: 12,
-            height: 12,
-          },
-        }}
+        type="range"
+        defaultValue="0"
+        onChange={handleProgressChange}
       />
 
       <Typography variant="caption">{formatTime(duration)}</Typography>
