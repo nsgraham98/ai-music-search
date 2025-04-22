@@ -1,24 +1,24 @@
-import { getSessionData } from "@/services/session";
+// import { getSessionData } from "@/services/session";
 import { adminAuth, db } from "@/lib/firebase-admin";
 import { cookies } from "next/headers";
 import { cleanForFirestore } from "@/utils/clean";
 
-export async function GET(request) {
-  const cookies = request.headers.get("cookies");
-  const sessionData = await getSessionData(cookies);
+// export async function GET(request) {
+//   // const cookies = request.headers.get("cookies");
+//   // const sessionData = await getSessionData(cookies);
 
-  return new Response(
-    JSON.stringify({
-      sessionData: sessionData,
-    }),
-    {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
-}
+//   return new Response(
+//     JSON.stringify({
+//       sessionData: sessionData,
+//     }),
+//     {
+//       status: 200,
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//     }
+//   );
+// }
 
 // saves the session data to the database
 export async function POST(req) {
