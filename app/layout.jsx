@@ -14,6 +14,7 @@ import "/styles/customize-progress-bar.css";
 // import { AuthenticatedLayout } from "./authenticated-layout";
 import { AudioPlayerProvider } from "@/context/audio-player-context.jsx";
 import { AuthContextProvider } from "@/context/auth-context.jsx";
+import { Box } from "@mui/material";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,7 +43,17 @@ export default function RootLayout({ children }) {
     <html lang="en" suppressHydrationWarning>
       <body>
         <AudioPlayerProvider>
-          <AuthContextProvider>{children}</AuthContextProvider>
+          <AuthContextProvider>
+            <Box
+              sx={{
+                bgcolor: "#1e1e1e",
+                color: "white",
+                minHeight: "100vh",
+              }}
+            >
+              {children}
+            </Box>
+          </AuthContextProvider>
         </AudioPlayerProvider>
       </body>
     </html>

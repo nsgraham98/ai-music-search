@@ -9,22 +9,22 @@ export const TrackInfo = () => {
   if (!currentTrack) return null;
 
   return (
-    <Box display="flex" alignItems="center" gap={2} width="100%" sx={{ px: 2 }}>
+    <Box display="flex" alignItems="center" gap={2} sx={{ maxWidth: "100%" }}>
       {/* Avatar Thumbnail */}
       <Avatar
         src={currentTrack.image || ""}
         variant="rounded"
-        sx={{ width: 80, height: 80, bgcolor: "grey.500" }}
+        sx={{ width: 100, height: 100, bgcolor: "grey.500", flexShrink: 0 }}
       />
 
       {/* Text Info */}
-      <Box>
+      <Box sx={{ overflow: "hidden" }}>
         <Typography variant="subtitle1" fontWeight="bold" color="white" noWrap>
-          Song: {currentTrack.name}
+          {currentTrack.name}
         </Typography>
 
-        <Typography variant="subtitle2" color="white">
-          Artist: {currentTrack.artist_name}
+        <Typography variant="subtitle2" color="white" noWrap>
+          {currentTrack.artist_name}
         </Typography>
       </Box>
     </Box>

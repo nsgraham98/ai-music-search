@@ -1,112 +1,85 @@
 "use client";
 
-import { Box, Paper, Divider } from "@mui/material";
+import { Box } from "@mui/material";
 import { TrackInfo } from "./track-info";
 import { Controls } from "./controls";
 import { ProgressBar } from "./progress-bar";
 import { VolumeControl } from "./volume-control";
-import { PlayList } from "./playlist";
+import { DownloadButton } from "./download-button.jsx";
+import { useAudioPlayerContext } from "@/context/audio-player-context";
 
 export const AudioPlayer = () => {
+  const { currentTrack } = useAudioPlayerContext();
   return (
     <Box
       sx={{
+        position: "fixed",
+        bottom: 0,
+        bgcolor: "#2e2d2d",
+        borderTop: "1px solid #444",
+        zIndex: 100,
+        width: "100%",
+        px: 2,
+        py: 1.5,
         display: "flex",
-        flexDirection: "column",
-        minHeight: "100vh",
-        bgcolor: "#1e1e1e",
-        color: "white",
-        justifyContent: "space-between",
+        flexDirection: "row",
+        alignItems: "center",
+        minHeight: "5vw",
       }}
     >
-      {/* Main Audio Player Section */}
+      {/* Left */}
       <Box
-        component={Paper}
-        elevation={4}
         sx={{
-          bgcolor: "#2e2d2d",
-          color: "white",
-          width: "100%",
-          maxWidth: "100%",
-          mx: "auto",
-          p: { xs: 2, md: 4 },
-          borderRadius: 0,
-          flexGrow: 1,
+          width: "25%",
+          maxWidth: "25%",
           display: "flex",
-          flexDirection: "column",
-          gap: 3,
+          alignItems: "center",
+          justifyContent: "flex-start",
+          ml: 2,
         }}
       >
-        {/* Track Info and Playlist Column */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 2,
-            maxwidth: "100%",
-            px: 2,
-          }}
-        >
-          {/* Track Info - Left Aligned, Fixed Width */}
-          <Box
-            sx={{
-              width: "100%",
-              maxWidth: "100%",
-            }}
-          >
-            <TrackInfo />
-          </Box>
+        <TrackInfo />
+      </Box>
 
-          {/* Playlist - Slightly Wider */}
-          <Box
-            sx={{
-              width: "100%",
-              px: 2, // optional: keep padding left/right
-              display: "flex",
-              justifyContent: "center",
-            }}
-          >
-            <Box
-              sx={{
-                width: "100%",
-                maxWidth: "100%",
-              }}
-            >
-              <PlayList />
-            </Box>
+      {/* Middle */}
+      <Box
+        sx={{
+          width: "50%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Box width="100%" mb={1}>
+          <ProgressBar />
+        </Box>
+        <Box display="flex" alignItems="center" width="100%">
+          <Box flex={1} />
+          <Box flex={1} display="flex" justifyContent="center">
+            <Controls />
           </Box>
+          <Box flex={1} display="flex" justifyContent="flex-end"></Box>
         </Box>
       </Box>
 
-      {/* Sticky Footer with Progress Bar and Controls */}
+      {/* Right */}
       <Box
         sx={{
-          position: "sticky",
-          bottom: 0,
-          bgcolor: "#2e2d2d",
-          borderTop: "1px solid #444",
-          zIndex: 100,
-          width: "100%",
-          px: 2,
-          py: 1.5,
+          width: "25%",
+          maxWidth: "25%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-evenly",
+          mr: 2,
         }}
       >
-        {/* Progress Bar */}
-        <Box mb={1}>
-          <ProgressBar />
-        </Box>
-
-        {/* Audio Controls + Volume */}
-        <Box display="flex" alignItems="center" width="100%">
-          <Box sx={{ flex: 1 }} />
-          <Box sx={{ flex: 1, display: "flex", justifyContent: "center" }}>
-            <Controls />
-          </Box>
-          <Box sx={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
-            <VolumeControl />
-          </Box>
-        </Box>
+        <VolumeControl />
+        <DownloadButton
+          downloadUrl={currentTrack.audiodownload}
+          downloadAllowed={currentTrack.audiodownload_allowed}
+          filename={`${currentTrack.name}.mp3`}
+        />
       </Box>
     </Box>
   );

@@ -39,11 +39,19 @@ export const Controls = () => {
   const [isRepeat, setIsRepeat] = useState(false);
   const playAnimationRef = useRef(null);
 
+  const lastUpdateRef = useRef(0); // to track the last update time
+
   // updates currentTime & progress bar position
   const updateProgress = useCallback(() => {
     if (audioRef.current && progressBarRef.current && duration) {
       const currentTime = audioRef.current.currentTime;
-      setTimeProgress(currentTime);
+
+      const now = Date.now();
+      if (now - lastUpdateRef.current > 200) {
+        lastUpdateRef.current = now;
+        setTimeProgress(currentTime);
+      } // skip if less than 1 second has passed
+
       progressBarRef.current.value = currentTime.toString();
       progressBarRef.current.style.setProperty(
         "--range-progress",

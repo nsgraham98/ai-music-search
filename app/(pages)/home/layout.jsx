@@ -4,7 +4,8 @@ import { useUserAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { AudioPlayerProvider } from "@/context/audio-player-context";
-import { Box, CircularProgress } from "@mui/material";
+import { Box, CircularProgress, Container } from "@mui/material";
+import { AudioPlayer } from "@/app/components/audio/audio-player.jsx";
 
 export default function DashboardLayout({ children }) {
   const { user, loading } = useUserAuth();
@@ -32,6 +33,17 @@ export default function DashboardLayout({ children }) {
 
   return (
     // wrap all authenticated views in the audio player context
-    <AudioPlayerProvider>{children}</AudioPlayerProvider>
+    <AudioPlayerProvider>
+      <Box
+        sx={{
+          pb: "5vw",
+          minHeight: "100vh",
+          pt: 4,
+        }}
+      >
+        {children}
+      </Box>
+      <AudioPlayer />
+    </AudioPlayerProvider>
   );
 }

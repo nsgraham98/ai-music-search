@@ -78,7 +78,14 @@ const SearchBar = () => {
         disabled={isLoading}
       >
         {/* Conditionally show "Search" or a loading spinner */}
-        {!isLoading ? "Search" : <CircularProgress size={20} color="inherit" />}
+        {!isLoading ? (
+          "Search"
+        ) : (
+          <>
+            <CircularProgress size={20} color="primary" />
+            Thinking...
+          </>
+        )}
       </Button>
     </Box>
   );

@@ -33,7 +33,9 @@ export const ProgressBar = () => {
 
   return (
     <Box display="flex" alignItems="center" gap={2} width="100%">
-      <Typography variant="caption">{formatTime(timeProgress)}</Typography>
+      <Typography variant="caption" color="white">
+        {formatTime(timeProgress)}
+      </Typography>
 
       <input
         className="max-w-[80%] bg-gray-300"
@@ -43,7 +45,9 @@ export const ProgressBar = () => {
         onChange={handleProgressChange}
       />
 
-      <Typography variant="caption">{formatTime(duration)}</Typography>
+      <Typography variant="caption" color="white">
+        {formatTime(duration)}
+      </Typography>
     </Box>
   );
 };

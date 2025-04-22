@@ -102,7 +102,7 @@ export const PlayList = () => {
                         },
                       }}
                     >
-                      Song: {track.name}
+                      {track.name}
                     </Typography>
 
                     <Typography
@@ -116,7 +116,7 @@ export const PlayList = () => {
                         },
                       }}
                     >
-                      Artist: {track.artist_name}
+                      {track.artist_name}
                     </Typography>
                   </Box>
                 </Box>
