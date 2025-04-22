@@ -10,6 +10,7 @@ import { useAudioPlayerContext } from "@/context/audio-player-context";
 
 export const AudioPlayer = () => {
   const { currentTrack } = useAudioPlayerContext();
+  // if (!currentTrack) return null; // Ensure currentTrack is defined before rendering
   return (
     <Box
       sx={{
@@ -76,9 +77,9 @@ export const AudioPlayer = () => {
       >
         <VolumeControl />
         <DownloadButton
-          downloadUrl={currentTrack.audiodownload}
-          downloadAllowed={currentTrack.audiodownload_allowed}
-          filename={`${currentTrack.name}.mp3`}
+          downloadUrl={currentTrack?.audiodownload}
+          downloadAllowed={currentTrack?.audiodownload_allowed}
+          filename={`${currentTrack?.name}.mp3`}
         />
       </Box>
     </Box>

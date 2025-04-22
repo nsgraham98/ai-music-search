@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { runOpenAISearch } from "@/services/openai.js";
+import { runOpenAISearch } from "@/app/api/openai/openai-handler/openai.js";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,

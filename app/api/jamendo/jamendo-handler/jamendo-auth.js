@@ -19,3 +19,7 @@ export async function getValidJamendoToken(uid) {
 
   return session.access_token;
 }
+
+export function GetNow() {
+  return new Date().now();
+}

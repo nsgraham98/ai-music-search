@@ -25,6 +25,28 @@ export const PlayList = () => {
     setIsPlaying(true);
   };
 
+  if (!tracks || tracks.length === 0) {
+    return (
+      <Paper
+        elevation={3}
+        sx={{
+          bgcolor: "#4c4848",
+          color: "white",
+          maxHeight: "18rem",
+          overflowY: "auto",
+          borderRadius: 2,
+          width: "100%", // add this
+          maxWidth: 900, // adjust this width to make it wider
+          mx: "auto", // optional: centers it horizontally
+        }}
+      >
+        <Typography variant="body1" color="white" textAlign="center" p={2}>
+          No tracks available.
+        </Typography>
+      </Paper>
+    );
+  }
+
   return (
     <Paper
       elevation={3}

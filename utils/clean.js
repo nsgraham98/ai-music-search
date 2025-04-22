@@ -1,5 +1,10 @@
 export function cleanForFirestore(obj) {
+  const now = new Date.now();
+  const cleanedObj = {
+    ...obj,
+    created_at: now,
+  };
   return Object.fromEntries(
-    Object.entries(obj).filter(([_, value]) => value !== undefined)
+    Object.entries(cleanedObj).filter(([_, value]) => value !== undefined)
   );
 }

@@ -1,3 +1,5 @@
+import { GetNow } from "@/app/api/jamendo/jamendo-handler/jamendo-auth.js";
+
 export async function POST(req) {
   const { code, grant_type } = await req.json();
 
@@ -34,12 +36,12 @@ export async function POST(req) {
   }
 
   const data = await res.json();
-
+  const now = GetNow();
   return new Response(
     JSON.stringify({
       access_token: data.access_token,
       refresh_token: data.refresh_token,
-      expires_at: Date.now() + data.expires_in * 1000,
+      expires_at: now + data.expires_in * 1000,
     }),
     {
       status: 200,

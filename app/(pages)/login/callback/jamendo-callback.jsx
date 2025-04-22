@@ -1,7 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { saveUserSession } from "@/services/session";
+import { saveUserSession } from "@/app/api/session/session-handler/session";
 import { useUserAuth } from "@/context/auth-context";
 
 export default function JamendoCallback() {

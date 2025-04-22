@@ -12,7 +12,7 @@
 
 import OpenAI from "openai";
 // import { searchJamendo } from "./search-funcs.js";
-import { searchJamendo } from "@/services/jamendo/jamendo-search.js";
+import { searchJamendo } from "@/app/api/jamendo/jamendo-search.js";
 import { getTools } from "@/lib/ai-tools.js";
 
 const openai = new OpenAI({

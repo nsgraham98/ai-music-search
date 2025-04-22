@@ -163,20 +163,20 @@ export const Controls = () => {
     };
   }, [isRepeat, handleNext, audioRef]);
 
-  // fallback if track isn't loaded
-  if (!currentTrack) {
-    return (
-      <Typography variant="body2" color="text.secondary">
-        No track selected
-      </Typography>
-    );
-  }
+  // // fallback if track isn't loaded
+  // if (!currentTrack) {
+  //   return (
+  //     <Typography variant="body2" color="text.secondary">
+  //       No track selected
+  //     </Typography>
+  //   );
+  // }
 
   return (
     <Box display="flex" alignItems="center" gap={2}>
       {/* Audio Element */}
       <audio
-        src={currentTrack.audio}
+        src={currentTrack?.audio}
         ref={audioRef}
         onLoadedMetadata={onLoadedMetadata}
       />

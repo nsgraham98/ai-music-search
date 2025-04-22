@@ -33,7 +33,6 @@ export async function POST(req) {
       jamendo_refresh_token: thirdPartyTokens?.refresh_token,
       expires_at: thirdPartyTokens?.expires_at,
       providerAccessToken,
-      created_at: new Date(),
     });
     console.log("Session data:", sessionData);
     await db.collection("sessions").doc(uid).set(

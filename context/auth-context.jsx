@@ -16,7 +16,7 @@ import {
   // FacebookAuthProvider,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase.js";
-import { saveUserSession } from "@/services/session.js";
+import { saveUserSession } from "@/app/api/session/session-handler/session.js";
 
 const AuthContext = createContext();
 
