@@ -13,7 +13,7 @@ export default function SignedInAs() {
   }
   return (
     <div className="flex items-center justify-center w-full h-full p-4 bg-gray-100 rounded-lg shadow-md">
-      <Typography fontSize="small">Signed in as: {user.email}</Typography>
+      <Typography fontSize="small">{user.email}</Typography>
     </div>
   );
 }

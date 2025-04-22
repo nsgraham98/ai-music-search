@@ -183,7 +183,7 @@ export const Controls = () => {
 
       {/* Repeat */}
       <IconButton onClick={() => setIsRepeat((prev) => !prev)}>
-        <BsRepeat size={20} color={isRepeat ? "#f50" : "white"} />
+        <BsRepeat size={14} color={isRepeat ? "#f50" : "white"} />
       </IconButton>
 
       {/* Previous Track */}
@@ -199,9 +199,9 @@ export const Controls = () => {
       {/* Play / Pause */}
       <IconButton onClick={() => setIsPlaying((prev) => !prev)} sx={{ mx: 1 }}>
         {isPlaying ? (
-          <BsFillPauseFill size={30} color="white" />
+          <BsFillPauseFill size={40} color="white" />
         ) : (
-          <BsFillPlayFill size={30} color="white" />
+          <BsFillPlayFill size={40} color="white" />
         )}
       </IconButton>
 
@@ -217,7 +217,7 @@ export const Controls = () => {
 
       {/* Shuffle */}
       <IconButton onClick={() => setIsShuffle((prev) => !prev)}>
-        <BsShuffle size={20} color={isShuffle ? "#f50" : "white"} />
+        <BsShuffle size={14} color={isShuffle ? "#f50" : "white"} />
       </IconButton>
     </Box>
   );

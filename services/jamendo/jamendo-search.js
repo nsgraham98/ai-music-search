@@ -31,23 +31,35 @@ export async function getSongsJamendo(searchParams) {
 // creates a url to use to call the Jamendo API at app/api/jamendo/route.js
 // with the search parameters included in the url
 function createSearchString(searchObj) {
+  console.log("Search Object:", searchObj); // Debugging line to check the search object
   const staticSearchParams = {
     client_id: process.env.NEXT_PUBLIC_JAMENDO_CLIENT_ID,
     format: "json",
     limit: 10,
     type: "single albumtrack",
     audioformat: "mp32",
-    audiodownload_allowed: true,
   };
 
   const flattenedFuzzyTags = Object.values(searchObj.fuzzytags)
     .flat()
     .join("+");
 
-  const dynamicSearchParams = {
-    ...searchObj,
-    fuzzytags: flattenedFuzzyTags,
-  };
+  let flattenedTags;
+  let dynamicSearchParams;
+  if (searchObj.tags) {
+    flattenedTags = Object.values(searchObj.tags).flat().join("+");
+    dynamicSearchParams = {
+      ...searchObj,
+      fuzzytags: flattenedFuzzyTags,
+      tags: flattenedTags,
+    };
+  } else {
+    flattenedTags = searchObj.fuzzytags; // if no tags, use fuzzytags
+    dynamicSearchParams = {
+      ...searchObj,
+      fuzzytags: flattenedFuzzyTags,
+    };
+  }
 
   // flattens any other dynamic tags
   const flattenedDynamicSearchParams = Object.fromEntries(
@@ -63,5 +75,6 @@ function createSearchString(searchObj) {
   };
 
   const urlSearchParams = new URLSearchParams(searchParams);
+  console.log("URL Search Params:", urlSearchParams.toString()); // Debugging line to check the URL parameters
   return urlSearchParams;
 }
