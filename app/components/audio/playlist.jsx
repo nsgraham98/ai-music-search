@@ -1,3 +1,6 @@
+// this is the search results component that will be used to display the search results in the audio player
+// should probably use a different name to avoid confusion
+
 "use client";
 
 import { useAudioPlayerContext } from "@/context/audio-player-context";
@@ -12,6 +15,11 @@ import {
 } from "@mui/material";
 import { BsMusicNoteBeamed } from "react-icons/bs";
 import { DownloadButton } from "./download-button";
+import {
+  goToTrack,
+  goToArtist,
+  goToAlbum,
+} from "@/app/api/jamendo/jamendo-handler/go-to-jamendo";
 
 // placeholder for future search result repurposing
 export function handleSearchResults(searchResults) {}
@@ -23,6 +31,17 @@ export const PlayList = () => {
   const handleClick = (track) => {
     setCurrentTrack(track);
     setIsPlaying(true);
+  };
+
+  const handleTrackOnClick = (track) => {
+    goToTrack(track);
+  };
+
+  const handleArtistOnClick = (track) => {
+    goToArtist(track);
+  };
+  const handleAlbumOnClick = (track) => {
+    goToAlbum(track);
   };
 
   if (!tracks || tracks.length === 0) {
@@ -87,7 +106,12 @@ export const PlayList = () => {
               >
                 {/* Left Side: Avatar + Text */}
                 <Box display="flex" alignItems="center" gap={2}>
-                  <ListItemAvatar>
+                  <ListItemAvatar
+                    onClick={() => handleAlbumOnClick(track)}
+                    sx={{
+                      cursor: "pointer",
+                    }}
+                  >
                     {track.image ? (
                       <Avatar
                         src={track.image}
@@ -115,9 +139,11 @@ export const PlayList = () => {
                       variant="subtitle2"
                       fontWeight="bold"
                       noWrap
+                      onClick={() => handleTrackOnClick(track)}
                       sx={{
+                        cursor: "pointer",
                         color: "white",
-                        transition: "color 0.2s",
+                        transition: "color 0.1s",
                         "&:hover": {
                           color: "#E03FD8",
                         },
@@ -129,9 +155,11 @@ export const PlayList = () => {
                     <Typography
                       variant="caption"
                       noWrap
+                      onClick={() => handleArtistOnClick(track)}
                       sx={{
+                        cursor: "pointer",
                         color: "white",
-                        transition: "color 0.2s",
+                        transition: "color 0.1s",
                         "&:hover": {
                           color: "#E03FD8",
                         },
