@@ -1,5 +1,7 @@
 import OpenAI from "openai";
 import { runOpenAISearch } from "@/app/api/openai/openai-handler/openai.js";
+import { adminAuth } from "@/lib/firebase-admin";
+import { authorizeAPICall } from "@/lib/authorize-calls";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -7,8 +9,11 @@ const openai = new OpenAI({
 
 export async function POST(request) {
   try {
-    const userPrompt = await request.json();
-    const result = await runOpenAISearch(userPrompt.userQuery);
+    const decodedToken = await authorizeAPICall(request);
+    // const userId = decodedToken.uid; // you can log or use this if needed
+
+    const body = await request.json();
+    const result = await runOpenAISearch(body.userQuery);
 
     console.log("AI Response:", result.aiResponse);
     console.log("Jamendo Response:", result.jamendoResponse);
@@ -26,8 +31,14 @@ export async function POST(request) {
       }
     );
   } catch (error) {
-    console.error("Error fetching OpenAI:", error);
-    return new Response(JSON.stringify({ error: "Something went wrong" }), {
+    if (error.name === "FirebaseAuthError") {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+      });
+    }
+
+    console.error("OpenAI error:", error);
+    return new Response(JSON.stringify({ error: "OpenAI processing failed" }), {
       status: 500,
     });
   }

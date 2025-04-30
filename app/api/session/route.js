@@ -24,7 +24,7 @@ import { cleanForFirestore } from "@/utils/clean";
 export async function POST(req) {
   try {
     const { token, providerAccessToken, thirdPartyTokens } = await req.json();
-    const decoded = await adminAuth.verifyIdToken(token);
+    const decoded = await adminAuth.verifyIdToken(token); // idk why this works and not authorizeAPICall(req)
     const uid = decoded.uid;
 
     const sessionData = cleanForFirestore({
