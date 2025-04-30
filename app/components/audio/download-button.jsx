@@ -22,7 +22,6 @@ export const DownloadButton = ({
     return (
       <Button
         variant="outlined"
-        color="primary"
         size="medium"
         disabled
         sx={{ cursor: "not-allowed" }}
@@ -38,9 +37,20 @@ export const DownloadButton = ({
         download={filename}
         target="_blank"
         rel="noopener noreferrer"
-        variant="outlined"
-        color="primary"
         size="medium"
+        variant="outlined"
+        sx={{
+          color: "white",
+          borderColor: "#888",
+          transition: "all 0.1s ease-in-out", // ✅ Force all transitions
+          "&:hover": {
+            color: "#E03FD8",
+            borderColor: "#E03FD8",
+          },
+          "& .MuiButton-label": {
+            transition: "inherit", // just in case, applies transition to inner span
+          },
+        }}
       >
         Download
       </Button>

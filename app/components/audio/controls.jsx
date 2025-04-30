@@ -1,6 +1,3 @@
-// currently does not include things like shuffle, repeat, next track, prev track, etc.
-// but can be added later
-// stopped following tutorial code at this point ("Handling the next track")
 // https://blog.logrocket.com/building-audio-player-react/
 
 "use client";

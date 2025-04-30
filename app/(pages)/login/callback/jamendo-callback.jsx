@@ -39,7 +39,7 @@ export default function JamendoCallback() {
           });
         }
 
-        router.push("/home");
+        router.push("/");
       } catch (err) {
         console.error("Failed to connect to Jamendo:", err);
       }

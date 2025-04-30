@@ -1,5 +1,5 @@
 export function cleanForFirestore(obj) {
-  const now = new Date.now();
+  const now = Date.now();
   const cleanedObj = {
     ...obj,
     created_at: now,

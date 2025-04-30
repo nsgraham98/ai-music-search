@@ -1,15 +1,16 @@
 "use client";
 
 import SearchBar from "@/app/components/search-bar.jsx";
-import { LogoutButton } from "@/app/components/logout-button";
+import { LogoutButton } from "@/app/components/login/logout-button";
 import { Box, Typography, Container, Paper } from "@mui/material";
 import { PlayList } from "@/app/components/audio/playlist.jsx";
-import { TrackInfo } from "@/app/components/audio/track-info.jsx";
-import SignedInAs from "@/app/components/signed-in-as";
+import SignedInAs from "@/app/components/login/signed-in-as";
+import LoginPopup from "@/app/components/login/login-popup";
 
 export default function HomePage() {
   return (
     <Container maxWidth="lg">
+      <LoginPopup />
       {/* Header and Logout */}
       <Box
         display="flex"
@@ -33,10 +34,10 @@ export default function HomePage() {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          mb: 4,
+          mb: 2,
         }}
       >
-        <Box sx={{ width: "100%", maxWidth: 1000 }}>
+        <Box sx={{ width: "100%", maxWidth: "100%" }}>
           <SearchBar />
         </Box>
       </Box>
@@ -49,54 +50,24 @@ export default function HomePage() {
           color: "white",
           width: "100%",
           maxWidth: "100%",
+          height: "100%",
+          minHeight: "100%",
           mx: "auto",
           p: { xs: 2, md: 4 },
-          borderRadius: 0,
-          flexGrow: 1,
-          display: "flex",
-          flexDirection: "column",
+          borderRadius: 2,
+          // flexGrow: 1,
+          // display: "flex",
+          // flexDirection: "column",
           gap: 3,
         }}
       >
-        {/* Track Info and Playlist Column */}
         <Box
           sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 2,
-            maxwidth: "100%",
-            px: 2,
+            width: "100%",
+            maxWidth: "100%",
           }}
         >
-          {/* Track Info - Left Aligned, Fixed Width */}
-          <Box
-            sx={{
-              width: "100%",
-              maxWidth: "100%",
-            }}
-          >
-            <TrackInfo />
-          </Box>
-
-          {/* Playlist - Slightly Wider */}
-          <Box
-            sx={{
-              width: "100%",
-              px: 2, // optional: keep padding left/right
-              display: "flex",
-              justifyContent: "center",
-            }}
-          >
-            <Box
-              sx={{
-                width: "100%",
-                maxWidth: "100%",
-              }}
-            >
-              <PlayList />
-            </Box>
-          </Box>
+          <PlayList />
         </Box>
       </Box>
     </Container>

@@ -32,7 +32,7 @@ export const PlayList = () => {
         sx={{
           bgcolor: "#4c4848",
           color: "white",
-          maxHeight: "18rem",
+          // maxHeight: "18rem",
           overflowY: "auto",
           borderRadius: 2,
           width: "100%", // add this
@@ -53,7 +53,6 @@ export const PlayList = () => {
       sx={{
         bgcolor: "#4c4848",
         color: "white",
-        maxHeight: "18rem",
         overflowY: "auto",
         borderRadius: 2,
         width: "100%", // add this

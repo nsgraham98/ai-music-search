@@ -11,11 +11,11 @@ export default function DashboardLayout({ children }) {
   const { user, loading } = useUserAuth();
   const router = useRouter();
 
-  useEffect(() => {
-    if (!user && !loading) {
-      router.push("/login");
-    }
-  }, [user, loading, router]);
+  // useEffect(() => {
+  //   if (!user && !loading) {
+  //     router.push("/login");
+  //   }
+  // }, [user, loading, router]);
 
   if (loading) {
     // show loading spinner while waiting for auth status
@@ -36,9 +36,11 @@ export default function DashboardLayout({ children }) {
     <AudioPlayerProvider>
       <Box
         sx={{
-          pb: "5vw",
-          minHeight: "100vh",
+          pb: "30vh",
           pt: 4,
+          bgcolor: "#1e1e1e",
+          height: "100%",
+          width: "100%",
         }}
       >
         {children}

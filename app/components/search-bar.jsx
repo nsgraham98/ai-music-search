@@ -95,7 +95,19 @@ const SearchBar = () => {
         </Button>
       </Box>
       {/* AI Response */}
-      <Box>
+      <Box
+        alignContent={"flex-start"}
+        mt={2}
+        px={2}
+        sx={{
+          width: "100%", // full width of parent
+          mx: "auto",
+          bgcolor: "#2e2d2d",
+          borderRadius: 2,
+          p: 2,
+          minHeight: "55px",
+        }}
+      >
         <Typography>{isLoading ? "Thinking..." : aiResponse}</Typography>
       </Box>
     </Box>

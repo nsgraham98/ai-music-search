@@ -20,13 +20,17 @@ export function LogoutButton() {
     <Button
       onClick={handleSignOut}
       variant="outlined"
-      color="secondary"
+      size="medium"
       sx={{
         color: "white",
         borderColor: "#888",
+        transition: "all 0.1s ease-in-out",
         "&:hover": {
-          borderColor: "#E03FD8",
           color: "#E03FD8",
+          borderColor: "#E03FD8",
+        },
+        "& .MuiButton-label": {
+          transition: "inherit",
         },
       }}
     >

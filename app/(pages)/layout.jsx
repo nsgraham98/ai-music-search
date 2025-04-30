@@ -9,12 +9,10 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "/styles/globals.css";
 import "/styles/customize-progress-bar.css";
-// import { AuthContextProvider } from "../context/auth-context";
-// import { UserProvider } from "../context/user-context";
-// import { AuthenticatedLayout } from "./authenticated-layout";
 import { AudioPlayerProvider } from "@/context/audio-player-context.jsx";
 import { AuthContextProvider } from "@/context/auth-context.jsx";
 import { Box } from "@mui/material";
+import ClientErrorBoundary from "@/app/components/error-boundary-client.jsx";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,21 +38,27 @@ export const metadata = {
 }
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${geistSans.variable} ${geistMono.variable}`}
+    >
       <body>
-        <AudioPlayerProvider>
-          <AuthContextProvider>
-            <Box
-              sx={{
-                bgcolor: "#1e1e1e",
-                color: "white",
-                minHeight: "100vh",
-              }}
-            >
-              {children}
-            </Box>
-          </AuthContextProvider>
-        </AudioPlayerProvider>
+        <ClientErrorBoundary>
+          <AudioPlayerProvider>
+            <AuthContextProvider>
+              <Box
+                sx={{
+                  bgcolor: "#1e1e1e",
+                  color: "white",
+                  minHeight: "100vh",
+                }}
+              >
+                {children}
+              </Box>
+            </AuthContextProvider>
+          </AudioPlayerProvider>
+        </ClientErrorBoundary>
       </body>
     </html>
   );
