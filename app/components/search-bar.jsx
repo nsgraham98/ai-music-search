@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAudioPlayerContext } from "@/context/audio-player-context"; // import this from the context
+import { useAudioPlayerContext } from "@/context/audio-player-context";
 import {
   TextField,
   Button,
@@ -9,22 +9,27 @@ import {
   CircularProgress,
   Typography,
 } from "@mui/material";
+import { useUserAuth } from "@/context/auth-context";
 
 const SearchBar = () => {
   const [userQuery, setUserQuery] = useState("");
   const [isLoading, setIsLoading] = React.useState(false);
-  const [aiResponse, setAiResponse] = useState(null); // state to hold AI response
-  const { setTracks } = useAudioPlayerContext(); // import this from the context
+  const [aiResponse, setAiResponse] = useState(null);
+  const { setTracks } = useAudioPlayerContext();
+  const { user } = useUserAuth();
 
   // sends a POST request with the user's query to the OpenAI API route
   async function handleSearch() {
     if (!userQuery) return;
     setIsLoading(true);
 
+    const idToken = await user.getIdToken();
+
     const response = await fetch("/api/openai", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${idToken}`, // include the ID token in the request headers
       },
       body: JSON.stringify({ userQuery }), // sends query as a JSON object e.g. { userQuery: "query text here" }
     });

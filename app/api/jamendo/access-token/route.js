@@ -1,6 +1,9 @@
 import { GetNow } from "@/app/api/jamendo/jamendo-handler/jamendo-auth.js";
+import { authorizeAPICall } from "@/lib/authorize-calls.js";
 
 export async function POST(req) {
+  const decodedToken = await authorizeAPICall(request);
+  // const userId = decodedToken.uid; // you can log or use this if needed
   const { code, grant_type } = await req.json();
 
   let params;
