@@ -7,11 +7,11 @@ import { useUserAuth } from "@/context/auth-context";
 export default function JamendoCallback() {
   const params = useSearchParams();
   const router = useRouter();
-  const { user, loading } = useUserAuth();
+  const { user, loadingUser } = useUserAuth();
 
   useEffect(() => {
     const exchangeCodeForToken = async () => {
-      if (loading) return;
+      if (loadingUser) return;
 
       const code = params.get("code");
       const state = params.get("state");
@@ -46,7 +46,7 @@ export default function JamendoCallback() {
     };
 
     exchangeCodeForToken();
-  }, [user, loading, params]);
+  }, [user, loadingUser, params]);
 
   return <p>Completing login...</p>;
 }

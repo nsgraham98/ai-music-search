@@ -8,16 +8,11 @@ import { Box, CircularProgress, Container } from "@mui/material";
 import { AudioPlayer } from "@/app/components/audio/audio-player.jsx";
 
 export default function DashboardLayout({ children }) {
-  const { user, loading } = useUserAuth();
+  // must be logged in to see this page
+  const { user, loadingUser } = useUserAuth();
   const router = useRouter();
 
-  // useEffect(() => {
-  //   if (!user && !loading) {
-  //     router.push("/login");
-  //   }
-  // }, [user, loading, router]);
-
-  if (loading) {
+  if (loadingUser) {
     // show loading spinner while waiting for auth status
     return (
       <Box

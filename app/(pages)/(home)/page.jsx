@@ -1,3 +1,6 @@
+// MAIN HOME PAGE
+// Currently the only real page of the app
+
 "use client";
 
 import SearchBar from "@/app/components/search-bar.jsx";
@@ -42,6 +45,8 @@ export default function HomePage() {
         </Box>
       </Box>
 
+      {/* Playlist (aka search results) */}
+      {/* Outer playlist box */}
       <Box
         component={Paper}
         elevation={4}
@@ -61,6 +66,7 @@ export default function HomePage() {
           gap: 3,
         }}
       >
+        {/* Inner playlist box */}
         <Box
           sx={{
             width: "100%",
