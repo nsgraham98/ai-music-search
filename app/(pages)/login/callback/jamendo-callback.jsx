@@ -1,3 +1,10 @@
+// JAMENDO CALLBACK HELPER
+// This component handles the actual logic of exchanging the code for an access token through an API route,
+// and saving the tokens to the user's session in the database.
+// Logging in through a jamendo account is not in use currently, but is required for any future features that require a jamendo account
+// (eg. creating playlists, favoriting tracks, etc.), using built-in jamendo features.
+// https://developer.jamendo.com/v3.0/authentication
+
 "use client";
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -9,6 +16,7 @@ export default function JamendoCallback() {
   const router = useRouter();
   const { user, loadingUser } = useUserAuth();
 
+  // When the component mounts (on change to: user or loadingUser), exchange the code for a jamendo access token
   useEffect(() => {
     const exchangeCodeForToken = async () => {
       if (loadingUser) return;
@@ -18,6 +26,7 @@ export default function JamendoCallback() {
 
       if (!code) return;
 
+      // Exchange the code for a jamendo access token, refresh token, and expiry time
       try {
         const res = await fetch("/api/jamendo/access-token", {
           method: "POST",
@@ -29,6 +38,7 @@ export default function JamendoCallback() {
 
         const { access_token, refresh_token, expires_at } = await res.json();
 
+        // Save the jamendo tokens to the OAuth user's session in the database
         if (user) {
           await saveUserSession(user, null, {
             thirdPartyTokens: {
@@ -39,6 +49,7 @@ export default function JamendoCallback() {
           });
         }
 
+        // Redirect to home page after successful login
         router.push("/");
       } catch (err) {
         console.error("Failed to connect to Jamendo:", err);

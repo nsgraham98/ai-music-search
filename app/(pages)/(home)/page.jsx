@@ -1,5 +1,6 @@
-// MAIN HOME PAGE
-// Currently the only real page of the app
+// HOME PAGE (DASHBOARD)
+// Only shown to logged in users, otherwise login popup is shown
+// AudioPlayer component is located in the layout.jsx file so it's always visible to logged in users
 
 "use client";
 
