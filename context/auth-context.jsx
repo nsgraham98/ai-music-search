@@ -22,7 +22,7 @@ const AuthContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loadingUser, setLoadingUser] = useState(true);
 
   const gitHubSignIn = async () => {
     const provider = new GithubAuthProvider();
@@ -55,10 +55,12 @@ export const AuthContextProvider = ({ children }) => {
     return signOut(auth);
   };
 
+  // Listener for auth state changes
+  // Sets the user state (logged in user or null) and loading state (is mid login or not)
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      setLoading(false);
+      setLoadingUser(false);
     });
     return () => unsubscribe();
   }, []);
@@ -67,7 +69,7 @@ export const AuthContextProvider = ({ children }) => {
     <AuthContext.Provider
       value={{
         user,
-        loading,
+        loadingUser,
         gitHubSignIn,
         googleSignIn,
         facebookSignIn,
