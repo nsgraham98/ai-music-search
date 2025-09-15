@@ -55,6 +55,17 @@ export async function POST(req) {
     });
   } catch (err) {
     console.error("Session error:", err);
-    return new Response("Failed", { status: 500 });
+    return new Response(JSON.stringify({ error: "Failed" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
+}
+
+export async function GET(request) {
+  // TODO: Implement real session lookup if needed
+  return new Response(JSON.stringify({ sessionData: null }), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
 }
