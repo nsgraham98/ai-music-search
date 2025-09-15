@@ -60,7 +60,7 @@ export const PlayList = () => {
         }}
       >
         <Typography variant="body1" color="white" textAlign="center" p={2}>
-          No tracks available.
+          Please search again.
         </Typography>
       </Paper>
     );

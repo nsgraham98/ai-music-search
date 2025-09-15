@@ -13,7 +13,7 @@ import {
   onAuthStateChanged,
   GithubAuthProvider,
   GoogleAuthProvider,
-  // FacebookAuthProvider,
+  FacebookAuthProvider,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase.js";
 import { saveUserSession } from "@/app/api/session/session-handler/session.js";
@@ -39,10 +39,13 @@ export const AuthContextProvider = ({ children }) => {
 
     await saveUserSession(result.user, accessToken);
   };
-  // const facebookSignIn = () => {
-  //   const provider = new FacebookAuthProvider();
-  //   return signInWithPopup(auth, provider);
-  // };
+  const facebookSignIn = async () => {
+    const provider = new FacebookAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    const accessToken = result.user.accessToken;
+
+    await saveUserSession(result.user, accessToken);
+  };
 
   const firebaseSignOut = async () => {
     await fetch("/api/auth/logout", {
@@ -67,7 +70,7 @@ export const AuthContextProvider = ({ children }) => {
         loading,
         gitHubSignIn,
         googleSignIn,
-        // facebookSignIn,
+        facebookSignIn,
         firebaseSignOut,
       }}
     >

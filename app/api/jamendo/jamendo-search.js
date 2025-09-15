@@ -35,7 +35,7 @@ function createSearchString(searchObj) {
   const staticSearchParams = {
     client_id: process.env.NEXT_PUBLIC_JAMENDO_CLIENT_ID,
     format: "json",
-    limit: 10,
+    limit: 25,
     type: "single albumtrack",
     audioformat: "mp32",
   };
