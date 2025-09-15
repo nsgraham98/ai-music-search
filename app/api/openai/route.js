@@ -1,15 +1,21 @@
+// This is the first API route that is called from the client (searchbar component)
+// It authorizes the user, then calls runOpenAISearch() in openai.js to handle the rest of the flow
+// Then it returns the final response to the client
+
 import OpenAI from "openai";
 import { runOpenAISearch } from "@/app/api/openai/openai-handler/openai.js";
-import { adminAuth } from "@/lib/firebase-admin";
-import { authorizeAPICall } from "@/lib/authorize-calls";
+import { authenticateAPICall } from "@/lib/authenticate-calls";
 
+// Initialize OpenAI client
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
 export async function POST(request) {
   try {
-    const decodedToken = await authorizeAPICall(request);
+    // Authorize the user using Firebase token
+    // returns decoded token if valid, throws error if not
+    const decodedToken = await authenticateAPICall(request); // We can use decodedToken to authorize the user if needed - e.g. check user ID, roles, etc. - but not implemented yet
     // const userId = decodedToken.uid; // you can log or use this if needed
 
     const body = await request.json();
