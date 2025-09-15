@@ -24,6 +24,11 @@ export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
 
+  // Not sure if this is a good way to handle OAuth sign-ins with Firebase, but it works. See recommended method below these 3 functions.
+  // In the future, look at cleaning this up and making it closer to the recommended way from the firebase docs
+  // session.js would also need to be updated if we change this
+
+  // https://firebase.google.com/docs/auth/web/github-auth
   const gitHubSignIn = async () => {
     const provider = new GithubAuthProvider();
     const result = await signInWithPopup(auth, provider);
@@ -32,6 +37,7 @@ export const AuthContextProvider = ({ children }) => {
     await saveUserSession(result.user, accessToken);
   };
 
+  // https://firebase.google.com/docs/auth/web/google-signin
   const googleSignIn = async () => {
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
@@ -39,6 +45,7 @@ export const AuthContextProvider = ({ children }) => {
 
     await saveUserSession(result.user, accessToken);
   };
+  // https://firebase.google.com/docs/auth/web/facebook-login
   const facebookSignIn = async () => {
     const provider = new FacebookAuthProvider();
     const result = await signInWithPopup(auth, provider);
@@ -46,6 +53,34 @@ export const AuthContextProvider = ({ children }) => {
 
     await saveUserSession(result.user, accessToken);
   };
+
+  // Recommended way to handle OAuth sign-in with Firebase, from the firebase docs
+  // https://firebase.google.com/docs/auth/web/github-auth
+
+  // const gitHubSignIn = async () => {
+  //   const provider = new GithubAuthProvider();
+  //   signInWithPopup(auth, provider)
+  //     .then((result) => {
+  //       // This gives you a GitHub Access Token. You can use it to access the GitHub API.
+  //       const credential = GithubAuthProvider.credentialFromResult(result);
+  //       const token = credential.accessToken;
+
+  //       // The signed-in user info.
+  //       const user = result.user;
+  //       // IdP data available using getAdditionalUserInfo(result)
+  //       // ...
+  //     })
+  //     .catch((error) => {
+  //       // Handle Errors here.
+  //       const errorCode = error.code;
+  //       const errorMessage = error.message;
+  //       // The email of the user's account used.
+  //       const email = error.customData.email;
+  //       // The AuthCredential type that was used.
+  //       const credential = GithubAuthProvider.credentialFromError(error);
+  //       // ...
+  //     });
+  // };
 
   const firebaseSignOut = async () => {
     await fetch("/api/auth/logout", {

@@ -1,5 +1,5 @@
 // This is the first API route that is called from the client (searchbar component)
-// It authorizes the user, then calls runOpenAISearch() in openai.js to handle the rest of the flow
+// It authenticates the user, then calls runOpenAISearch() in openai.js to handle the rest of the flow
 // Then it returns the final response to the client
 
 import OpenAI from "openai";
@@ -13,17 +13,18 @@ const openai = new OpenAI({
 
 export async function POST(request) {
   try {
-    // Authorize the user using Firebase token
+    // Authenticate the user using Firebase token
     // returns decoded token if valid, throws error if not
     const decodedToken = await authenticateAPICall(request); // We can use decodedToken to authorize the user if needed - e.g. check user ID, roles, etc. - but not implemented yet
     // const userId = decodedToken.uid; // you can log or use this if needed
 
     const body = await request.json();
-    const result = await runOpenAISearch(body.userQuery);
+    const result = await runOpenAISearch(body.userQuery); // main function to handle the OpenAI search logic
 
     console.log("AI Response:", result.aiResponse);
     console.log("Jamendo Response:", result.jamendoResponse);
 
+    // return successful response to client
     return new Response(
       JSON.stringify({
         aiResponse: result.aiResponse,

@@ -1,24 +1,8 @@
-// import { getSessionData } from "@/services/session";
+// This file is the API route that actually calls the database to save the session data
+// this is called from session-handler/session.js, which is called from auth-context.jsx within its sign-in functions (githubSignIn, googleSignIn, facebookSignIn)
+
 import { adminAuth, db } from "@/lib/firebase-admin";
-import { cookies } from "next/headers";
 import { cleanForFirestore } from "@/utils/clean";
-
-// export async function GET(request) {
-//   // const cookies = request.headers.get("cookies");
-//   // const sessionData = await getSessionData(cookies);
-
-//   return new Response(
-//     JSON.stringify({
-//       sessionData: sessionData,
-//     }),
-//     {
-//       status: 200,
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//     }
-//   );
-// }
 
 // saves the session data to the database
 export async function POST(req) {
@@ -27,6 +11,9 @@ export async function POST(req) {
     const decoded = await adminAuth.verifyIdToken(token); // idk why this works and not authenticateAPICall(req)
     const uid = decoded.uid;
 
+    // prepare the data to be saved
+    // cleanForFirestore() adds a created_at timestamp and removes undefined values
+    // we save the providerAccessToken and thirdPartyTokens (if they exist) for future use
     const sessionData = cleanForFirestore({
       uid,
       jamendo_access_token: thirdPartyTokens?.access_token,
@@ -34,20 +21,14 @@ export async function POST(req) {
       expires_at: thirdPartyTokens?.expires_at,
       providerAccessToken,
     });
-    console.log("Session data:", sessionData);
+
+    // write to the database (the "sessions" collection, document ID is the user's uid)
     await db.collection("sessions").doc(uid).set(
       {
         sessionData,
       },
       { merge: true }
     );
-
-    // cookies().set("__session", token, {
-    //   httpOnly: true,
-    //   // secure: true, // Uncomment this line if using HTTPS
-    //   path: "/",
-    //   maxAge: 60 * 60 * 24, // 1 day
-    // });
 
     return new Response(JSON.stringify({ ok: true }), {
       status: 200,
