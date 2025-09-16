@@ -1,12 +1,17 @@
+// A progress bar component for the audio player on the bottom of the screen
+// used in audio-player.jsx
+// consumes context from audio-player-context.jsx
+
 "use client";
 
-import { Box, Typography, Slider } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { useAudioPlayerContext } from "@/context/audio-player-context";
 
 export const ProgressBar = () => {
   const { audioRef, progressBarRef, timeProgress, setTimeProgress, duration } =
     useAudioPlayerContext();
 
+  // handle progress bar change - when user drags the progress bar thumb
   const handleProgressChange = () => {
     if (audioRef.current && progressBarRef.current) {
       const newTime = Number(progressBarRef.current.value);
@@ -20,6 +25,7 @@ export const ProgressBar = () => {
     }
   };
 
+  // format time in mm:ss format
   const formatTime = (time) => {
     if (typeof time === "number" && !isNaN(time)) {
       const minutes = Math.floor(time / 60);
@@ -33,10 +39,12 @@ export const ProgressBar = () => {
 
   return (
     <Box display="flex" alignItems="center" gap={2} width="100%">
+      {/* current time */}
       <Typography variant="caption" color="white">
         {formatTime(timeProgress)}
       </Typography>
 
+      {/* simple HTML range input for progress bar */}
       <input
         className="max-w-[80%] bg-gray-300"
         ref={progressBarRef}
@@ -45,6 +53,7 @@ export const ProgressBar = () => {
         onChange={handleProgressChange}
       />
 
+      {/* total track duration */}
       <Typography variant="caption" color="white">
         {formatTime(duration)}
       </Typography>

@@ -1,5 +1,7 @@
-// this is the search results component that will be used to display the search results in the audio player
-// should probably use a different name to avoid confusion
+// This is the search results component that will be used to display the search results in the audio player
+// Should probably use a different name to avoid confusion once we add traditional playlist functionality...
+// It's called playlist for now because the search results are effectively a temporary playlist
+// used on home page: /app/(pages)/(home)/page.jsx
 
 "use client";
 
@@ -21,22 +23,18 @@ import {
   goToAlbum,
 } from "@/app/api/jamendo/jamendo-handler/go-to-jamendo";
 
-// placeholder for future search result repurposing
-export function handleSearchResults(searchResults) {}
-
 export const PlayList = () => {
   const { currentTrack, setCurrentTrack, setIsPlaying, tracks } =
     useAudioPlayerContext();
 
+  // onClick handlers
   const handleClick = (track) => {
     setCurrentTrack(track);
     setIsPlaying(true);
   };
-
   const handleTrackOnClick = (track) => {
     goToTrack(track);
   };
-
   const handleArtistOnClick = (track) => {
     goToArtist(track);
   };
@@ -44,6 +42,7 @@ export const PlayList = () => {
     goToAlbum(track);
   };
 
+  // if no tracks, show message
   if (!tracks || tracks.length === 0) {
     return (
       <Paper
@@ -66,6 +65,7 @@ export const PlayList = () => {
     );
   }
 
+  // else, show list of tracks
   return (
     <Paper
       elevation={3}

@@ -1,3 +1,14 @@
+// Component for the audio player UI at the bottom of the screen
+// Present on every page after login (i.e. within the dashboard layout)
+// Used in /app/(pages)/(home)/layout.jsx
+
+// Contains subcomponents for:
+// track info
+// playback controls
+// progress bar
+// volume control
+// download button
+
 "use client";
 
 import { Box } from "@mui/material";

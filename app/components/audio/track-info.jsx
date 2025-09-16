@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, Box, Button, Typography } from "@mui/material";
+import { Avatar, Box, Typography } from "@mui/material";
 import { useAudioPlayerContext } from "@/context/audio-player-context";
 import {
   goToArtist,

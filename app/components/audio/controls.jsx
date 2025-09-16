@@ -1,4 +1,7 @@
-// https://blog.logrocket.com/building-audio-player-react/
+// Audio player controls component
+// Play, pause, skip, rewind, fast-forward, shuffle, repeat
+// Followed this tutorial: https://blog.logrocket.com/building-audio-player-react/
+// This consumes context from audio-player-context.jsx
 
 "use client";
 
@@ -14,7 +17,7 @@ import {
   BsShuffle,
 } from "react-icons/bs";
 
-import { Box, IconButton, Typography } from "@mui/material";
+import { Box, IconButton } from "@mui/material";
 import { useAudioPlayerContext } from "@/context/audio-player-context";
 
 export const Controls = () => {
@@ -34,11 +37,12 @@ export const Controls = () => {
 
   const [isShuffle, setIsShuffle] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
-  const playAnimationRef = useRef(null);
-
+  // useRef is used to persist values between renders without causing re-renders
+  const playAnimationRef = useRef(null); // used for progress bar animation
   const lastUpdateRef = useRef(0); // to track the last update time
 
   // updates currentTime & progress bar position
+  // useCallback is used to memoize the function and avoid unnecessary re-renders
   const updateProgress = useCallback(() => {
     if (audioRef.current && progressBarRef.current && duration) {
       const currentTime = audioRef.current.currentTime;
@@ -103,7 +107,7 @@ export const Controls = () => {
   const skipForward = () => {
     if (audioRef.current) {
       audioRef.current.currentTime += 15;
-      updateProgress(); // update progress immediately after skipping
+      updateProgress();
     }
   };
 
@@ -111,7 +115,7 @@ export const Controls = () => {
   const skipBackward = () => {
     if (audioRef.current) {
       audioRef.current.currentTime -= 15;
-      updateProgress(); // update progress immediately after skipping
+      updateProgress();
     }
   };
 
@@ -159,15 +163,6 @@ export const Controls = () => {
       }
     };
   }, [isRepeat, handleNext, audioRef]);
-
-  // // fallback if track isn't loaded
-  // if (!currentTrack) {
-  //   return (
-  //     <Typography variant="body2" color="text.secondary">
-  //       No track selected
-  //     </Typography>
-  //   );
-  // }
 
   return (
     <Box display="flex" alignItems="center" gap={2}>
