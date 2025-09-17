@@ -25,9 +25,14 @@ export const AuthContextProvider = ({ children }) => {
   // Helper to update display name in Firestore and locally
   const updateDisplayName = async (displayName) => {
     if (!user) return;
+    // Get Firebase ID token
+    const token = await auth.currentUser.getIdToken(true);
     const res = await fetch("/api/user/update-profile", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify({ displayName }),
     });
     if (res.ok) {

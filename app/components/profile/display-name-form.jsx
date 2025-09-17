@@ -1,13 +1,20 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useUserAuth } from "@/context/auth-context";
 import { Button, TextField, Box, Typography } from "@mui/material";
 
-export default function DisplayNameForm() {
+export default function DisplayNameForm({ onClose }) {
   const { user, updateDisplayName } = useUserAuth();
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  // Pre-fill with current display name if available
+  useEffect(() => {
+    if (user?.displayName) {
+      setDisplayName(user.displayName);
+    }
+  }, [user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -15,7 +22,10 @@ export default function DisplayNameForm() {
     await updateDisplayName(displayName);
     setLoading(false);
     setSuccess(true);
-    setTimeout(() => setSuccess(false), 2000);
+    setTimeout(() => {
+      setSuccess(false);
+      if (onClose) onClose();
+    }, 1200);
   };
 
   return (

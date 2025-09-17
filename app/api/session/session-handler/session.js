@@ -3,8 +3,8 @@ import { db } from "@/lib/firebase";
 import { doc, setDoc, getDoc, deleteDoc } from "firebase/firestore";
 
 /**
- * Save the user session to Firestore.
- * @param {object} user - Firebase user object.
+ * Save or update the user session in Firestore.
+ * @param {object} user - { uid, email, displayName, photoURL }
  * @param {string|null} providerAccessToken
  * @param {object} options - { thirdPartyTokens }
  */
@@ -13,7 +13,11 @@ export async function saveUserSession(
   providerAccessToken = null,
   { thirdPartyTokens } = {}
 ) {
-  const token = await getIdToken(user, true);
+  // If user is a Firebase Auth user, get token; otherwise skip
+  let token = null;
+  if (user.getIdToken) {
+    token = await getIdToken(user, true);
+  }
 
   const sessionData = {
     uid: user.uid,
@@ -25,7 +29,7 @@ export async function saveUserSession(
     updatedAt: new Date().toISOString(),
   };
 
-  // Save session data to Firestore (sessions/{uid})
+  // Save or update session data in Firestore (sessions/{uid})
   await setDoc(
     doc(db, "sessions", user.uid),
     { sessionData, token },
