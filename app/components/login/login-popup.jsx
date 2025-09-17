@@ -1,20 +1,20 @@
+// The login popup dialog that appears when the user is not authenticated
+// contains the LoginForm component
+// uses auth-context.jsx to check if user is logged in
+
 "use client";
 
 import { useUserAuth } from "@/context/auth-context";
 import { useEffect, useState } from "react";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  Typography,
-  Box,
-} from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, Typography } from "@mui/material";
 import { LoginForm } from "@/app/components/login/login-form";
 
 export default function LoginPopup() {
   const { user } = useUserAuth();
+  // state to control dialog open/close
   const [open, setOpen] = useState(false);
 
+  // open dialog if user is not logged in
   useEffect(() => {
     if (!user) {
       setOpen(true);

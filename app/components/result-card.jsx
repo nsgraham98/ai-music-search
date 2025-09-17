@@ -1,3 +1,8 @@
+// NOT IN USE
+// would be a card to display search results with audio preview
+// and include a dropdown to show more details
+// but we use the MUI list in audio/playlist.jsx instead for now
+
 "use client";
 import React, { useState } from "react";
 

@@ -1,8 +1,10 @@
+// Small component to display the signed-in user's email
+
 import { useUserAuth } from "@/context/auth-context";
 import { Typography } from "@mui/material";
 
 export default function SignedInAs() {
-  const { user } = useUserAuth(); // Assuming you have a way to get the current user
+  const { user } = useUserAuth();
 
   if (!user) {
     return (
