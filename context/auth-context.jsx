@@ -23,6 +23,7 @@ export const AuthContextProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   // Helper to update display name in Firestore and locally
+  // not sure if we want to update display name locally
   const updateDisplayName = async (displayName) => {
     if (!user) return;
     // Get Firebase ID token

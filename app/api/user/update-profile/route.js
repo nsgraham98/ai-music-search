@@ -1,5 +1,4 @@
-import { doc, updateDoc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db } from "@/lib/firebase-admin";
 import { authorizeAPICall } from "@/lib/authorize-calls";
 import { saveUserSession } from "@/app/api/session/session-handler/session";
 
@@ -14,23 +13,21 @@ export async function POST(request) {
     });
   }
 
-  // Update user profile
-  const userRef = doc(db, "users", decodedToken.uid);
-  await updateDoc(userRef, { displayName });
+  // Update user profile using Admin SDK
+  const userRef = db.collection("users").doc(decodedToken.uid);
+  await userRef.update({ displayName });
 
   // Fetch updated user profile for session update
-  const userSnap = await getDoc(userRef);
+  const userSnap = await userRef.get();
   const userData = userSnap.data();
 
   // Update session data as well
-  await saveUserSession(
-    {
-      uid: decodedToken.uid,
-      email: userData.email,
-      displayName: displayName,
-      photoURL: userData.photoURL,
-    }
-  );
+  await saveUserSession({
+    uid: decodedToken.uid,
+    email: userData.email,
+    displayName: displayName,
+    photoURL: userData.photoURL,
+  });
 
   return new Response(JSON.stringify({ ok: true }), {
     status: 200,

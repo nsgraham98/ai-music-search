@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { AudioPlayerProvider } from "@/context/audio-player-context";
 import { Box, CircularProgress, Container } from "@mui/material";
 import { AudioPlayer } from "@/app/components/audio/audio-player.jsx";
-import DisplayNameForm from "@/app/components/profile/display-name-form"; // <-- Add this import
+import DisplayNameForm from "@/app/components/profile/display-name-form";
 
 export default function DashboardLayout({ children }) {
   const { user, loading } = useUserAuth();
@@ -28,21 +28,6 @@ export default function DashboardLayout({ children }) {
         height="100vh"
       >
         <CircularProgress />
-      </Box>
-    );
-  }
-
-  // Prompt for display name if user is logged in but doesn't have one
-  if (user && !user.displayName) {
-    return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="100vh"
-        bgcolor="#1e1e1e"
-      >
-        <DisplayNameForm />
       </Box>
     );
   }
