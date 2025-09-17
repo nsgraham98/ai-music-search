@@ -1,12 +1,13 @@
 // app/api/spotify/accesstoken/spotifyroute.js
 // TODO: 
-//Implement error handling
+// Implement error handling 
+// -- startspotifyauth needs to handle error case from api.
 // Token refresh logic. (or rewrite using another auth flow).
 
 
 //Notes:
 // Most of this implementation directly from spotify docs.
-//uses pkce auth flow.
+// uses pkce auth flow.
 // This access token only lasts an hour. 
 
 // Generating string for verifier
@@ -33,10 +34,11 @@ function base64encode (input) {
 async function startSpotifyAuth () {
     const coder_verifier = generateRandomString(128); // max length allowed by api.
     localStorage.setItem('code_verifier', code_verifier); // store for later use according to api doc.
-
+    authUrl = new URL('https://accounts.spotify.com/authorize'); //Spotify auth endpoint.
+    //Code Challenge
     const hashedVerifier = await sha256(code_verifier);
     const code_challenge = base64encode(hashedVerifier);
-
+    //Formatting params for endpoint.
     const params = {
         response_type: 'code',
         client_id: process.env.SPOTIFY_CLIENT_ID,
@@ -45,9 +47,37 @@ async function startSpotifyAuth () {
         code_challenge_method: 'S256',
         code_challenge,
     };
-
     authUrl.search = new URLSearchParams(params).toString();
     window.location.href = authUrl.toString(); //redirect to spotify login page.
+
+    // only on successful log in and user acceptance.
+    const urlParams = new URLSearchParams(window.location.search);
+    let code = urlParams.get('code'); // get code from url after redirect. need to request access token.
+    
+}
+// POST request to get access token.
+export async function getToken (code) {
+    const codeVerifier = localStorage.getItem('code_verifier');
+    const url = 'https://accounts.spotify.com/api/token';
+    const payload = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body : new URLSearchParams({
+            client_id: process.env.SPOTIFY_CLIENT_ID,
+            grant_type: 'authorization_code',
+            code,
+            redirect_uri: 'http://172.25.96.1:3000',
+            code_verifier: codeVerifier,
+    }),
+}
+const body = await fetch(url, payload);
+const response = await body.json();
+
+//store access token in local as it only lasts an hour.
+localStorage.setItem('access_token', response.access_token);
+
 }
 
 
