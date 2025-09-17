@@ -1,3 +1,7 @@
+// NOT IN USE
+// was intended to be a button to connect a Jamendo account
+// Likely will be deleted in the future... need to confirm
+
 export function ConnectJamendoButton() {
   const redirectToJamendo = () => {
     const state = crypto.randomUUID(); // use CSRF-safe randomness

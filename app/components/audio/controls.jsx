@@ -23,7 +23,7 @@ import { useAudioPlayerContext } from "@/context/audio-player-context";
 export const Controls = () => {
   const {
     currentTrack,
-    audioRef,
+    audioRef, // ref for the <audio> element
     setTrackIndex,
     setCurrentTrack,
     setDuration,
@@ -90,7 +90,7 @@ export const Controls = () => {
         cancelAnimationFrame(playAnimationRef.current);
       }
     };
-  }, [isPlaying, startAnimation, updateProgress, audioRef]);
+  }, [isPlaying, startAnimation, updateProgress, audioRef]); // dependencies
 
   // displaying track duration as soon as the audio is loaded
   const onLoadedMetadata = () => {
@@ -162,7 +162,7 @@ export const Controls = () => {
         currentAudioRef.onended = null; // clean up
       }
     };
-  }, [isRepeat, handleNext, audioRef]);
+  }, [isRepeat, handleNext, audioRef]); // dependencies
 
   return (
     <Box display="flex" alignItems="center" gap={2}>

@@ -1,3 +1,6 @@
+// what the fallback UI looks like when an error is caught
+// used in error-boundary-client.jsx
+
 import React from "react";
 
 export default function ErrorFallback({ error, resetErrorBoundary }) {

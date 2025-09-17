@@ -21,8 +21,8 @@ import { saveUserSession } from "@/app/api/session/session-handler/session.js";
 const AuthContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loadingUser, setLoadingUser] = useState(true);
+  const [user, setUser] = useState(null); // active logged in user object
+  const [loadingUser, setLoadingUser] = useState(true); // loading while checking auth state
 
   // Not sure if this is a good way to handle OAuth sign-ins with Firebase, but it works. See recommended method below these 3 functions.
   // In the future, look at cleaning this up and making it closer to the recommended way from the firebase docs
@@ -82,6 +82,8 @@ export const AuthContextProvider = ({ children }) => {
   //     });
   // };
 
+  // Sign out user
+  // Also calls the logout API route to clear the session cookie
   const firebaseSignOut = async () => {
     await fetch("/api/auth/logout", {
       method: "POST",

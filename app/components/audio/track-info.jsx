@@ -1,3 +1,7 @@
+// Track info component
+// Is used with the audio player to show current track info (the player itself, not the search results playlist)
+// Title, artist, album art thumbnail, with links to Jamendo pages
+
 "use client";
 
 import { Avatar, Box, Typography } from "@mui/material";
@@ -11,12 +15,14 @@ import {
 export const TrackInfo = () => {
   const { currentTrack } = useAudioPlayerContext();
 
+  // base case
   if (!currentTrack) return null;
 
+  // onClick handlers
+  // goTo functions are in -> /app/api/jamendo/jamendo-handler/go-to-jamendo
   const handleTrackOnClick = (track) => {
     goToTrack(track);
   };
-
   const handleArtistOnClick = (track) => {
     goToArtist(track);
   };

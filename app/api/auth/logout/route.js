@@ -1,5 +1,5 @@
 // This endpoint is called to log the user out by deleting the session cookie
-// Gets called from logout-button.jsx component
+// Gets called from logout-button.jsx component and firebaseSignOut function in auth-context.jsx
 
 import { cookies } from "next/headers";
 

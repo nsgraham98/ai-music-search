@@ -1,9 +1,17 @@
+// The login form component with buttons for GitHub, Google, and Facebook sign-in
+// enclosed in login-popup.jsx
+// uses auth-context.jsx for authentication functions
+
+"use client";
+
 import { Button, Box, Stack } from "@mui/material";
 import { useUserAuth } from "/context/auth-context";
 
 export function LoginForm() {
-  const { gitHubSignIn, googleSignIn, facebookSignIn } = useUserAuth();
+  const { gitHubSignIn, googleSignIn, facebookSignIn } = useUserAuth(); // get sign-in functions from context
 
+  // Handlers for button clicks
+  // Each handler calls the corresponding sign-in function (in auth-context) and catches errors
   const handleGitHubSignIn = async () => {
     try {
       await gitHubSignIn();
@@ -11,7 +19,6 @@ export function LoginForm() {
       console.error("Error signing in with GitHub:", error);
     }
   };
-
   const handleGoogleSignIn = async () => {
     try {
       await googleSignIn();
@@ -19,7 +26,6 @@ export function LoginForm() {
       console.error("Error signing in with Google:", error);
     }
   };
-
   const handleFacebookSignIn = async () => {
     try {
       await facebookSignIn();

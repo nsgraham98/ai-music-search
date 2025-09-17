@@ -1,3 +1,7 @@
+// NOT IN USE
+// would encase the <ResultCard> component to display search results with audio preview
+// but we use the MUI list in audio/playlist.jsx instead for now
+
 "use client";
 // This component is responsible for displaying the search results from the API.
 // import React from 'react';
