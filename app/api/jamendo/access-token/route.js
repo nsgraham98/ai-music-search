@@ -1,8 +1,11 @@
-import { GetNow } from "@/app/api/jamendo/jamendo-handler/jamendo-auth.js";
-import { authorizeAPICall } from "@/lib/authorize-calls.js";
+// Not used i think... need to confirm
+// Endpoint to handle Jamendo account token exchange and refresh
+// Used in conjunction with jamendo-callback.jsx
+
+import { authenticateAPICall } from "@/lib/authenticate-calls.js";
 
 export async function POST(req) {
-  const decodedToken = await authorizeAPICall(request);
+  const decodedToken = await authenticateAPICall(request);
   // const userId = decodedToken.uid; // you can log or use this if needed
   const { code, grant_type } = await req.json();
 
@@ -39,7 +42,7 @@ export async function POST(req) {
   }
 
   const data = await res.json();
-  const now = GetNow();
+  const now = new Date.now(); // removed an unnecessary GetNow() function from another file and replaced it with this. Haven't tested yet
   return new Response(
     JSON.stringify({
       access_token: data.access_token,

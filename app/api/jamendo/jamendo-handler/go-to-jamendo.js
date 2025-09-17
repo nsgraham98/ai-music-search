@@ -1,3 +1,6 @@
+// Functions to handle logic for opening Jamendo track, artist, or album pages in a new tab (on Jamendo website)
+// Click song/artist/album text -> go to track/artist/album page
+
 export function goToTrack(track) {
   if (!track || !track.id) return;
   const track_name = track.name.replace(/\s+/g, "-").toLowerCase();

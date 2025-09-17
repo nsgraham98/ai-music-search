@@ -1,3 +1,6 @@
+// The logout button component that signs the user out of Firebase
+// uses auth-context.jsx for the sign-out function
+
 "use client";
 
 import { Button } from "@mui/material";

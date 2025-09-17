@@ -1,3 +1,7 @@
+// This file handles logic regarding a user's session
+// Currently only has one function, saveUserSession(), but more may be added later
+// saveUserSession() is called from auth-context.jsx, within its sign-in functions (githubSignIn, googleSignIn, facebookSignIn)
+
 import { getIdToken } from "firebase/auth";
 
 export async function saveUserSession(
@@ -7,6 +11,8 @@ export async function saveUserSession(
 ) {
   const token = await getIdToken(user, true);
 
+  // Send the token to the backend (/api/session/route.js) to save the session data in the database
+  // currently we don't check for errors here, because they are handled in the other route.js file... not sure if this is the best way to do it
   await fetch("/api/session", {
     method: "POST",
     headers: { "Content-Type": "application/json" },

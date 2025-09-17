@@ -1,3 +1,7 @@
+// NOT USED CURRENTLY - may delete later
+// not called from anywhere
+// Functions to handle Jamendo token management
+
 export async function getValidJamendoToken(uid) {
   const docRef = db.collection("sessions").doc(uid);
   const docSnap = await docRef.get();
@@ -18,8 +22,4 @@ export async function getValidJamendoToken(uid) {
   }
 
   return session.access_token;
-}
-
-export function GetNow() {
-  return new Date().now();
 }

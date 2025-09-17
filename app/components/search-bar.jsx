@@ -1,3 +1,8 @@
+// SearchBar component with MUI styling and loading state
+// sends user query to OpenAI API route (app/api/openai/route.js) and displays AI response
+
+// This is the where the front end meets the backend for the main functionality of the app
+
 "use client";
 
 import React, { useState } from "react";
@@ -20,6 +25,7 @@ const SearchBar = () => {
 
   // sends a POST request with the user's query to the OpenAI API route
   async function handleSearch() {
+    // base case - no query
     if (!userQuery) return;
     setIsLoading(true);
 
