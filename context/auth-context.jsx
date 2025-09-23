@@ -17,6 +17,7 @@ import {
 } from "firebase/auth";
 import { auth } from "@/lib/firebase.js";
 import { saveUserSession } from "@/app/api/session/session-handler/session.js";
+import { saveUserProfile } from "@/app/api/users/user-handler/save-user-profile.js";
 
 const AuthContext = createContext();
 
@@ -34,7 +35,11 @@ export const AuthContextProvider = ({ children }) => {
     const result = await signInWithPopup(auth, provider);
     const accessToken = result.user.accessToken;
 
+    // Save session data
     await saveUserSession(result.user, accessToken);
+    
+    // Create or update user profile
+    await saveUserProfile(result.user, "github", accessToken);
   };
 
   // https://firebase.google.com/docs/auth/web/google-signin
@@ -43,7 +48,11 @@ export const AuthContextProvider = ({ children }) => {
     const result = await signInWithPopup(auth, provider);
     const accessToken = result.user.accessToken;
 
+    // Save session data
     await saveUserSession(result.user, accessToken);
+    
+    // Create or update user profile
+    await saveUserProfile(result.user, "google", accessToken);
   };
   // https://firebase.google.com/docs/auth/web/facebook-login
   const facebookSignIn = async () => {
@@ -51,7 +60,11 @@ export const AuthContextProvider = ({ children }) => {
     const result = await signInWithPopup(auth, provider);
     const accessToken = result.user.accessToken;
 
+    // Save session data
     await saveUserSession(result.user, accessToken);
+    
+    // Create or update user profile
+    await saveUserProfile(result.user, "facebook", accessToken);
   };
 
   // Recommended way to handle OAuth sign-in with Firebase, from the firebase docs
