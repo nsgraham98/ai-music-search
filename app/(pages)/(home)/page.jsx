@@ -3,7 +3,6 @@
 // AudioPlayer component is located in the layout.jsx file so it's always visible to logged in users
 
 "use client";
-
 import SearchBar from "@/app/components/search-bar.jsx";
 import { LogoutButton } from "@/app/components/login/logout-button";
 import { Box, Typography, Container, Paper } from "@mui/material";
