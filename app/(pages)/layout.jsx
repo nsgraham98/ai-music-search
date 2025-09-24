@@ -11,6 +11,7 @@
 // https://nextjs.org/docs/app/api-reference/file-conventions/layout
 
 import { Geist, Geist_Mono } from "next/font/google";
+import Link from "next/link";
 import "/styles/globals.css";
 import "/styles/customize-progress-bar.css";
 import { AudioPlayerProvider } from "@/context/audio-player-context.jsx";
@@ -58,6 +59,13 @@ export default function RootLayout({ children }) {
                   minHeight: "100vh",
                 }}
               >
+                <nav style={{ marginBottom: '1rem' }}> 
+                  <Link href="/spotify-test">
+                    <button style={{ padding: '0.5rem 1rem', fontSize: '1rem' }}>
+                      Test Spotify Connection
+                    </button>
+                  </Link>
+                </nav>
                 {children}
               </Box>
             </AuthContextProvider>
