@@ -1,5 +1,4 @@
 "use client";
-
 import SearchBar from "@/app/components/search-bar.jsx";
 import { LogoutButton } from "@/app/components/login/logout-button";
 import { Box, Typography, Container, Paper } from "@mui/material";
