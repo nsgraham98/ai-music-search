@@ -16,6 +16,7 @@ import "/styles/globals.css";
 import "/styles/customize-progress-bar.css";
 import { AudioPlayerProvider } from "@/context/audio-player-context.jsx";
 import { AuthContextProvider } from "@/context/auth-context.jsx";
+import { UserProfileContextProvider } from "@/context/user-profile-context.jsx";
 import { Box } from "@mui/material";
 import ClientErrorBoundary from "@/app/components/error-boundary-client.jsx";
 
@@ -52,6 +53,17 @@ export default function RootLayout({ children }) {
         <ClientErrorBoundary>
           <AudioPlayerProvider>
             <AuthContextProvider>
+              <UserProfileContextProvider>
+                <Box
+                  sx={{
+                    bgcolor: "#1e1e1e",
+                    color: "white",
+                    minHeight: "100vh",
+                  }}
+                >
+                  {children}
+                </Box>
+              
               <Box
                 sx={{
                   bgcolor: "#1e1e1e",
@@ -68,6 +80,7 @@ export default function RootLayout({ children }) {
                 </nav>
                 {children}
               </Box>
+              </UserProfileContextProvider>
             </AuthContextProvider>
           </AudioPlayerProvider>
         </ClientErrorBoundary>
