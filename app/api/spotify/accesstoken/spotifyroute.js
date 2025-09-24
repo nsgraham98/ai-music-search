@@ -33,7 +33,7 @@ export async function startSpotifyAuth () {
     const code_verifier = generateRandomString(128); // max length allowed by api.
     localStorage.setItem('code_verifier', code_verifier); // store for later use according to api doc.
     const authUrl = new URL('https://accounts.spotify.com/authorize'); //Spotify auth endpoint.
-    const redirectUri = 'http://172.25.96.1:3000/spotify-test';
+    const redirectUri = `${window.location.origin}`; // must match one of the redirect uris in spotify dev account.
     const clientID = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID; // from .env file.
     //Code Challenge
     const hashedVerifier = await sha256(code_verifier);
