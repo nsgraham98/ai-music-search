@@ -11,9 +11,8 @@ const searchResponse = await fetch(
     headers:{
         'Authorization': `Bearer ${accessToken}`,
     },
-}
+} 
 );
-
 const data = await searchResponse.json();
 console.log(data.tracks.items[0]); // Check, logs first item in tracks array.
 
