@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { Switch, FormControlLabel } from "@mui/material";
 import { useAudioPlayerContext } from "@/context/audio-player-context";
 import {
   TextField,
@@ -15,6 +16,7 @@ const SearchBar = () => {
   const [userQuery, setUserQuery] = useState("");
   const [isLoading, setIsLoading] = React.useState(false);
   const [aiResponse, setAiResponse] = useState(null);
+  const [royaltyFree, setRoyaltyFree] = useState(true);
   const { setTracks } = useAudioPlayerContext();
   const { user } = useUserAuth();
 
@@ -22,30 +24,23 @@ const SearchBar = () => {
   async function handleSearch() {
     if (!userQuery) return;
     setIsLoading(true);
-
     const idToken = await user.getIdToken();
-
     const response = await fetch("/api/openai", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${idToken}`, // include the ID token in the request headers
+        Authorization: `Bearer ${idToken}`,
       },
-      body: JSON.stringify({ userQuery }), // sends query as a JSON object e.g. { userQuery: "query text here" }
+      body: JSON.stringify({ userQuery, royaltyFree }),
     });
-
     if (!response.ok) {
       console.error("Error fetching data:", response.statusText);
       setIsLoading(false);
       return;
     }
-
     const data = await response.json();
-
-    setTracks(data.jamendoResponse); // set the tracks in the context
-    setAiResponse(data.aiResponse.output_text); // set the AI response in the state
-    const aiResponse = data.aiResponse; // get the AI response
-
+    setTracks(data.jamendoResponse);
+    setAiResponse(data.aiResponse.output_text);
     setIsLoading(false);
   }
 
@@ -75,6 +70,17 @@ const SearchBar = () => {
             fieldset: { borderColor: "#444" },
             bgcolor: "#2e2d2d",
           }}
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              checked={royaltyFree}
+              onChange={(e) => setRoyaltyFree(e.target.checked)}
+              color="primary"
+            />
+          }
+          label="Royalty-Free"
+          sx={{ color: "white" }}
         />
 
         <Button
