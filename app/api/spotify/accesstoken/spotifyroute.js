@@ -46,7 +46,6 @@ export async function startSpotifyAuth () {
         response_type:'code',
         client_id: clientID,
         scope,
-
         code_challenge_method: 'S256',
         code_challenge: codeChallenge,
         redirect_uri: redirectUri,
