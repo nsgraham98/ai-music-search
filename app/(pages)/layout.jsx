@@ -62,24 +62,16 @@ export default function RootLayout({ children }) {
                   }}
                 >
                   {children}
+                  <nav style={{ marginBottom: "1rem" }}>
+                    <Link href="/spotify-test">
+                      <button
+                        style={{ padding: "0.5rem 1rem", fontSize: "1rem" }}
+                      >
+                        Test Spotify Connection
+                      </button>
+                    </Link>
+                  </nav>
                 </Box>
-              
-              <Box
-                sx={{
-                  bgcolor: "#1e1e1e",
-                  color: "white",
-                  minHeight: "100vh",
-                }}
-              >
-                <nav style={{ marginBottom: '1rem' }}> 
-                  <Link href="/spotify-test">
-                    <button style={{ padding: '0.5rem 1rem', fontSize: '1rem' }}>
-                      Test Spotify Connection
-                    </button>
-                  </Link>
-                </nav>
-                {children}
-              </Box>
               </UserProfileContextProvider>
             </AuthContextProvider>
           </AudioPlayerProvider>
