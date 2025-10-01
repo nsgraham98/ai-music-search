@@ -19,7 +19,7 @@ We can fetch the full track data from Jamendo API when needed, and store it clie
         ~750 tracks (with waveform data)
         note: jamendo only returns max 200 tracks per request, so we can paginate requests in the future, once this we get this working
     check this using chrome devtools memory tab -> Total JS heap size
-        mine is ~160MB, ~20 kB/sec
+        mine is ~160MB, ~20 kB/sec  
 */
 
 import { authenticateAPICall } from "@/lib/authenticate-calls";
