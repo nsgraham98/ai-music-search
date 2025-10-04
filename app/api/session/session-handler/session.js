@@ -5,19 +5,20 @@
 import { getIdToken } from "firebase/auth";
 
 export async function saveUserSession(
-  user,
+  IdToken,
   providerAccessToken = null,
   { thirdPartyTokens } = {}
 ) {
-  const token = await getIdToken(user, true);
+  //const token = await getIdToken(user, true);
 
   // Send the token to the backend (/api/session/route.js) to save the session data in the database
-  // currently we don't check for errors here, because they are handled in the other route.js file... not sure if this is the best way to do it
+  // currently we don't check for errors here, because they are handled in the route.js file... not sure if this is the best way to do it
+  console.log("ID TOKEN IN SESSION.JS", IdToken);
   await fetch("/api/session", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      token,
+      IdToken,
       ...(providerAccessToken && { providerAccessToken }),
       ...(thirdPartyTokens && { thirdPartyTokens }),
     }),

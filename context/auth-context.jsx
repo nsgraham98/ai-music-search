@@ -16,7 +16,7 @@ import {
   FacebookAuthProvider,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase.js";
-import { saveUserSession } from "@/app/api/session/session-handler/session.js";
+//import { saveUserSession } from "@/app/api/session/session-handler/session.js";
 import { saveUserProfile } from "@/app/api/users/user-handler/save-user-profile.js";
 
 const AuthContext = createContext();
@@ -25,32 +25,52 @@ export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null); // active logged in user object
   const [loadingUser, setLoadingUser] = useState(true); // loading while checking auth state
 
-  // Not sure if this is a good way to handle OAuth sign-ins with Firebase, but it works. See recommended method below these 3 functions.
-  // In the future, look at cleaning this up and making it closer to the recommended way from the firebase docs
-  // session.js would also need to be updated if we change this
+  async function saveUserSession(IdToken) {
+    //const token = await getIdToken(user, true);
+
+    // Send the token to the backend (/api/session/route.js) to save the session data in the database
+    // currently we don't check for errors here, because they are handled in the route.js file... not sure if this is the best way to do it
+    await fetch("/api/session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        IdToken,
+      }),
+    });
+  }
 
   // https://firebase.google.com/docs/auth/web/github-auth
   const gitHubSignIn = async () => {
     const provider = new GithubAuthProvider();
     const result = await signInWithPopup(auth, provider);
-    const accessToken = result.user.accessToken;
+    const user = result.user; // user object from firebase
+    const IdToken = await user.getIdToken();
+    console.log("IDTOKEN", IdToken);
+
+    // TODO: change the saveUserSession to call the /session route, not the session-handler file directly
+
+    // this commented out code gets a github access token, if we need to work with the github api later (different from firebase api we do use for auth)
+    // const credential = GithubAuthProvider.credentialFromResult(result);
+    // const gitHubToken = credential.accessToken;
 
     // Save session data
-    await saveUserSession(result.user, accessToken);
-    
+    // await saveUserSession(result.user, accessToken);
+    await saveUserSession(IdToken);
+
     // Create or update user profile
-    await saveUserProfile(result.user, "github", accessToken);
+    await saveUserProfile(result.user, "github", IdToken);
   };
 
   // https://firebase.google.com/docs/auth/web/google-signin
   const googleSignIn = async () => {
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
-    const accessToken = result.user.accessToken;
+    console.log("====================================RESULT", result);
+    const accessToken = await result.user.getIdToken();
 
     // Save session data
     await saveUserSession(result.user, accessToken);
-    
+
     // Create or update user profile
     await saveUserProfile(result.user, "google", accessToken);
   };
@@ -58,42 +78,14 @@ export const AuthContextProvider = ({ children }) => {
   const facebookSignIn = async () => {
     const provider = new FacebookAuthProvider();
     const result = await signInWithPopup(auth, provider);
-    const accessToken = result.user.accessToken;
+    const accessToken = await result.user.getIdToken();
 
     // Save session data
     await saveUserSession(result.user, accessToken);
-    
+
     // Create or update user profile
     await saveUserProfile(result.user, "facebook", accessToken);
   };
-
-  // Recommended way to handle OAuth sign-in with Firebase, from the firebase docs
-  // https://firebase.google.com/docs/auth/web/github-auth
-
-  // const gitHubSignIn = async () => {
-  //   const provider = new GithubAuthProvider();
-  //   signInWithPopup(auth, provider)
-  //     .then((result) => {
-  //       // This gives you a GitHub Access Token. You can use it to access the GitHub API.
-  //       const credential = GithubAuthProvider.credentialFromResult(result);
-  //       const token = credential.accessToken;
-
-  //       // The signed-in user info.
-  //       const user = result.user;
-  //       // IdP data available using getAdditionalUserInfo(result)
-  //       // ...
-  //     })
-  //     .catch((error) => {
-  //       // Handle Errors here.
-  //       const errorCode = error.code;
-  //       const errorMessage = error.message;
-  //       // The email of the user's account used.
-  //       const email = error.customData.email;
-  //       // The AuthCredential type that was used.
-  //       const credential = GithubAuthProvider.credentialFromError(error);
-  //       // ...
-  //     });
-  // };
 
   // Sign out user
   // Also calls the logout API route to clear the session cookie
