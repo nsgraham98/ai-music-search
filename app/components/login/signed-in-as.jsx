@@ -40,7 +40,7 @@ export default function SignedInAs() {
     >
       <Box textAlign="center">
         {userProfile?.displayName && (
-          <Typography fontSize="small" fontWeight="bold" color="black">
+          <Typography fontSize="small" fontWeight="bold" color="white">
             {userProfile.displayName}
           </Typography>
         )}

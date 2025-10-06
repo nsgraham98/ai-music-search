@@ -1,0 +1,33 @@
+Game Workflow
+
+Game Creation:
+
+Users click a button on the home page to navigate to "The Sound Room" page.
+On this page, users can create a new game by:
+Naming the game.
+Inviting friends (minimum of 3 members required to start the game).
+
+Game Phases:
+
+Weekly Rounds:
+A new round starts every Saturday at midnight.
+Players have until Friday at midnight to:
+Submit their song choice.
+Provide an explanation for their choice.
+Prompts (themes) are randomly selected from a hard-coded list, ensuring no duplicates.
+
+Voting:
+After submissions close, players listen to all submissions.
+Players allocate points to submissions (e.g., 1st place = 3 points, 2nd place = 2 points, etc.).
+Players can optionally leave comments on individual tracks.
+
+Results:
+After voting closes, the system reveals:
+Who submitted which song.
+Comments on each track.
+Total votes and points awarded for each submission.
+Points aggregate across rounds.
+
+Game End:
+The game continues indefinitely, with weekly rounds.
+Players can leave the game at any time, and new players can join if invited.
