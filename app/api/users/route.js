@@ -7,7 +7,10 @@ import {
   getUserProfile,
   updateDisplayName,
 } from "./user-handler/user-profile";
-import { authenticateAPICall } from "@/lib/authenticate-calls";
+import {
+  authenticateCookie,
+  authenticateIdToken,
+} from "@/lib/authenticate-calls";
 
 // GET - Retrieve user profile
 export async function GET(req) {
@@ -15,6 +18,8 @@ export async function GET(req) {
     // Get the UID from query parameters or from authorization header
     const url = new URL(req.url);
     const uid = url.searchParams.get("uid");
+    console.log("Requested UID:", uid);
+    console.log("Full URL:", req.url);
 
     if (!uid) {
       // If no UID provided, try to get it from the auth token
@@ -32,7 +37,7 @@ export async function GET(req) {
       /*
         @francis i added this, in place of the commented code below
         it's a method i wrote for authentication logic, but in a centralized location for reusability
-        You give it the request you're making, it extracts and verifies the token, throws an error if invalid, then returns the decoded token
+        You give it the request you're making, it extracts and verifies the "session=<session ID>" value of the cookie, throws an error if invalid, then returns the decoded token
         the response object it returns is structured like this:
         { 
           decodedToken: {
@@ -43,7 +48,7 @@ export async function GET(req) {
         }
         -Nick
       */
-      const res = await authenticateAPICall(req);
+      const res = await authenticateCookie(req);
       const { decodedToken } = await res.json();
       const userUid = decodedToken.uid;
 
@@ -92,7 +97,7 @@ export async function POST(req) {
       );
     }
 
-    const res = await authenticateAPICall(req);
+    const res = await authenticateCookie(req);
     const { decodedToken } = await res.json();
     const uid = decodedToken.uid;
 
@@ -134,7 +139,7 @@ export async function PATCH(req) {
       );
     }
 
-    const res = await authenticateAPICall(req);
+    const res = await authenticateCookie(req);
     const { decodedToken } = await res.json();
     const uid = decodedToken.uid;
 

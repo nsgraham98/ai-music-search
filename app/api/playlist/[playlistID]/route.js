@@ -22,13 +22,13 @@ We can fetch the full track data from Jamendo API when needed, and store it clie
         mine is ~160MB, ~20 kB/sec
 */
 
-import { authenticateAPICall } from "@/lib/authenticate-calls";
+import { authenticateIdToken } from "@/lib/authenticate-calls";
 
 // Get a specific playlist by ID
 export async function GET(request, { params }) {
   try {
     const { playlistID } = params;
-    const decodedToken = await authenticateAPICall(request);
+    const decodedToken = await authenticateIdToken(request);
     const uid = decodedToken.uid;
     // someGetPlaylistByIDFunction(playlistID, uid)
     // return successful response to client
@@ -64,7 +64,7 @@ export async function GET(request, { params }) {
 export async function PATCH(request, { params }) {
   try {
     const { playlistID } = params;
-    const decodedToken = await authenticateAPICall(request);
+    const decodedToken = await authenticateIdToken(request);
     const uid = decodedToken.uid;
     const body = await request.json();
 
@@ -102,7 +102,7 @@ export async function PATCH(request, { params }) {
 export async function DELETE(request, { params }) {
   try {
     const { playlistID } = params;
-    const decodedToken = await authenticateAPICall(request);
+    const decodedToken = await authenticateIdToken(request);
     const uid = decodedToken.uid;
     // someDeletePlaylistByIDFunction(playlistID, uid)
     // return successful response to client

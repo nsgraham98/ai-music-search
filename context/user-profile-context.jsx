@@ -34,6 +34,7 @@ export const UserProfileContextProvider = ({ children }) => {
 
         const response = await fetch("/api/users", {
           method: "GET",
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -72,6 +73,7 @@ export const UserProfileContextProvider = ({ children }) => {
 
       const response = await fetch("/api/users", {
         method: "PATCH",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -107,6 +109,7 @@ export const UserProfileContextProvider = ({ children }) => {
     try {
       const response = await fetch(`/api/users?uid=${uid}`, {
         method: "GET",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -134,6 +137,7 @@ export const UserProfileContextProvider = ({ children }) => {
 
       const response = await fetch("/api/users", {
         method: "GET",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

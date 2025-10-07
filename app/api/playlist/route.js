@@ -22,13 +22,13 @@ We can fetch the full track data from Jamendo API when needed, and store it clie
         mine is ~160MB, ~20 kB/sec  
 */
 
-import { authenticateAPICall } from "@/lib/authenticate-calls";
+import { authenticateIdToken } from "@/lib/authenticate-calls";
 
 // Get user playlists
 export async function GET(request) {
   try {
     const body = await request.json();
-    const decodedToken = await authenticateAPICall(request);
+    const decodedToken = await authenticateIdToken(request);
 
     // const playlists = await someGetUserPlaylistsFunction();
 
@@ -62,7 +62,7 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const decodedToken = await authenticateAPICall(request);
+    const decodedToken = await authenticateIdToken(request);
 
     // return successful response to client
     return new Response(

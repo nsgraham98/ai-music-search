@@ -16,7 +16,6 @@ import {
   FacebookAuthProvider,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase.js";
-//import { saveUserSession } from "@/app/api/sessionauthenticate-callshandler/session.js";
 import { saveUserProfile } from "@/app/api/users/user-handler/save-user-profile.js";
 
 const AuthContext = createContext();
@@ -25,17 +24,36 @@ export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null); // active logged in user object
   const [loadingUser, setLoadingUser] = useState(true); // loading while checking auth state
 
-  // Send the token to the backend (/api/session/route.js) to save the session data in the database, and set the session cookie
-  async function saveUserSession(idToken) {
+  async function loginWithToken(idToken) {
+    console.log("in loginWithToken, token:", idToken);
+    if (!idToken) return;
     try {
-      const response = await fetch("/api/session", {
+      const response = await fetch("/api/auth/login", {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          idToken,
-        }),
+        body: JSON.stringify({ idToken }),
+      });
+      if (!response.ok) {
+        throw new Error("Login failed");
+      }
+      console.log("Login successful");
+    } catch (error) {
+      console.error("Error during login:", error);
+    }
+  }
+  /* 
+    Send the token to the backend (/api/session/route.js) to:
+      Save the session data in the database
+      Set the session cookie (to be used for authenticating API calls)
+  */
+  async function saveUserSession() {
+    try {
+      const response = await fetch("/api/auth/session", {
+        method: "POST",
+        credentials: "include",
       });
 
       if (response.ok) {
@@ -57,11 +75,11 @@ export const AuthContextProvider = ({ children }) => {
     // const credential = GithubAuthProvider.credentialFromResult(result);
     // const gitHubToken = credential.accessToken;
 
-    // Save session data
-    await saveUserSession(idToken);
+    await loginWithToken(idToken);
+    await saveUserSession(idToken); // Save session data
 
     // Create or update user profile
-    await saveUserProfile(user, "github", idToken);
+    //await saveUserProfile(user, "github", idToken);
   };
 
   // https://firebase.google.com/docs/auth/web/google-signin
@@ -98,7 +116,7 @@ export const AuthContextProvider = ({ children }) => {
   const firebaseSignOut = async () => {
     await fetch("/api/auth/logout", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      credentials: "include",
     });
     return signOut(auth);
   };
