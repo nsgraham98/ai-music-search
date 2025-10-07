@@ -16,7 +16,7 @@ import {
   FacebookAuthProvider,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase.js";
-//import { saveUserSession } from "@/app/api/session/session-handler/session.js";
+//import { saveUserSession } from "@/app/api/sessionauthenticate-callshandler/session.js";
 import { saveUserProfile } from "@/app/api/users/user-handler/save-user-profile.js";
 
 const AuthContext = createContext();
@@ -25,18 +25,25 @@ export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null); // active logged in user object
   const [loadingUser, setLoadingUser] = useState(true); // loading while checking auth state
 
-  async function saveUserSession(IdToken) {
-    //const token = await getIdToken(user, true);
+  // Send the token to the backend (/api/session/route.js) to save the session data in the database
+  async function saveUserSession(idToken) {
+    try {
+      const response = await fetch("/api/session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          idToken,
+        }),
+      });
 
-    // Send the token to the backend (/api/session/route.js) to save the session data in the database
-    // currently we don't check for errors here, because they are handled in the route.js file... not sure if this is the best way to do it
-    await fetch("/api/session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        IdToken,
-      }),
-    });
+      // if (!response.ok) {
+      //   throw new Error("Failed to save user session");
+      // }
+    } catch (error) {
+      console.error("Error saving user session:", error);
+    }
   }
 
   // https://firebase.google.com/docs/auth/web/github-auth
@@ -44,21 +51,17 @@ export const AuthContextProvider = ({ children }) => {
     const provider = new GithubAuthProvider();
     const result = await signInWithPopup(auth, provider);
     const user = result.user; // user object from firebase
-    const IdToken = await user.getIdToken();
-    console.log("IDTOKEN", IdToken);
-
-    // TODO: change the saveUserSession to call the /session route, not the session-handler file directly
+    const idToken = await user.getIdToken();
 
     // this commented out code gets a github access token, if we need to work with the github api later (different from firebase api we do use for auth)
     // const credential = GithubAuthProvider.credentialFromResult(result);
     // const gitHubToken = credential.accessToken;
 
     // Save session data
-    // await saveUserSession(result.user, accessToken);
-    await saveUserSession(IdToken);
+    await saveUserSession(idToken);
 
     // Create or update user profile
-    await saveUserProfile(result.user, "github", IdToken);
+    await saveUserProfile(user, "github", idToken);
   };
 
   // https://firebase.google.com/docs/auth/web/google-signin

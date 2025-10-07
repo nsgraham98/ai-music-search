@@ -15,8 +15,7 @@ export async function POST(request) {
   try {
     // Authenticate the user using Firebase token
     // returns decoded token if valid, throws error if not
-    const decodedToken = await authenticateAPICall(request); // We can use decodedToken to authorize the user if needed - e.g. check user ID, roles, etc. - but not implemented yet
-    // const userId = decodedToken.uid; // you can log or use this if needed
+    const { decodedToken } = await authenticateAPICall(request);
 
     const body = await request.json();
     const result = await runOpenAISearch(body.userQuery); // main function to handle the OpenAI search logic

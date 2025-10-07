@@ -75,7 +75,7 @@ export async function POST(req) {
     const decoded = await adminAuth.verifyIdToken(token);
     const uid = decoded.uid;
 
-    const result = await saveUserProfile(uid, profileData);
+    const result = await saveUserProfile(uid, profileData); // save to the database
 
     return new Response(JSON.stringify(result), {
       status: 200,
