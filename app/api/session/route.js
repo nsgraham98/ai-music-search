@@ -27,7 +27,7 @@ export async function POST(req) {
     }); // create a session cookie using the verified token
 
     // save session data to Firestore database
-    // session > {uid} > sessionData: {uid, cookie, email, created_at, expires_at, valid}
+    // session > {uid} > sessionData: {uid, sessionCookie, email, created_at, expires_at, valid, thirdPartyTokens}
     await db
       .collection("sessions")
       .doc(uid)

@@ -67,13 +67,17 @@ export const AuthContextProvider = ({ children }) => {
   const googleSignIn = async () => {
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
-    const accessToken = await result.user.getIdToken();
+    const user = result.user; // user object from firebase
+    const idToken = await user.getIdToken();
+
+    // this commented out code gets a github access token, if we need to work with the github api later (different from firebase api we do use for auth)
+    // const credential = GithubAuthProvider.credentialFromResult(result);
+    // const gitHubToken = credential.accessToken;
 
     // Save session data
-    await saveUserSession(result.user, accessToken);
-
+    await saveUserSession(idToken);
     // Create or update user profile
-    await saveUserProfile(result.user, "google", accessToken);
+    await saveUserProfile(user, "google", idToken);
   };
   // https://firebase.google.com/docs/auth/web/facebook-login
   const facebookSignIn = async () => {
