@@ -4,7 +4,10 @@
 
 import OpenAI from "openai";
 import { runOpenAISearch } from "@/app/api/openai/openai-handler/openai.js";
-import { authenticateAPICall } from "@/lib/authenticate-calls";
+import {
+  authenticateAPICall,
+  authenticateCookie,
+} from "@/lib/authenticate-calls";
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -15,7 +18,8 @@ export async function POST(request) {
   try {
     // Authenticate the user using Firebase token
     // returns decoded token if valid, throws error if not
-    const { decodedToken } = await authenticateAPICall(request);
+    // const { decodedToken } = await authenticateAPICall(request);
+    const { decodedToken } = await authenticateCookie(request);
 
     const body = await request.json();
     const result = await runOpenAISearch(body.userQuery); // main function to handle the OpenAI search logic

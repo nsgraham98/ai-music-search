@@ -1,7 +1,7 @@
 // This file is the API route that actually calls the database to save the session data
 // this is called from session-handler/session.js, which is called from auth-context.jsx within its sign-in functions (githubSignIn, googleSignIn, facebookSignIn)
 
-import { adminAuth, db, admin } from "@/lib/firebase-admin";
+import { adminAuth, db } from "@/lib/firebase-admin";
 
 // saves the session data to the database
 export async function POST(req) {
@@ -17,13 +17,12 @@ export async function POST(req) {
     }
     // Verify the ID token and get the user info
     const decoded = await adminAuth.verifyIdToken(idToken);
-
+    console.log("Decoded ID token:", decoded);
     const { uid, email } = decoded;
 
-    const maxAge = 60 * 60 * 24 * 7 * 1000; // milliseconds - one week
+    const expiresIn = 60 * 60 * 24 * 7 * 1000; // one week
     const sessionCookie = await adminAuth.createSessionCookie(idToken, {
-      expiresIn: maxAge,
-      httpOnly: true,
+      expiresIn,
     }); // create a session cookie using the verified token
 
     // save session data to Firestore database
@@ -35,7 +34,7 @@ export async function POST(req) {
         {
           sessionData: {
             uid: uid, // redundant but useful to have in the document
-            sessionCookie: sessionCookie,
+            // sessionCookie: sessionCookie, // unsafe to store
             email: email || null,
             created_at: new Date(Date.now()),
             expires_at: new Date(Date.now() + maxAge),
@@ -53,7 +52,7 @@ export async function POST(req) {
       status: 200,
       headers: {
         "Content-Type": "application/json",
-        "Set-Cookie": `session=${sessionCookie}; HttpOnly; Path=/; Max-Age=${maxAge / 1000}`, // session=${cookie} -> name=value pair
+        "Set-Cookie": `session=${sessionCookie}; HttpOnly; Secure; Path=/; Max-Age=${expiresIn / 1000}`, // session=${cookie} -> name=value pair
       },
     });
   } catch (err) {

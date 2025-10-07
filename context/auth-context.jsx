@@ -25,7 +25,7 @@ export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null); // active logged in user object
   const [loadingUser, setLoadingUser] = useState(true); // loading while checking auth state
 
-  // Send the token to the backend (/api/session/route.js) to save the session data in the database
+  // Send the token to the backend (/api/session/route.js) to save the session data in the database, and set the session cookie
   async function saveUserSession(idToken) {
     try {
       const response = await fetch("/api/session", {
@@ -38,9 +38,9 @@ export const AuthContextProvider = ({ children }) => {
         }),
       });
 
-      // if (!response.ok) {
-      //   throw new Error("Failed to save user session");
-      // }
+      if (response.ok) {
+        console.log("Session and Cookie successfully set");
+      }
     } catch (error) {
       console.error("Error saving user session:", error);
     }
@@ -59,6 +59,7 @@ export const AuthContextProvider = ({ children }) => {
 
     // Save session data
     await saveUserSession(idToken);
+
     // Create or update user profile
     await saveUserProfile(user, "github", idToken);
   };
