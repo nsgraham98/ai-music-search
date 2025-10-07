@@ -13,8 +13,10 @@ export async function searchJamendo(searchArgsObj) {
 export async function getSongsJamendo(searchParams) {
   const searchParamsString = searchParams.toString(); // Convert the URL object to a string for use in the fetch URL
 
-  console.log("Jamendo Search Params:", searchParamsString); // Log the search parameters for debugging
-  console.log(`https://api.jamendo.com/v3.0/tracks/?${searchParamsString}`);
+  // console.log("Jamendo Search Params:", searchParamsString); // Log the search parameters for debugging
+  console.log(
+    `Jamendo call: https://api.jamendo.com/v3.0/tracks/?${searchParamsString}`
+  );
 
   const response = await fetch(
     `https://api.jamendo.com/v3.0/tracks/?${searchParamsString}`,

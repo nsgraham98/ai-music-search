@@ -7,15 +7,8 @@ import { adminAuth, db, admin } from "@/lib/firebase-admin";
 export async function POST(req) {
   try {
     // const { token, providerAccessToken, thirdPartyTokens } = await req.json();
-    console.log(
-      "====================================REQ IN SESSION/ROUTE.JS",
-      req
-    );
     const { idToken } = await req.json();
-    console.log(
-      "====================================ID TOKEN IN SESSION/ROUTE.JS",
-      idToken
-    );
+
     if (!idToken) {
       return new Response(
         JSON.stringify({ error: "Missing idToken in request body" }),
@@ -24,24 +17,17 @@ export async function POST(req) {
     }
     // Verify the ID token and get the user info
     const decoded = await adminAuth.verifyIdToken(idToken);
-    console.log(
-      "====================================DECODED TOKEN IN SESSION/ROUTE.JS",
-      decoded
-    );
+
     const { uid, email } = decoded;
-    console.log(
-      "====================================USER INFO IN SESSION/ROUTE.JS",
-      { uid, email }
-    );
 
     const maxAge = 60 * 60 * 24 * 7 * 1000; // milliseconds - one week
-    const cookie = await adminAuth.createSessionCookie(idToken, {
+    const sessionCookie = await adminAuth.createSessionCookie(idToken, {
       expiresIn: maxAge,
+      httpOnly: true,
     }); // create a session cookie using the verified token
 
     // save session data to Firestore database
     // session > {uid} > sessionData: {uid, cookie, email, created_at, expires_at, valid}
-    console.log("====================================BEFORE DB WRITE");
     await db
       .collection("sessions")
       .doc(uid)
@@ -49,7 +35,7 @@ export async function POST(req) {
         {
           sessionData: {
             uid: uid, // redundant but useful to have in the document
-            cookie: cookie,
+            sessionCookie: sessionCookie,
             email: email || null,
             created_at: new Date(Date.now()),
             expires_at: new Date(Date.now() + maxAge),
@@ -67,7 +53,7 @@ export async function POST(req) {
       status: 200,
       headers: {
         "Content-Type": "application/json",
-        "Set-Cookie": `session=${cookie}; HttpOnly; Path=/; Max-Age=${maxAge / 1000}`, // session=${cookie} -> name=value pair
+        "Set-Cookie": `session=${sessionCookie}; HttpOnly; Path=/; Max-Age=${maxAge / 1000}`, // session=${cookie} -> name=value pair
       },
     });
   } catch (err) {

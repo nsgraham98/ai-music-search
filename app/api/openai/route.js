@@ -20,8 +20,8 @@ export async function POST(request) {
     const body = await request.json();
     const result = await runOpenAISearch(body.userQuery); // main function to handle the OpenAI search logic
 
-    //console.log("AI Response:", result.aiResponse);
-    console.log("Jamendo Response:", result.jamendoResponse);
+    // console.log("AI Response:", result.aiResponse);
+    // console.log("Jamendo Response:", result.jamendoResponse);
 
     // return successful response to client
     return new Response(

@@ -7,6 +7,7 @@ import {
   getUserProfile,
   updateDisplayName,
 } from "./user-handler/user-profile";
+import { authenticateAPICall } from "@/lib/authenticate-calls";
 
 // GET - Retrieve user profile
 export async function GET(req) {
@@ -28,9 +29,27 @@ export async function GET(req) {
         );
       }
 
-      const token = authHeader.split(" ")[1];
-      const decoded = await adminAuth.verifyIdToken(token);
-      const userUid = decoded.uid;
+      /*
+        @francis i added this, in place of the commented code below
+        it's a method i wrote for authentication logic, but in a centralized location for reusability
+        You give it the request you're making, it extracts and verifies the token, throws an error if invalid, then returns the decoded token
+        the response object it returns is structured like this:
+        { 
+          decodedToken: {
+            uid: "user-uid",
+            email: "user@example.com",
+            etc.
+          }
+        }
+        -Nick
+      */
+      const res = await authenticateAPICall(req);
+      const { decodedToken } = await res.json();
+      const userUid = decodedToken.uid;
+
+      // const token = authHeader.split(" ")[1];
+      // const decoded = await adminAuth.verifyIdToken(token);
+      // const userUid = decoded.uid;
 
       const result = await getUserProfile(userUid);
       return new Response(JSON.stringify(result), {
@@ -60,6 +79,7 @@ export async function GET(req) {
 // POST - Create or update user profile
 export async function POST(req) {
   try {
+    // Get the token and profile data from the request body
     const { token, profileData } = await req.json();
 
     if (!token || !profileData) {
@@ -72,8 +92,13 @@ export async function POST(req) {
       );
     }
 
-    const decoded = await adminAuth.verifyIdToken(token);
-    const uid = decoded.uid;
+    const res = await authenticateAPICall(req);
+    const { decodedToken } = await res.json();
+    const uid = decodedToken.uid;
+
+    // const token = authHeader.split(" ")[1];
+    // const decoded = await adminAuth.verifyIdToken(token);
+    // const userUid = decoded.uid;
 
     const result = await saveUserProfile(uid, profileData); // save to the database
 
@@ -96,7 +121,8 @@ export async function POST(req) {
 // PATCH - Update specific fields (like displayName)
 export async function PATCH(req) {
   try {
-    const { token, displayName } = await req.json();
+    const { displayName } = await req.json();
+    const token = req.headers.get("authorization");
 
     if (!token || !displayName) {
       return new Response(
@@ -108,8 +134,13 @@ export async function PATCH(req) {
       );
     }
 
-    const decoded = await adminAuth.verifyIdToken(token);
-    const uid = decoded.uid;
+    const res = await authenticateAPICall(req);
+    const { decodedToken } = await res.json();
+    const uid = decodedToken.uid;
+
+    // const token = authHeader.split(" ")[1];
+    // const decoded = await adminAuth.verifyIdToken(token);
+    // const userUid = decoded.uid;
 
     const result = await updateDisplayName(uid, displayName);
 

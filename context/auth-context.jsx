@@ -59,7 +59,6 @@ export const AuthContextProvider = ({ children }) => {
 
     // Save session data
     await saveUserSession(idToken);
-
     // Create or update user profile
     await saveUserProfile(user, "github", idToken);
   };
@@ -68,7 +67,6 @@ export const AuthContextProvider = ({ children }) => {
   const googleSignIn = async () => {
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
-    console.log("====================================RESULT", result);
     const accessToken = await result.user.getIdToken();
 
     // Save session data
