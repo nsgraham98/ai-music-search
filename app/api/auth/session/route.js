@@ -7,19 +7,12 @@ import { cookies } from "next/headers";
 // saves the session data to the database
 export async function POST(request) {
   try {
-    const { decodedToken } = await authenticateCookie(request); // authenticate the user using the session cookie
-    if (!decodedToken) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
+    const decodedToken = await authenticateCookie(request); // authenticate the user using the session cookie
 
-    const cookie = await cookies();
     const uid = decodedToken.uid;
     const email = decodedToken.email || null;
+    const cookie = await cookies();
     const maxAge = cookie.get("Max-Age") || 60 * 60 * 24 * 7; // default to one week
-    console.log("Max-Age from cookie:", maxAge);
 
     // Verify the ID token and get the user info
     await db

@@ -23,9 +23,10 @@ const AuthContext = createContext();
 export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null); // active logged in user object
   const [loadingUser, setLoadingUser] = useState(true); // loading while checking auth state
+  // const [authFlowComplete, setAuthFlowComplete] = useState(false); // true after initial auth check is done
+  // const [userReady, setUserReady] = useState(false); // true when user profile is loaded
 
   async function loginWithToken(idToken) {
-    console.log("in loginWithToken, token:", idToken);
     if (!idToken) return;
     try {
       const response = await fetch("/api/auth/login", {
@@ -66,6 +67,7 @@ export const AuthContextProvider = ({ children }) => {
 
   // https://firebase.google.com/docs/auth/web/github-auth
   const gitHubSignIn = async () => {
+    //setAuthFlowComplete(false);
     const provider = new GithubAuthProvider();
     const result = await signInWithPopup(auth, provider);
     const user = result.user; // user object from firebase
@@ -76,10 +78,11 @@ export const AuthContextProvider = ({ children }) => {
     // const gitHubToken = credential.accessToken;
 
     await loginWithToken(idToken);
-    await saveUserSession(idToken); // Save session data
+    await saveUserSession(); // Save session data
 
     // Create or update user profile
-    //await saveUserProfile(user, "github", idToken);
+    await saveUserProfile(user, "github", idToken);
+    // setAuthFlowComplete(true);
   };
 
   // https://firebase.google.com/docs/auth/web/google-signin
@@ -124,18 +127,27 @@ export const AuthContextProvider = ({ children }) => {
   // Listener for auth state changes
   // Sets the user state (logged in user or null) and loading state (is mid login or not)
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       setLoadingUser(false);
     });
     return () => unsubscribe();
   }, []);
 
+  // useEffect(() => {
+  //   if (user && authFlowComplete) {
+  //     setUserReady(true);
+  //   } else {
+  //     setUserReady(false);
+  //   }
+  // }, [user, authFlowComplete]);
+
   return (
     <AuthContext.Provider
       value={{
         user,
         loadingUser,
+        // userReady,
         gitHubSignIn,
         googleSignIn,
         facebookSignIn,

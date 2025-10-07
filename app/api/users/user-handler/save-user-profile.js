@@ -40,6 +40,7 @@ export async function saveUserProfile(user, provider, token) {
     // Send the profile data to the backend (/api/users/route.js)
     const response = await fetch("/api/users", {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,

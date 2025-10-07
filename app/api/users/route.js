@@ -1,7 +1,6 @@
 // API route for user profile operations
 // Handles creating, updating, and retrieving user profiles
 
-import { adminAuth } from "@/lib/firebase-admin";
 import {
   saveUserProfile,
   getUserProfile,
@@ -9,7 +8,7 @@ import {
 } from "./user-handler/user-profile";
 import {
   authenticateCookie,
-  authenticateIdToken,
+  // authenticateIdToken,
 } from "@/lib/authenticate-calls";
 
 // GET - Retrieve user profile
@@ -18,39 +17,39 @@ export async function GET(req) {
     // Get the UID from query parameters or from authorization header
     const url = new URL(req.url);
     const uid = url.searchParams.get("uid");
-    console.log("Requested UID:", uid);
-    console.log("Full URL:", req.url);
+    // console.log("Requested UID:", uid);
+    // console.log("Full URL:", req.url);
 
     if (!uid) {
       // If no UID provided, try to get it from the auth token
-      const authHeader = req.headers.get("authorization");
-      if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        return new Response(
-          JSON.stringify({ error: "No authorization token provided" }),
-          {
-            status: 401,
-            headers: { "Content-Type": "application/json" },
-          }
-        );
-      }
+      // const authHeader = req.headers.get("authorization");
+      // if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      //   return new Response(
+      //     JSON.stringify({ error: "No authorization token provided" }),
+      //     {
+      //       status: 401,
+      //       headers: { "Content-Type": "application/json" },
+      //     }
+      //   );
+      // }
 
       /*
         @francis i added this, in place of the commented code below
         it's a method i wrote for authentication logic, but in a centralized location for reusability
         You give it the request you're making, it extracts and verifies the "session=<session ID>" value of the cookie, throws an error if invalid, then returns the decoded token
-        the response object it returns is structured like this:
-        { 
-          decodedToken: {
-            uid: "user-uid",
-            email: "user@example.com",
-            etc.
-          }
+        The decoded object it returns is structured like this:
+        decodedToken: {
+          uid: "user-uid",
+          email: "user@example.com",
+          etc.
         }
         -Nick
       */
-      const res = await authenticateCookie(req);
-      const { decodedToken } = await res.json();
+      //console.log("REQUEST", req);
+      const decodedToken = await authenticateCookie(req);
+      console.log("DECODED TOKEN", decodedToken);
       const userUid = decodedToken.uid;
+      console.log("User UID from token:", userUid);
 
       // const token = authHeader.split(" ")[1];
       // const decoded = await adminAuth.verifyIdToken(token);
@@ -87,18 +86,17 @@ export async function POST(req) {
     // Get the token and profile data from the request body
     const { token, profileData } = await req.json();
 
-    if (!token || !profileData) {
-      return new Response(
-        JSON.stringify({ error: "Missing token or profile data" }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-    }
+    // if (!token || !profileData) {
+    //   return new Response(
+    //     JSON.stringify({ error: "Missing token or profile data" }),
+    //     {
+    //       status: 400,
+    //       headers: { "Content-Type": "application/json" },
+    //     }
+    //   );
+    // }
 
-    const res = await authenticateCookie(req);
-    const { decodedToken } = await res.json();
+    const decodedToken = await authenticateCookie(req);
     const uid = decodedToken.uid;
 
     // const token = authHeader.split(" ")[1];
@@ -127,20 +125,19 @@ export async function POST(req) {
 export async function PATCH(req) {
   try {
     const { displayName } = await req.json();
-    const token = req.headers.get("authorization");
+    // const token = req.headers.get("authorization");
 
-    if (!token || !displayName) {
-      return new Response(
-        JSON.stringify({ error: "Missing token or displayName" }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-    }
+    // if (!token || !displayName) {
+    //   return new Response(
+    //     JSON.stringify({ error: "Missing token or displayName" }),
+    //     {
+    //       status: 400,
+    //       headers: { "Content-Type": "application/json" },
+    //     }
+    //   );
+    // }
 
-    const res = await authenticateCookie(req);
-    const { decodedToken } = await res.json();
+    const decodedToken = await authenticateCookie(req);
     const uid = decodedToken.uid;
 
     // const token = authHeader.split(" ")[1];

@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { adminAuth } from "@/lib/firebase-admin.js";
 
 // Log out user by deleting the session cookie
-export async function POST() {
+export async function POST(request) {
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get("session")?.value;
 
