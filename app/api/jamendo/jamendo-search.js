@@ -13,6 +13,11 @@ export async function searchJamendo(searchArgsObj) {
 export async function getSongsJamendo(searchParams) {
   const searchParamsString = searchParams.toString(); // Convert the URL object to a string for use in the fetch URL
 
+  // console.log("Jamendo Search Params:", searchParamsString); // Log the search parameters for debugging
+  console.log(
+    `Jamendo call: https://api.jamendo.com/v3.0/tracks/?${searchParamsString}`
+  );
+
   const response = await fetch(
     `https://api.jamendo.com/v3.0/tracks/?${searchParamsString}`,
     {
@@ -41,9 +46,10 @@ function createSearchString(searchArgsObj) {
   const staticSearchParams = {
     client_id: process.env.NEXT_PUBLIC_JAMENDO_CLIENT_ID,
     format: "json",
-    limit: 25, // how many results to return
+    limit: "all", // how many results to return - "all" returns all results, max 200
     type: "single albumtrack",
     audioformat: "mp32",
+    boost: "popularity_month",
   };
 
   // "Fuzzy" tags are considered as an OR operation in search logic

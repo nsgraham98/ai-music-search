@@ -12,7 +12,7 @@ const useCurrentUser = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch("@/app/api/session/route.js", {
+        const response = await fetch("@/app/api/auth/session/route.js", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

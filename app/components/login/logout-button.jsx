@@ -5,15 +5,18 @@
 
 import { Button } from "@mui/material";
 import { useUserAuth } from "/context/auth-context";
+import { useRouter } from "next/navigation";
 
 export function LogoutButton() {
   // Use the useUserAuth hook to get the user object and the login and logout functions
   const { firebaseSignOut } = useUserAuth();
+  const router = useRouter();
 
   // Sign out of Firebase
   const handleSignOut = async () => {
     try {
       await firebaseSignOut();
+      router.push("/"); // Redirect to home page after logout
     } catch (error) {
       console.error("Error signing out: ", error);
     }

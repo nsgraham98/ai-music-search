@@ -4,7 +4,10 @@
 
 import OpenAI from "openai";
 import { runOpenAISearch } from "@/app/api/openai/openai-handler/openai.js";
-import { authenticateAPICall } from "@/lib/authenticate-calls";
+import {
+  authenticateIdToken,
+  authenticateCookie,
+} from "@/lib/authenticate-calls";
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -14,15 +17,13 @@ const openai = new OpenAI({
 export async function POST(request) {
   try {
     // Authenticate the user using Firebase token
-    // returns decoded token if valid, throws error if not
-    const decodedToken = await authenticateAPICall(request); // We can use decodedToken to authorize the user if needed - e.g. check user ID, roles, etc. - but not implemented yet
-    // const userId = decodedToken.uid; // you can log or use this if needed
+    const decodedToken = await authenticateCookie(request); // we don't use the result, but it will throw an error if invalid
 
     const body = await request.json();
     const result = await runOpenAISearch(body.userQuery); // main function to handle the OpenAI search logic
 
-    console.log("AI Response:", result.aiResponse);
-    console.log("Jamendo Response:", result.jamendoResponse);
+    // console.log("AI Response:", result.aiResponse);
+    // console.log("Jamendo Response:", result.jamendoResponse);
 
     // return successful response to client
     return new Response(

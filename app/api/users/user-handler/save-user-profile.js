@@ -19,13 +19,9 @@ function generateDisplayName(email, providerDisplayName = null) {
   return "User";
 }
 
-export async function saveUserProfile(
-  user,
-  provider,
-  providerAccessToken = null
-) {
+export async function saveUserProfile(user, provider, token) {
   try {
-    const token = await getIdToken(user, true);
+    // const token = await getIdToken(user, true);
 
     // Extract display name from the user object (comes from OAuth provider)
     // Different providers store displayName in different places
@@ -44,7 +40,11 @@ export async function saveUserProfile(
     // Send the profile data to the backend (/api/users/route.js)
     const response = await fetch("/api/users", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify({
         token,
         profileData,
