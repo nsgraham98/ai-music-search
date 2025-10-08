@@ -5,10 +5,11 @@
 "use client";
 import SearchBar from "@/app/components/search-bar.jsx";
 import { LogoutButton } from "@/app/components/login/logout-button";
-import { Box, Typography, Container, Paper } from "@mui/material";
+import { Box, Typography, Container, Paper, Button } from "@mui/material";
 import { PlayList } from "@/app/components/audio/playlist.jsx";
 import SignedInAs from "@/app/components/login/signed-in-as";
 import LoginPopup from "@/app/components/login/login-popup";
+import Link from "next/link";
 
 export default function HomePage() {
   return (
@@ -21,9 +22,31 @@ export default function HomePage() {
         alignItems="center"
         mb={4}
       >
-        <Typography variant="h4" fontWeight="bold">
-          TUTTi.
-        </Typography>
+        <Box display="flex" alignItems="center" gap={2}>
+          <Typography variant="h4" fontWeight="bold">
+            TUTTi.
+          </Typography>
+          <Link href="/sound-room" passHref>
+            <Button
+              variant="outlined"
+              color="primary"
+              sx={{
+                borderColor: "white",
+                color: "white",
+                textTransform: "uppercase",
+                fontWeight: "bold",
+                fontSize: "0.875rem",
+                padding: "4px 12px",
+                borderWidth: 2,
+                "&:hover": {
+                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+                },
+              }}
+            >
+              The Sound Room
+            </Button>
+          </Link>
+        </Box>
         <Box display="flex" alignItems="center" gap={2}>
           <SignedInAs />
           <LogoutButton />
