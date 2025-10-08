@@ -6,8 +6,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { Switch, FormControlLabel } from "@mui/material";
-import { useAudioPlayerContext } from "@/context/audio-player-context";
 import {
   Switch,
   FormControlLabel,
