@@ -23,7 +23,7 @@ const AuthContext = createContext();
 export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null); // active logged in user object
   const [loadingUser, setLoadingUser] = useState(true); // loading while checking auth state
-  // const [authFlowComplete, setAuthFlowComplete] = useState(false); // true after initial auth check is done
+  const [authFlowComplete, setAuthFlowComplete] = useState(false); // true after initial auth check is done
   // const [userReady, setUserReady] = useState(false); // true when user profile is loaded
 
   async function loginWithToken(idToken) {
@@ -82,7 +82,7 @@ export const AuthContextProvider = ({ children }) => {
 
     // Create or update user profile
     await saveUserProfile(user, "github", idToken);
-    // setAuthFlowComplete(true);
+    setAuthFlowComplete(true);
   };
 
   // https://firebase.google.com/docs/auth/web/google-signin
@@ -121,26 +121,30 @@ export const AuthContextProvider = ({ children }) => {
       method: "POST",
       credentials: "include",
     });
+    setAuthFlowComplete(false);
+    setUser(null);
     return signOut(auth);
   };
 
   // Listener for auth state changes
   // Sets the user state (logged in user or null) and loading state (is mid login or not)
+  // useEffect(() => {
+  //   const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+  //     setUser(currentUser);
+  //     setLoadingUser(false);
+  //   });
+  //   return () => unsubscribe();
+  // }, []);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-      setLoadingUser(false);
+      if (authFlowComplete) {
+        setUser(currentUser);
+        setLoadingUser(false);
+      }
     });
     return () => unsubscribe();
-  }, []);
-
-  // useEffect(() => {
-  //   if (user && authFlowComplete) {
-  //     setUserReady(true);
-  //   } else {
-  //     setUserReady(false);
-  //   }
-  // }, [user, authFlowComplete]);
+  }, [authFlowComplete]);
 
   return (
     <AuthContext.Provider

@@ -22,16 +22,16 @@ export async function GET(req) {
 
     if (!uid) {
       // If no UID provided, try to get it from the auth token
-      // const authHeader = req.headers.get("authorization");
-      // if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      //   return new Response(
-      //     JSON.stringify({ error: "No authorization token provided" }),
-      //     {
-      //       status: 401,
-      //       headers: { "Content-Type": "application/json" },
-      //     }
-      //   );
-      // }
+      const authHeader = req.headers.get("authorization");
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return new Response(
+          JSON.stringify({ error: "No authorization token provided" }),
+          {
+            status: 401,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      }
 
       /*
         @francis i added this, in place of the commented code below
