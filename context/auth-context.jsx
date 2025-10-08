@@ -96,10 +96,12 @@ export const AuthContextProvider = ({ children }) => {
     // const credential = GithubAuthProvider.credentialFromResult(result);
     // const gitHubToken = credential.accessToken;
 
-    // Save session data
-    await saveUserSession(idToken);
+    await loginWithToken(idToken);
+    await saveUserSession(); // Save session data
+
     // Create or update user profile
     await saveUserProfile(user, "google", idToken);
+    setAuthFlowComplete(true);
   };
   // https://firebase.google.com/docs/auth/web/facebook-login
   const facebookSignIn = async () => {
@@ -107,11 +109,12 @@ export const AuthContextProvider = ({ children }) => {
     const result = await signInWithPopup(auth, provider);
     const accessToken = await result.user.getIdToken();
 
-    // Save session data
-    await saveUserSession(result.user, accessToken);
+    await loginWithToken(idToken);
+    await saveUserSession(); // Save session data
 
     // Create or update user profile
-    await saveUserProfile(result.user, "facebook", accessToken);
+    await saveUserProfile(user, "facebook", idToken);
+    setAuthFlowComplete(true);
   };
 
   // Sign out user
