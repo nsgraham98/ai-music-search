@@ -9,72 +9,135 @@ import React, { useState } from "react";
 import { Switch, FormControlLabel } from "@mui/material";
 import { useAudioPlayerContext } from "@/context/audio-player-context";
 import {
+  Switch,
+  FormControlLabel,
   TextField,
   Button,
   Box,
   CircularProgress,
   Typography,
+  Alert,
+  Collapse,
 } from "@mui/material";
+import { Search } from "lucide-react";
+import { useAudioPlayerContext } from "@/context/audio-player-context";
 import { useUserAuth } from "@/context/auth-context";
 
 const SearchBar = () => {
   const [userQuery, setUserQuery] = useState("");
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [aiResponse, setAiResponse] = useState(null);
   const [royaltyFree, setRoyaltyFree] = useState(true);
+  const [error, setError] = useState(null);
   const { setTracks } = useAudioPlayerContext();
   const { user } = useUserAuth();
 
-  // sends a POST request with the user's query to the OpenAI API route
   async function handleSearch() {
-    // base case - no query
-    if (!userQuery) return;
-    setIsLoading(true);
-    const idToken = await user.getIdToken();
-    const response = await fetch("/api/openai", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${idToken}`,
-      },
-      body: JSON.stringify({ userQuery, royaltyFree }),
-    });
-    if (!response.ok) {
-      console.error("Error fetching data:", response.statusText);
-      setIsLoading(false);
+    if (!userQuery.trim()) {
+      setError("Please enter a search query");
+      setTimeout(() => setError(null), 3000);
       return;
     }
-    const data = await response.json();
-    setTracks(data.jamendoResponse);
-    setAiResponse(data.aiResponse.output_text);
-    setIsLoading(false);
+
+    setIsLoading(true);
+    setError(null);
+    setAiResponse(null);
+
+    try {
+      const idToken = await user.getIdToken();
+      const response = await fetch("/api/openai", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ userQuery, royaltyFree }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Search failed: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      setTracks(data.jamendoResponse || []);
+      setAiResponse(data.aiResponse?.output_text || "Search completed");
+    } catch (err) {
+      console.error("Search error:", err);
+      setError(err.message || "Failed to search. Please try again.");
+      setTracks([]);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter" && !isLoading) {
+      handleSearch();
+    }
+  };
+
   return (
-    <Box display="flex" flexDirection="column">
+    <Box display="flex" flexDirection="column" gap={2}>
+      {/* Search Input Row */}
       <Box
         display="flex"
-        gap={3}
+        gap={2}
         alignItems="center"
-        justifyContent="flex-start" // for horizontal spacing
-        px={0}
         sx={{
-          width: "100%", // full width of parent
-          maxWidth: "1200px", // optional: control how wide you want it
-          mx: "auto", // center the box horizontally
+          flexWrap: { xs: "wrap", sm: "nowrap" },
         }}
       >
         <TextField
           fullWidth
           variant="outlined"
-          placeholder="Search by title, genre, mood..."
+          placeholder="Search for music by title, genre, mood, or artist..."
           value={userQuery}
           onChange={(e) => setUserQuery(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+          onKeyDown={handleKeyPress}
+          disabled={isLoading}
           sx={{
-            input: { color: "white" },
-            fieldset: { borderColor: "#444" },
-            bgcolor: "#2e2d2d",
+            flex: 1,
+            "& .MuiOutlinedInput-root": {
+              color: "white",
+              bgcolor: "#2e2d2d",
+              "& fieldset": { borderColor: "#444" },
+              "&:hover fieldset": { borderColor: "#888" },
+              "&.Mui-focused fieldset": {
+                borderColor: "#E03FD8",
+                borderWidth: "2px",
+              },
+              "&.Mui-disabled": {
+                bgcolor: "#1a1a1a",
+              },
+            },
+            "& .MuiInputBase-input::placeholder": {
+              color: "#888",
+              opacity: 1,
+            },
+          }}
+        />
+
+        <FormControlLabel
+          control={
+            <Switch
+              checked={royaltyFree}
+              onChange={(e) => setRoyaltyFree(e.target.checked)}
+              disabled={isLoading}
+              sx={{
+                "& .MuiSwitch-switchBase.Mui-checked": {
+                  color: "#E03FD8",
+                },
+                "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+                  bgcolor: "#E03FD8",
+                },
+              }}
+            />
+          }
+          label="Royalty-Free"
+          sx={{
+            color: "white",
+            whiteSpace: "nowrap",
+            m: 0,
           }}
         />
         <FormControlLabel
@@ -92,40 +155,76 @@ const SearchBar = () => {
         <Button
           onClick={handleSearch}
           variant="contained"
+          disabled={isLoading || !userQuery.trim()}
+          startIcon={!isLoading && <Search size={20} />}
           sx={{
             bgcolor: "#E03FD8",
-            "&:hover": { bgcolor: "#c133b9" }, // slightly darker for hover
+            "&:hover": {
+              bgcolor: "#c133b9",
+              transform: "translateY(-2px)",
+              boxShadow: "0 4px 12px rgba(224, 63, 216, 0.4)",
+            },
+            "&:disabled": {
+              bgcolor: "#666",
+              color: "#999",
+            },
             color: "white",
-            minWidth: 100,
-            maxWidth: 200,
+            minWidth: 120,
             py: 1.5,
-            ml: "auto",
+            px: 3,
+            transition: "all 0.2s",
+            fontWeight: "bold",
           }}
-          disabled={isLoading}
         >
-          {/* Conditionally show "Search" or a loading spinner */}
-          {!isLoading ? (
-            "Search"
+          {isLoading ? (
+            <CircularProgress size={20} sx={{ color: "white" }} />
           ) : (
-            <CircularProgress size={20} color="primary" />
+            "Search"
           )}
         </Button>
       </Box>
-      {/* AI Response */}
+
+      {/* Error Message */}
+      <Collapse in={!!error}>
+        <Alert
+          severity="error"
+          sx={{
+            bgcolor: "#3d1a1a",
+            color: "#ff6b6b",
+            "& .MuiAlert-icon": { color: "#ff6b6b" },
+          }}
+        >
+          {error}
+        </Alert>
+      </Collapse>
+
+      {/* AI Response Box */}
       <Box
-        alignContent={"flex-start"}
-        mt={2}
-        px={2}
         sx={{
-          width: "100%", // full width of parent
-          mx: "auto",
           bgcolor: "#2e2d2d",
           borderRadius: 2,
-          p: 2,
-          minHeight: "55px",
+          p: 2.5,
+          minHeight: "60px",
+          display: "flex",
+          alignItems: "center",
+          border: "1px solid #444",
+          transition: "border-color 0.3s",
+          "&:hover": {
+            borderColor: isLoading || aiResponse ? "#E03FD8" : "#444",
+          },
         }}
       >
-        <Typography>{isLoading ? "Thinking..." : aiResponse}</Typography>
+        <Typography
+          variant="body1"
+          sx={{
+            color: isLoading ? "#888" : "white",
+            fontStyle: !aiResponse && !isLoading ? "italic" : "normal",
+          }}
+        >
+          {isLoading
+            ? "🎵 Searching for the perfect tracks..."
+            : aiResponse || "Enter a search query to find music"}
+        </Typography>
       </Box>
     </Box>
   );
