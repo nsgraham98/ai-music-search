@@ -136,6 +136,8 @@ export const AuthContextProvider = ({ children }) => {
   //   return () => unsubscribe();
   // }, []);
 
+  // Listener for auth state changes
+  // Sets the user state (logged in user or null) and loading state (is mid login or not)
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (authFlowComplete) {
@@ -146,10 +148,34 @@ export const AuthContextProvider = ({ children }) => {
     return () => unsubscribe();
   }, [authFlowComplete]);
 
+  // Check for existing session on initial load
+  // TODO - write get session function in api route
+  // also consider moving this to a component that wraps the app, so it only runs once on app start
+  // useEffect(() => {
+  //   const checkSession = async () => {
+  //     try {
+  //       const response = await fetch("/api/auth/session", {
+  //         method: "GET",
+  //         credentials: "include",
+  //       });
+  //       if (response.ok) {
+  //         const sessionData = await response.json();
+  //         // TODO - set user based on session data
+  //       }
+  //     } catch (error) {
+  //       console.error("Error checking session:", error);
+  //     } finally {
+  //       setLoadingUser(false);
+  //     }
+  //   };
+  //   checkSession();
+  // }, []);
+
   return (
     <AuthContext.Provider
       value={{
         user,
+        setUser,
         loadingUser,
         // userReady,
         gitHubSignIn,
