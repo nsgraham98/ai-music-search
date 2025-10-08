@@ -1,12 +1,12 @@
-// Spotify Track API Route
-import { getValidAccessToken } from "./accesstoken/spotifyroute";
+// app/api/spotify/playlist/route.js
+import { getValidAccessToken } from "../accesstoken/spotifyroute";
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
   
   if (!id) {
-    return new Response(JSON.stringify({ error: "Missing track id" }), { status: 400 });
+    return new Response(JSON.stringify({ error: "Missing playlist id" }), { status: 400 });
   }
 
   try {
@@ -19,7 +19,7 @@ export async function GET(req) {
     const authToken = authHeader.replace("Bearer ", "");
     const accessToken = await getValidAccessToken(authToken);
     
-    const res = await fetch(`https://api.spotify.com/v1/tracks/${id}`, {
+    const res = await fetch(`https://api.spotify.com/v1/playlists/${id}`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
@@ -28,7 +28,7 @@ export async function GET(req) {
     const data = await res.json();
     return new Response(JSON.stringify(data), { status: res.status });
   } catch (error) {
-    console.error("Spotify track fetch error:", error);
+    console.error("Spotify playlist fetch error:", error);
     return new Response(JSON.stringify({ error: error.message }), { status: 401 });
   }
 }

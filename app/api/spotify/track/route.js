@@ -1,5 +1,5 @@
-// Spotify Track API Route
-import { getValidAccessToken } from "./accesstoken/spotifyroute";
+// app/api/spotify/track/route.js
+import { getValidAccessToken } from "../accesstoken/spotifyroute";
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
