@@ -48,11 +48,34 @@ export async function POST(request) {
   }
 }
 
-// Placeholder for future GET method to retrieve session data
+// GET - Verify session cookie and return session data, user info
 export async function GET(req) {
   try {
-    // Get the current session
-    // TODO: implement this
+    const decoded = await authenticateCookie(req);
+    if (!decoded) {
+      return new Response(JSON.stringify({ error: "No valid session" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    // get session data from the database if needed
+    const sessionDoc = db.collection("sessions").doc(decoded.uid);
+    const docSnap = await sessionDoc.get();
+
+    if (!docSnap.exists) {
+      return new Response(JSON.stringify({ error: "No valid session" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    const sessionData = docSnap.data();
+    return new Response(
+      JSON.stringify({ ok: true, session: sessionData, user: decoded }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   } catch (error) {
     console.error("GET session error:", error);
     return new Response(JSON.stringify({ error: "Failed to get session" }), {
@@ -60,8 +83,4 @@ export async function GET(req) {
       headers: { "Content-Type": "application/json" },
     });
   }
-  return new Response(JSON.stringify({ ok: true }), {
-    status: 200,
-    headers: { "Content-Type": "application/json" },
-  });
 }
