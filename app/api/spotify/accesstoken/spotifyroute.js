@@ -1,13 +1,43 @@
 // app/api/spotify/accesstoken/spotifyroute.js
+import { adminAuth, db } from "@/lib/firebase-admin";
+
 // TODO: 
 // Implement error handling 
 // -- startspotifyauth needs to handle error case from api.
-// Token refresh logic. (or rewrite using another auth flow).
 
 //Notes:
 // Most of this implementation directly from spotify docs.
 // uses pkce auth flow.
-// This access token only lasts an hour. 
+// This access token only lasts an hour.
+
+// Helper functions for session-based token storage
+async function saveSpotifyTokensToSession(uid, spotifyTokens) {
+  await db.collection("sessions").doc(uid).set(
+    {
+      sessionData: {
+        spotify_access_token: spotifyTokens.access_token,
+        spotify_refresh_token: spotifyTokens.refresh_token,
+        spotify_expires_at: spotifyTokens.expires_at,
+        spotify_code_verifier: spotifyTokens.code_verifier,
+      }
+    },
+    { merge: true }
+  );
+}
+
+async function getSpotifyTokensFromSession(uid) {
+  const sessionDoc = await db.collection("sessions").doc(uid).get();
+  if (!sessionDoc.exists) {
+    return null;
+  }
+  const sessionData = sessionDoc.data().sessionData;
+  return {
+    access_token: sessionData.spotify_access_token,
+    refresh_token: sessionData.spotify_refresh_token,
+    expires_at: sessionData.spotify_expires_at,
+    code_verifier: sessionData.spotify_code_verifier,
+  };
+}
 
 // Generating string for verifier
 function generateRandomString (length) {
@@ -29,9 +59,26 @@ function base64encode (input) {
     .replace(/\//g, '_');
 }
 
-export async function startSpotifyAuth () {
+export async function startSpotifyAuth(user) {
     const code_verifier = generateRandomString(128); // max length allowed by api.
-    localStorage.setItem('code_verifier', code_verifier); // store for later use according to api doc.
+    
+    // Save code verifier to session instead of localStorage
+    if (user) {
+        try {
+            const token = await user.getIdToken();
+            await fetch("/api/session", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    token,
+                    spotifyTokens: { code_verifier }
+                }),
+            });
+        } catch (error) {
+            console.error('Failed to save code verifier:', error);
+        }
+    }
+    
     const authUrl = new URL('https://accounts.spotify.com/authorize'); //Spotify auth endpoint.
     const redirectUri = `${window.location.origin}`; // must match one of the redirect uris in spotify dev account.
     const clientID = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID; // from .env file.
@@ -58,27 +105,131 @@ export async function startSpotifyAuth () {
     let code = urlParams.get('code');  // get code from url after redirect. need to request access token.
     
 }
-// POST request to get access token.
-export async function getToken (code) {
-    const codeVerifier = localStorage.getItem('code_verifier');
-    const url = 'https://accounts.spotify.com/api/token';
-    const payload = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body : new URLSearchParams({
-            client_id: process.env.SPOTIFY_CLIENT_ID,
-            grant_type: 'authorization_code',
-            code,
-            redirect_uri: 'http://172.25.96.1:3000',
-            code_verifier: codeVerifier,
-    }),
+// POST request to get access token - SERVER SIDE VERSION
+export async function getToken(code, authToken) {
+    try {
+        // Verify user authentication
+        const decoded = await adminAuth.verifyIdToken(authToken);
+        const uid = decoded.uid;
+        
+        // Get code verifier from session
+        const tokens = await getSpotifyTokensFromSession(uid);
+        const codeVerifier = tokens?.code_verifier;
+        
+        if (!codeVerifier) {
+            throw new Error('Code verifier not found in session');
+        }
+        
+        const url = 'https://accounts.spotify.com/api/token';
+        const payload = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                client_id: process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID,
+                grant_type: 'authorization_code',
+                code,
+                redirect_uri: 'http://172.25.96.1:3000',
+                code_verifier: codeVerifier,
+            }),
+        };
+        
+        const body = await fetch(url, payload);
+        const response = await body.json();
+        
+        if (response.error) {
+            throw new Error(`Spotify API error: ${response.error_description}`);
+        }
+        
+        // Save tokens to session
+        await saveSpotifyTokensToSession(uid, {
+            access_token: response.access_token,
+            refresh_token: response.refresh_token,
+            expires_at: Date.now() + (response.expires_in * 1000),
+            code_verifier: codeVerifier, // Keep for future use
+        });
+        
+        return response.access_token;
+    } catch (error) {
+        console.error('Token exchange error:', error);
+        throw error;
+    }
 }
-const body = await fetch(url, payload);
-const response = await body.json();
 
-//store access token in local as it only lasts an hour.
-localStorage.setItem('access_token', response.access_token);
+// Function to refresh the access token - SERVER SIDE VERSION
+export async function refreshToken(authToken) {
+    try {
+        // Verify user authentication
+        const decoded = await adminAuth.verifyIdToken(authToken);
+        const uid = decoded.uid;
+        
+        // Get refresh token from session
+        const tokens = await getSpotifyTokensFromSession(uid);
+        const refreshTokenValue = tokens?.refresh_token;
+        
+        if (!refreshTokenValue) {
+            throw new Error('No refresh token available');
+        }
+        
+        const url = 'https://accounts.spotify.com/api/token';
+        const payload = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                client_id: process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID,
+                grant_type: 'refresh_token',
+                refresh_token: refreshTokenValue,
+            }),
+        };
+        
+        const body = await fetch(url, payload);
+        const response = await body.json();
+        
+        if (response.error) {
+            throw new Error(`Token refresh failed: ${response.error_description}`);
+        }
+        
+        // Update stored tokens in session
+        await saveSpotifyTokensToSession(uid, {
+            access_token: response.access_token,
+            refresh_token: response.refresh_token || refreshTokenValue,
+            expires_at: Date.now() + (response.expires_in * 1000),
+            code_verifier: tokens.code_verifier,
+        });
+        
+        return response.access_token;
+    } catch (error) {
+        console.error('Token refresh error:', error);
+        throw error;
+    }
+}
 
+// Function to get a valid access token (refresh if needed) - SERVER SIDE VERSION
+export async function getValidAccessToken(authToken) {
+    try {
+        // Verify user authentication
+        const decoded = await adminAuth.verifyIdToken(authToken);
+        const uid = decoded.uid;
+        
+        // Get tokens from session
+        const tokens = await getSpotifyTokensFromSession(uid);
+        
+        if (!tokens || !tokens.access_token) {
+            throw new Error('No access token found');
+        }
+        
+        // Check if token exists and is not expired
+        if (tokens.expires_at && Date.now() < parseInt(tokens.expires_at)) {
+            return tokens.access_token;
+        }
+        
+        // Token is expired, try to refresh
+        return await refreshToken(authToken);
+    } catch (error) {
+        console.error('Get valid token failed:', error);
+        throw new Error('Authentication required');
+    }
 }
