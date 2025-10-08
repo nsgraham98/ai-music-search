@@ -43,13 +43,14 @@ export async function saveUserProfile(user, provider, token) {
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        // Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        token,
+        //token,
         profileData,
       }),
     });
+    // response = { success: true, userProfileData: userProfileData }
 
     if (!response.ok) {
       console.error("Failed to save user profile:", await response.text());

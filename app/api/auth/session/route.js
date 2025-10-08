@@ -33,6 +33,7 @@ export async function POST(request) {
         },
         { merge: true }
       );
+    console.log("Session data saved to database");
 
     // https://firebase.google.com/docs/auth/admin/manage-cookies
     // set the cookie in the response headers

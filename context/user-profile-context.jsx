@@ -16,51 +16,94 @@ export const UserProfileContextProvider = ({ children }) => {
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [profileError, setProfileError] = useState(null);
 
-  // Fetch user profile when user changes
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (!user) {
-        setUserProfile(null);
-        setLoadingProfile(false);
-        setProfileError(null);
-        return;
-      }
+  const fetchUserProfile = async () => {
+    console.log("user-profile-context: Fetching user profile...");
+    console.log("user-profile-context: Authenticated user: ", user);
+    if (!user) {
+      // No user, clear profile state
+      setUserProfile(null);
+      setLoadingProfile(false);
+      setProfileError(null);
+      return;
+    }
+    try {
+      setLoadingProfile(true);
+      setProfileError(null);
 
-      try {
-        setLoadingProfile(true);
-        setProfileError(null);
+      // const token = await getIdToken(user, true);
 
-        const token = await getIdToken(user, true);
+      const response = await fetch("/api/users", {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          // Authorization: `Bearer ${token}`,
+        },
+      });
 
-        const response = await fetch("/api/users", {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          const result = await response.json();
-          if (result.success) {
-            setUserProfile(result.data);
-          } else {
-            setProfileError("Profile not found");
-          }
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          setUserProfile(result.data);
         } else {
-          setProfileError("Failed to fetch profile");
+          setProfileError("Profile not found");
         }
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-        setProfileError("Error fetching profile");
-      } finally {
-        setLoadingProfile(false);
+      } else {
+        setProfileError("Failed to fetch profile");
       }
-    };
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      setProfileError("Error fetching profile");
+    } finally {
+      setLoadingProfile(false);
+    }
+  };
 
-    fetchUserProfile();
-  }, [user]);
+  // Fetch user profile when user changes
+  // useEffect(() => {
+  //   const fetchUserProfile = async () => {
+  //     if (!user) {
+  //       setUserProfile(null);
+  //       setLoadingProfile(false);
+  //       setProfileError(null);
+  //       return;
+  //     }
+
+  //     try {
+  //       setLoadingProfile(true);
+  //       setProfileError(null);
+
+  //       const token = await getIdToken(user, true);
+
+  //       const response = await fetch("/api/users", {
+  //         method: "GET",
+  //         credentials: "include",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       });
+
+  //       if (response.ok) {
+  //         const result = await response.json();
+  //         if (result.success) {
+  //           setUserProfile(result.data);
+  //         } else {
+  //           setProfileError("Profile not found");
+  //         }
+  //       } else {
+  //         setProfileError("Failed to fetch profile");
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching user profile:", error);
+  //       setProfileError("Error fetching profile");
+  //     } finally {
+  //       setLoadingProfile(false);
+  //     }
+  //   };
+
+  //   fetchUserProfile();
+  // }, [user]);
 
   // Update display name
   const updateDisplayName = async (newDisplayName) => {
@@ -76,7 +119,7 @@ export const UserProfileContextProvider = ({ children }) => {
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          // Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           displayName: newDisplayName.trim(),
@@ -140,7 +183,7 @@ export const UserProfileContextProvider = ({ children }) => {
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          // Authorization: `Bearer ${token}`,
         },
       });
 
@@ -166,6 +209,7 @@ export const UserProfileContextProvider = ({ children }) => {
         updateDisplayName,
         getUserProfileById,
         refreshProfile,
+        fetchUserProfile,
       }}
     >
       {children}

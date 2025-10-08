@@ -1,6 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { useUserAuth } from "@/context/auth-context";
+import { useUserProfile } from "@/context/user-profile-context";
 
 /*
   Should only mount once, at the root of the app
@@ -29,6 +30,7 @@ import { useUserAuth } from "@/context/auth-context";
 
 export const AppInitializer = () => {
   const { setUser, setAuthFlowComplete } = useUserAuth();
+  const { fetchUserProfile } = useUserProfile();
 
   useEffect(() => {
     // 1. On app load, check for existing session cookie
@@ -58,12 +60,18 @@ export const AppInitializer = () => {
     };
     const getUserProfile = async () => {
       // 4. Get user profile from firestore
+      await fetchUserProfile();
       // 5. If profile exists, load user data
       //   5.1. If no profile, create one - not sure if this is possible at this point in the flow though?
     };
-    // Run both functions
-    checkSession();
-    getUserProfile();
+    // run both functions sequentially
+    const initApp = async () => {
+      await checkSession();
+      console.log("AppInitializer: Session check complete");
+      await getUserProfile();
+      console.log("AppInitializer: User profile fetch complete");
+    };
+    initApp();
   }, []);
   return null; // This component does not render anything
 };

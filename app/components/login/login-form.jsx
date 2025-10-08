@@ -7,10 +7,17 @@ import { Button, Box, Stack } from "@mui/material";
 import { useUserAuth } from "/context/auth-context";
 
 export function LoginForm() {
-  const { gitHubSignIn, googleSignIn, facebookSignIn } = useUserAuth(); // get sign-in functions from context
+  const { gitHubSignIn, googleSignIn, facebookSignIn, signIn } = useUserAuth(); // get sign-in functions from context
 
   // Handlers for button clicks
   // Each handler calls the corresponding sign-in function (in auth-context) and catches errors
+  const handleSignIn = async (providerName) => {
+    try {
+      await signIn(providerName);
+    } catch (error) {
+      console.error(`Error signing in with ${providerName}:`, error);
+    }
+  };
   const handleGitHubSignIn = async () => {
     try {
       await gitHubSignIn();
@@ -43,7 +50,7 @@ export function LoginForm() {
           backgroundColor: "#24292e",
           "&:hover": { backgroundColor: "#1b1f23" },
         }}
-        onClick={handleGitHubSignIn}
+        onClick={() => handleSignIn("github")}
       >
         Sign in with GitHub
       </Button>
@@ -54,7 +61,7 @@ export function LoginForm() {
           backgroundColor: "#4285F4",
           "&:hover": { backgroundColor: "#1e498f" },
         }}
-        onClick={handleGoogleSignIn}
+        onClick={() => handleSignIn("google")}
       >
         Sign in with Google
       </Button>
@@ -65,7 +72,7 @@ export function LoginForm() {
           backgroundColor: "#4285F4",
           "&:hover": { backgroundColor: "#1e498f" },
         }}
-        onClick={handleFacebookSignIn}
+        onClick={() => handleSignIn("facebook")}
       >
         Sign in with Facebook
       </Button>

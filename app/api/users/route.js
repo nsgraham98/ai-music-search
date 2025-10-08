@@ -22,16 +22,16 @@ export async function GET(req) {
 
     if (!uid) {
       // If no UID provided, try to get it from the auth token
-      const authHeader = req.headers.get("authorization");
-      if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        return new Response(
-          JSON.stringify({ error: "No authorization token provided" }),
-          {
-            status: 401,
-            headers: { "Content-Type": "application/json" },
-          }
-        );
-      }
+      // const authHeader = req.headers.get("authorization");
+      // if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      //   return new Response(
+      //     JSON.stringify({ error: "No authorization token provided" }),
+      //     {
+      //       status: 401,
+      //       headers: { "Content-Type": "application/json" },
+      //     }
+      //   );
+      // }
 
       /*
         @francis i added this, in place of the commented code below
@@ -47,9 +47,7 @@ export async function GET(req) {
       */
       //console.log("REQUEST", req);
       const decodedToken = await authenticateCookie(req);
-      console.log("DECODED TOKEN", decodedToken);
       const userUid = decodedToken.uid;
-      console.log("User UID from token:", userUid);
 
       // const token = authHeader.split(" ")[1];
       // const decoded = await adminAuth.verifyIdToken(token);
@@ -62,6 +60,7 @@ export async function GET(req) {
       });
     } else {
       // Get profile by provided UID (for viewing other users' profiles)
+      // doesn't require authentication - double check this
       const result = await getUserProfile(uid);
       return new Response(JSON.stringify(result), {
         status: result.success ? 200 : 404,
@@ -84,7 +83,7 @@ export async function GET(req) {
 export async function POST(req) {
   try {
     // Get the token and profile data from the request body
-    const { token, profileData } = await req.json();
+    const { profileData } = await req.json();
 
     // if (!token || !profileData) {
     //   return new Response(
@@ -105,10 +104,24 @@ export async function POST(req) {
 
     const result = await saveUserProfile(uid, profileData); // save to the database
 
-    return new Response(JSON.stringify(result), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    if (!result.success) {
+      return new Response(
+        JSON.stringify({ error: "Failed to save user profile" }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    return new Response(
+      JSON.stringify({ ok: true, userProfileData: result.data }),
+      {
+        // data = userProfileData
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   } catch (error) {
     console.error("POST user profile error:", error);
     return new Response(

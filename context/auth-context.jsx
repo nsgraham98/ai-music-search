@@ -24,8 +24,42 @@ export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null); // active logged in user object
   const [loadingUser, setLoadingUser] = useState(true); // loading while checking auth state
   const [authFlowComplete, setAuthFlowComplete] = useState(false); // true after initial auth check is done
-  // const [userReady, setUserReady] = useState(false); // true when user profile is loaded
 
+  // Listener for auth state changes
+  // Sets the user state (logged in user or null) and loading state (is mid login or not)
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (authFlowComplete) {
+        setUser(currentUser);
+        setLoadingUser(false);
+      }
+    });
+    return () => unsubscribe(); // cleanup the listener on unmount
+  }, [authFlowComplete]);
+
+  // Sign in with popup for the given provider (github, google, facebook)
+  // Called from login-form component
+  const signIn = async (providerName) => {
+    //setAuthFlowComplete(false);
+    const provider = getAuthProvider(providerName);
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user; // user object from firebase
+    const idToken = await user.getIdToken();
+
+    await loginWithToken(idToken);
+    await saveUserSession(); // Save session data
+
+    // Create or update user profile
+    await saveUserProfile(user, providerName, idToken); // consider only calling this on first login?
+    setAuthFlowComplete(true);
+  };
+
+  /*
+    Send the Firebase ID token to the backend (/api/auth/login/route.js) to:
+      Verify the token
+      Create a cookie with a sessionID
+    Runs only once on login
+  */
   async function loginWithToken(idToken) {
     if (!idToken) return;
     try {
@@ -45,6 +79,7 @@ export const AuthContextProvider = ({ children }) => {
       console.error("Error during login:", error);
     }
   }
+
   /* 
     Send the token to the backend (/api/session/route.js) to:
       Save the session data in the database
@@ -65,56 +100,21 @@ export const AuthContextProvider = ({ children }) => {
     }
   }
 
-  // https://firebase.google.com/docs/auth/web/github-auth
-  const gitHubSignIn = async () => {
-    //setAuthFlowComplete(false);
-    const provider = new GithubAuthProvider();
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user; // user object from firebase
-    const idToken = await user.getIdToken();
-
-    // this commented out code gets a github access token, if we need to work with the github api later (different from firebase api we do use for auth)
-    // const credential = GithubAuthProvider.credentialFromResult(result);
-    // const gitHubToken = credential.accessToken;
-
-    await loginWithToken(idToken);
-    await saveUserSession(); // Save session data
-
-    // Create or update user profile
-    await saveUserProfile(user, "github", idToken);
-    setAuthFlowComplete(true);
-  };
-
-  // https://firebase.google.com/docs/auth/web/google-signin
-  const googleSignIn = async () => {
-    const provider = new GoogleAuthProvider();
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user; // user object from firebase
-    const idToken = await user.getIdToken();
-
-    // this commented out code gets a github access token, if we need to work with the github api later (different from firebase api we do use for auth)
-    // const credential = GithubAuthProvider.credentialFromResult(result);
-    // const gitHubToken = credential.accessToken;
-
-    await loginWithToken(idToken);
-    await saveUserSession(); // Save session data
-
-    // Create or update user profile
-    await saveUserProfile(user, "google", idToken);
-    setAuthFlowComplete(true);
-  };
-  // https://firebase.google.com/docs/auth/web/facebook-login
-  const facebookSignIn = async () => {
-    const provider = new FacebookAuthProvider();
-    const result = await signInWithPopup(auth, provider);
-    const accessToken = await result.user.getIdToken();
-
-    await loginWithToken(idToken);
-    await saveUserSession(); // Save session data
-
-    // Create or update user profile
-    await saveUserProfile(user, "facebook", idToken);
-    setAuthFlowComplete(true);
+  // Get the appropriate auth provider based on the provider name
+  const getAuthProvider = (providerName) => {
+    switch (providerName) {
+      case "github":
+        // https://firebase.google.com/docs/auth/web/github-auth
+        return new GithubAuthProvider();
+      case "google":
+        // https://firebase.google.com/docs/auth/web/google-signin
+        return new GoogleAuthProvider();
+      case "facebook":
+        // https://firebase.google.com/docs/auth/web/facebook-login
+        return new FacebookAuthProvider();
+      default:
+        throw new Error("Unsupported provider");
+    }
   };
 
   // Sign out user
@@ -129,30 +129,15 @@ export const AuthContextProvider = ({ children }) => {
     return signOut(auth);
   };
 
-  // Listener for auth state changes
-  // Sets the user state (logged in user or null) and loading state (is mid login or not)
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (authFlowComplete) {
-        setUser(currentUser);
-        setLoadingUser(false);
-      }
-    });
-    return () => unsubscribe();
-  }, [authFlowComplete]);
-
   return (
     <AuthContext.Provider
       value={{
         user,
         setUser,
         loadingUser,
-        // userReady,
-        gitHubSignIn,
-        googleSignIn,
-        facebookSignIn,
         firebaseSignOut,
         setAuthFlowComplete,
+        signIn,
       }}
     >
       {children}
