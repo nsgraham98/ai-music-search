@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useUserAuth } from "@/context/auth-context";
 
 export const AppInitializer = () => {
-  const { setUser } = useUserAuth();
+  const { setUser, setAuthFlowComplete } = useUserAuth();
 
   useEffect(() => {
     // check for existing session cookie on app load
@@ -14,9 +14,10 @@ export const AppInitializer = () => {
           credentials: "include",
         });
         if (response.ok) {
-          const data = await response.json();
+          const data = await response.json(); // { ok, user, session }
           if (data.user) {
             setUser(data.user);
+            setAuthFlowComplete(true);
           }
           if (data.session) {
             // handle session data if needed

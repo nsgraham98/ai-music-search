@@ -182,6 +182,7 @@ export const AuthContextProvider = ({ children }) => {
         googleSignIn,
         facebookSignIn,
         firebaseSignOut,
+        setAuthFlowComplete,
       }}
     >
       {children}
