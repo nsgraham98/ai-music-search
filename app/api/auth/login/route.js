@@ -1,3 +1,9 @@
+// NOT IN USE - don't delete yet
+
+// This endpoint is called after a successful login to set a session cookie
+// The session cookie contains the Firestore document ID where session data is stored
+// This allows the server to identify the user session on subsequent requests
+
 import { serialize } from "cookie";
 import { addDoc, collection } from "firebase/firestore";
 import { db } from "@/lib/firebase"; // import the firebase database instance

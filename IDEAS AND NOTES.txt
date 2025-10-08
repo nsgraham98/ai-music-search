@@ -123,4 +123,3 @@ OpenAI API:
         - Sends that to OpenAI via their API
     - OpenAI responds
     - Our server sends that combined response back to our frontend
-

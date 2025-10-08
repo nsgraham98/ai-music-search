@@ -1,3 +1,5 @@
+// Placeholder for handling Jamendo account "favorites" logic
+
 export async function AddFavorite() {
   // placeholder
 

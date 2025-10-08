@@ -1,3 +1,7 @@
+// Volume control component
+// Volume slider and mute/unmute button
+// Used in audio-player.jsx
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -6,23 +10,23 @@ import { useAudioPlayerContext } from "@/context/audio-player-context";
 import { Box, IconButton, Slider } from "@mui/material";
 
 export const VolumeControl = () => {
-  const { audioRef } = useAudioPlayerContext();
+  const { audioRef } = useAudioPlayerContext(); // ref for the <audio> element
 
   const [volume, setVolume] = useState(60); // initial volume %
   const [muteVolume, setMuteVolume] = useState(false); // mute toggle
 
+  // onChange handler for volume slider
   const handleVolumeChange = (e, newValue) => {
-    // update volume slider
     setVolume(newValue);
   };
 
+  // listener for volume change
   useEffect(() => {
     if (audioRef.current) {
-      // apply volume & mute state to audio element
       audioRef.current.volume = volume / 100;
       audioRef.current.muted = muteVolume;
     }
-  }, [volume, muteVolume, audioRef]);
+  }, [volume, muteVolume, audioRef]); // dependencies
 
   return (
     <Box display="flex" alignItems="center" gap={2}>

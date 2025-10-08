@@ -1,3 +1,10 @@
+// HOME PAGE (DASHBOARD) LAYOUT
+// This file is the layout for the home page (dashboard), and all future subpages.
+
+// Provides the audio player context for all authenticated views and ensures only logged in users can access these views
+// AudioPlayer component is included here at the bottom of the page (so it's always visible to logged in users)
+// https://nextjs.org/docs/app/api-reference/file-conventions/layout
+
 "use client";
 
 import { useUserAuth } from "@/context/auth-context";
@@ -8,16 +15,11 @@ import { Box, CircularProgress, Container } from "@mui/material";
 import { AudioPlayer } from "@/app/components/audio/audio-player.jsx";
 
 export default function DashboardLayout({ children }) {
-  const { user, loading } = useUserAuth();
+  // must be logged in to see this page
+  const { user, loadingUser } = useUserAuth();
   const router = useRouter();
 
-  // useEffect(() => {
-  //   if (!user && !loading) {
-  //     router.push("/login");
-  //   }
-  // }, [user, loading, router]);
-
-  if (loading) {
+  if (loadingUser) {
     // show loading spinner while waiting for auth status
     return (
       <Box
@@ -31,6 +33,7 @@ export default function DashboardLayout({ children }) {
     );
   }
 
+  // if user is logged in, show page
   return (
     // wrap all authenticated views in the audio player context
     <AudioPlayerProvider>

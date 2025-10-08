@@ -1,16 +1,22 @@
-// UI that is shared among all pages in the app. This is the root layout.
+// This file is the root layout.
+// i.e. UI that is shared among ALL pages in the app.
 
 // It is used to set up the global styles, fonts, and other UI elements that
 // are common across all pages.
 
 // It is also used to wrap the app in context providers, such as the AuthContextProvider
 // and AudioPlayerProvider.
+// Also wraps the app in an error boundary to catch client-side errors. (see error-boundary-client.jsx)
+
+// https://nextjs.org/docs/app/api-reference/file-conventions/layout
 
 import { Geist, Geist_Mono } from "next/font/google";
+import Link from "next/link";
 import "/styles/globals.css";
 import "/styles/customize-progress-bar.css";
 import { AudioPlayerProvider } from "@/context/audio-player-context.jsx";
 import { AuthContextProvider } from "@/context/auth-context.jsx";
+import { UserProfileContextProvider } from "@/context/user-profile-context.jsx";
 import { Box } from "@mui/material";
 import ClientErrorBoundary from "@/app/components/error-boundary-client.jsx";
 
@@ -47,15 +53,26 @@ export default function RootLayout({ children }) {
         <ClientErrorBoundary>
           <AudioPlayerProvider>
             <AuthContextProvider>
-              <Box
-                sx={{
-                  bgcolor: "#1e1e1e",
-                  color: "white",
-                  minHeight: "100vh",
-                }}
-              >
-                {children}
-              </Box>
+              <UserProfileContextProvider>
+                <Box
+                  sx={{
+                    bgcolor: "#1e1e1e",
+                    color: "white",
+                    minHeight: "100vh",
+                  }}
+                >
+                  {children}
+                  <nav style={{ marginBottom: "1rem" }}>
+                    <Link href="/spotify-test">
+                      <button
+                        style={{ padding: "0.5rem 1rem", fontSize: "1rem" }}
+                      >
+                        Test Spotify Connection
+                      </button>
+                    </Link>
+                  </nav>
+                </Box>
+              </UserProfileContextProvider>
             </AuthContextProvider>
           </AudioPlayerProvider>
         </ClientErrorBoundary>

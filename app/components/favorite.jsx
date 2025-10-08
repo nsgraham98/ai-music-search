@@ -1,6 +1,11 @@
+// Favorite button component to add a song to user's favorites
+// NOT IN USE YET - but let's keep it for future use
+// API endpoint /api/favorites still needs to be created to handle the request
+
 export default function FavoriteButton() {
   const handleOnClick = async () => {
     const response = await fetch("/api/favorites", {
+      // Replace with your actual API endpoint
       method: "POST",
       headers: {
         "Content-Type": "application/json",

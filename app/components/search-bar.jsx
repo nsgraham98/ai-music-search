@@ -1,6 +1,13 @@
+// SearchBar component with MUI styling and loading state
+// sends user query to OpenAI API route (app/api/openai/route.js) and displays AI response
+
+// This is the where the front end meets the backend for the main functionality of the app
+
 "use client";
 
 import React, { useState } from "react";
+import { Switch, FormControlLabel } from "@mui/material";
+import { useAudioPlayerContext } from "@/context/audio-player-context";
 import {
   Switch,
   FormControlLabel,
@@ -132,6 +139,17 @@ const SearchBar = () => {
             whiteSpace: "nowrap",
             m: 0,
           }}
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              checked={royaltyFree}
+              onChange={(e) => setRoyaltyFree(e.target.checked)}
+              color="primary"
+            />
+          }
+          label="Royalty-Free"
+          sx={{ color: "white" }}
         />
 
         <Button

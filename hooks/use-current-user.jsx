@@ -1,4 +1,5 @@
 // not yet implemented, but we will want this in the future
+// hook to manage user state across the app (e.g. in context or global state)
 
 "use client";
 
