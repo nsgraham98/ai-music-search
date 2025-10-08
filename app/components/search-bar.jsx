@@ -68,6 +68,12 @@ const SearchBar = () => {
     } finally {
       setIsLoading(false);
     }
+
+    const data = await response.json();
+    setTracks(data.jamendoResponse);
+    setAiResponse(data.aiResponse.output_text);
+    setIsLoading(false);
+
   }
 
   const handleKeyPress = (e) => {
