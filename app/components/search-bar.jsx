@@ -45,14 +45,7 @@ const SearchBar = () => {
       return;
     }
     const data = await response.json();
-    
-    // Set tracks based on which service was used
-    if (royaltyFree && data.jamendoResponse) {
-      setTracks(data.jamendoResponse);
-    } else if (!royaltyFree && data.spotifyResponse) {
-      setTracks(data.spotifyResponse);
-    }
-    
+    setTracks(data.jamendoResponse);
     setAiResponse(data.aiResponse.output_text);
     setIsLoading(false);
   }
