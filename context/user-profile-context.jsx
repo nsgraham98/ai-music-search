@@ -113,8 +113,6 @@ export const UserProfileContextProvider = ({ children }) => {
     }
 
     try {
-      const token = await getIdToken(user, true);
-
       const response = await fetch("/api/users", {
         method: "PATCH",
         credentials: "include",
@@ -177,14 +175,12 @@ export const UserProfileContextProvider = ({ children }) => {
 
     try {
       setLoadingProfile(true);
-      const token = await getIdToken(user, true);
 
       const response = await fetch("/api/users", {
         method: "GET",
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          // Authorization: `Bearer ${token}`,
         },
       });
 

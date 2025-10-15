@@ -1,8 +1,6 @@
 // This file handles saving user profiles during the sign-in process
 // Called from auth-context.jsx within its sign-in functions
 
-import { getIdToken } from "firebase/auth";
-
 // Generate a default display name from email or provider display name
 function generateDisplayName(email, providerDisplayName = null) {
   // First preference: use the provider's display name if available
@@ -21,8 +19,6 @@ function generateDisplayName(email, providerDisplayName = null) {
 
 export async function saveUserProfile(user, provider, token) {
   try {
-    // const token = await getIdToken(user, true);
-
     // Extract display name from the user object (comes from OAuth provider)
     // Different providers store displayName in different places
     let providerDisplayName = user.displayName;

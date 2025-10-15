@@ -44,7 +44,7 @@ export const AuthContextProvider = ({ children }) => {
     const provider = getAuthProvider(providerName);
     const result = await signInWithPopup(auth, provider);
     const user = result.user; // user object from firebase
-    const idToken = await user.getIdToken();
+    const idToken = await user.getIdToken(true /* force refresh */);
 
     await loginWithToken(idToken);
     await saveUserSession(); // Save session data

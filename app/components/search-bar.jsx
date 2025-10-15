@@ -30,12 +30,12 @@ const SearchBar = () => {
     // base case - no query
     if (!userQuery) return;
     setIsLoading(true);
-    const idToken = await user.getIdToken();
+    // const idToken = await user.getIdToken();
     const response = await fetch("/api/openai", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${idToken}`,
+        // Authorization: `Bearer ${idToken}`,
       },
       body: JSON.stringify({ userQuery, royaltyFree }),
     });
