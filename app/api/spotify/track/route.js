@@ -5,12 +5,13 @@ export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
   
+  //missing track id(search first)
   if (!id) {
     return new Response(JSON.stringify({ error: "Missing track id" }), { status: 400 });
   }
   
   try {
-    // Get auth token from request header
+    // need auth token for requests to spotify.
     const authHeader = req.headers.get("authorization");
     if (!authHeader) {
       return new Response(JSON.stringify({ error: "No authorization header" }), { status: 401 });

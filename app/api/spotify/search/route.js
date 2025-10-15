@@ -1,11 +1,12 @@
-import { checkAccessToken, checkAccessToken } from "../accesstoken/spotifyroute";
+import { checkAccessToken } from "../accesstoken/spotifyroute";
 
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { query, type = "track", limit = 20 } = body; //
+    const {queries , filters = {} } = body;
+    const {limit = 20, market = "US" } = filters; // headers in spotifytools (app/lib/ai-tools.js)
     
-    if (!query) {
+    if (!queries) {
       return new Response(JSON.stringify({ error: "Missing search query" }), { 
         status: 400,
         headers: { "Content-Type": "application/json" }
@@ -24,7 +25,8 @@ export async function POST(request) {
     const authToken = authHeader.replace("Bearer ", "");
     const accessToken = await checkAccessToken(authToken);
     
-    // Search Spotify API
+    let allTracks = []; //array to hold all tracks TODO:iterate through quries, change limits in filter of ai-tools.js
+    
     const searchUrl = `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=${type}&limit=${limit}`;
     
     const response = await fetch(searchUrl, {
@@ -39,7 +41,8 @@ export async function POST(request) {
       throw new Error(`Spotify API error: ${data.error?.message || 'Unknown error'}`);
     }
     
-    // Transform Spotify data to match your app's format
+    // 
+
     const tracks = data.tracks?.items?.map(track => ({
       id: track.id,
       name: track.name,
