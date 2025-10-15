@@ -47,16 +47,22 @@ export const AppInitializer = () => {
           if (data.user) {
             setUser(data.user);
             setAuthFlowComplete(true);
+            console.log("In data.user block");
             return data.user;
           } else {
+            console.log("in else block");
             // 2.1. If no session, user is null, show login options
           }
           if (data.session) {
+            console.log("in data.session block");
             // handle session data if needed
           }
+        } else {
+          // handle non-OK response
+          console.log("No valid session found");
         }
       } catch (error) {
-        console.error("Error checking session:", error);
+        console.error("Error checking session, in checkSession:", error);
       }
     };
     const getUserProfile = async (user) => {
