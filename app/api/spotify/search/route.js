@@ -1,4 +1,4 @@
-import { checkAccessToken, getValidAccessToken } from "../accesstoken/spotifyroute";
+import { checkAccessToken, checkAccessToken } from "../accesstoken/spotifyroute";
 
 export async function POST(request) {
   try {
