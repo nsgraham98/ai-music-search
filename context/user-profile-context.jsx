@@ -16,7 +16,9 @@ export const UserProfileContextProvider = ({ children }) => {
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [profileError, setProfileError] = useState(null);
 
-  const fetchUserProfile = async () => {
+  // Fetch user profile from the backend
+  // user argument is optional, if not provided, will use context user
+  const fetchUserProfile = async (user = null) => {
     console.log("user-profile-context: Fetching user profile...");
     console.log("user-profile-context: Authenticated user: ", user);
     if (!user) {
@@ -37,7 +39,6 @@ export const UserProfileContextProvider = ({ children }) => {
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          // Authorization: `Bearer ${token}`,
         },
       });
 

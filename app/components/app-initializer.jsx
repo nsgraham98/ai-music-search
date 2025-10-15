@@ -47,6 +47,7 @@ export const AppInitializer = () => {
           if (data.user) {
             setUser(data.user);
             setAuthFlowComplete(true);
+            return data.user;
           } else {
             // 2.1. If no session, user is null, show login options
           }
@@ -58,17 +59,17 @@ export const AppInitializer = () => {
         console.error("Error checking session:", error);
       }
     };
-    const getUserProfile = async () => {
+    const getUserProfile = async (user) => {
       // 4. Get user profile from firestore
-      await fetchUserProfile();
+      await fetchUserProfile(user);
       // 5. If profile exists, load user data
       //   5.1. If no profile, create one - not sure if this is possible at this point in the flow though?
     };
     // run both functions sequentially
     const initApp = async () => {
-      await checkSession();
+      const user = await checkSession();
       console.log("AppInitializer: Session check complete");
-      await getUserProfile();
+      await getUserProfile(user);
       console.log("AppInitializer: User profile fetch complete");
     };
     initApp();
