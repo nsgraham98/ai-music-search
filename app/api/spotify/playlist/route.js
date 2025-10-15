@@ -1,16 +1,14 @@
-// Spotify Search API Route
+// Spotify Playlist API Route
 import { getValidAccessToken } from "./accesstoken/spotifyroute";
 
-//used to get track ids from spotify
-export async function spotifySearch(req) {
+export async function getPlaylist(req) {
   const { searchParams } = new URL(req.url);
-  const q = searchParams.get("q");
-  const type = searchParams.get("type") || "track";
+  const id = searchParams.get("id");
   
-  if (!q) {
-    return new Response(JSON.stringify({ error: "Missing search query" }), { status: 400 });
+  if (!id) {
+    return new Response(JSON.stringify({ error: "Missing playlist id" }), { status: 400 });
   }
-  
+
   try {
     // Get auth token from request header
     const authHeader = req.headers.get("authorization");
@@ -21,7 +19,7 @@ export async function spotifySearch(req) {
     const authToken = authHeader.replace("Bearer ", "");
     const accessToken = await getValidAccessToken(authToken);
     
-    const res = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(q)}&type=${type}`, {
+    const res = await fetch(`https://api.spotify.com/v1/playlists/${id}`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },

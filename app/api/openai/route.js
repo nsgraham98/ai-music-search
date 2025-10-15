@@ -1,6 +1,7 @@
 // This is the first API route that is called from the client (searchbar component)
 // It authenticates the user, then calls runOpenAISearch() in openai.js to handle the rest of the flow
 // Then it returns the final response to the client
+// Now supports both Jamendo and Spotify music services
 
 import OpenAI from "openai";
 import { runOpenAISearch } from "@/app/api/openai/openai-handler/openai.js";
@@ -21,16 +22,26 @@ export async function POST(request) {
 
     console.log("🧠 Starting OpenAI search");
     const body = await request.json();
-    const result = await runOpenAISearch(body.userQuery); // main function to handle the OpenAI search logic
-
-    // console.log("AI Response:", result.aiResponse);
-    // console.log("Jamendo Response:", result.jamendoResponse);
+    const { userQuery, musicService = "jamendo" } = body;
+    
+    // Get auth token for Spotify if needed
+    let authToken = null;
+    if (musicService === "spotify") {
+      const authHeader = request.headers.get("authorization");
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        authToken = authHeader.substring(7);
+      }
+    }
+    
+    // main function to handle the OpenAI search logic
+    const result = await runOpenAISearch(userQuery, musicService, authToken);
 
     // return successful response to client
     return new Response(
       JSON.stringify({
         aiResponse: result.aiResponse,
-        jamendoResponse: result.jamendoResponse,
+        musicService: result.musicService,
+        results: result.results,
       }),
       {
         status: 200,

@@ -1,5 +1,6 @@
 // API route to handle Spotify token exchange
-import { getToken } from "../accesstoken/spotifyroute";
+import { NextResponse } from "next/server";
+import { exchangeCodeForToken } from "../accesstoken/spotifyroute";
 
 export async function GET(request) {
     try {
@@ -24,7 +25,7 @@ export async function GET(request) {
         }
         
         // Exchange code for access token
-        const accessToken = await getToken(code, authToken);
+        const accessToken = await exchangeCodeForToken(code, authToken);
         
         return NextResponse.json({ 
             success: true, 

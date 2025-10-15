@@ -28,6 +28,7 @@ const SearchBar = () => {
   const [royaltyFree, setRoyaltyFree] = useState(true);
   const [error, setError] = useState(null);
   const { setCurrentPlaylist } = useAudioPlayerContext();
+  const { user } = useUserAuth();
 
   async function handleSearch() {
     console.log(
@@ -41,34 +42,33 @@ const SearchBar = () => {
       setTimeout(() => setError(null), 3000);
       return;
     }
-    // base case - no query
-    setIsLoading(true);
-    // const idToken = await user.getIdToken();
-    const response = await fetch("/api/openai", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        // Authorization: `Bearer ${idToken}`,
-      },
-      body: JSON.stringify({ userQuery, royaltyFree }),
-    });
-    if (!response.ok) {
-      console.error("Error fetching data:", response.statusText);
-      setIsLoading(false);
-      return;
-    }
 
     setIsLoading(true);
     setError(null);
     setAiResponse(null);
 
     try {
+      // Determine which music service to use based on royaltyFree toggle
+      const musicService = royaltyFree ? "jamendo" : "spotify";
+      
+      // Prepare headers
+      const headers = {
+        "Content-Type": "application/json",
+      };
+      
+      // Add auth token for Spotify searches
+      if (musicService === "spotify" && user) {
+        const idToken = await user.getIdToken();
+        headers.Authorization = `Bearer ${idToken}`;
+      }
+
       const response = await fetch("/api/openai", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userQuery, royaltyFree }),
+        headers,
+        body: JSON.stringify({ 
+          userQuery, 
+          musicService 
+        }),
       });
 
       if (!response.ok) {
@@ -76,7 +76,7 @@ const SearchBar = () => {
       }
 
       const data = await response.json();
-      setCurrentPlaylist(data.jamendoResponse || []);
+      setCurrentPlaylist(data.results || []);
       setAiResponse(data.aiResponse?.output_text || "Search completed");
     } catch (err) {
       console.error("Search error:", err);
@@ -133,28 +133,29 @@ const SearchBar = () => {
             },
           }}
         />
-
         <FormControlLabel
           control={
             <Switch
               checked={royaltyFree}
               onChange={(e) => setRoyaltyFree(e.target.checked)}
-              disabled={isLoading}
+              color="primary"
               sx={{
                 "& .MuiSwitch-switchBase.Mui-checked": {
                   color: "#E03FD8",
                 },
                 "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-                  bgcolor: "#E03FD8",
+                  backgroundColor: "#E03FD8",
                 },
               }}
             />
           }
-          label="Royalty-Free"
-          sx={{
+          label={royaltyFree ? "Royalty-Free (Jamendo)" : "Spotify"}
+          sx={{ 
             color: "white",
-            whiteSpace: "nowrap",
-            m: 0,
+            "& .MuiFormControlLabel-label": {
+              fontSize: "0.9rem",
+              fontWeight: 500,
+            }
           }}
         />
 
