@@ -6,7 +6,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { Switch, FormControlLabel } from "@mui/material";
 import { useAudioPlayerContext } from "@/context/audio-player-context";
 import {
   Switch,
@@ -20,7 +19,6 @@ import {
   Collapse,
 } from "@mui/material";
 import { Search } from "lucide-react";
-import { useAudioPlayerContext } from "@/context/audio-player-context";
 import { useUserAuth } from "@/context/auth-context";
 
 const SearchBar = () => {

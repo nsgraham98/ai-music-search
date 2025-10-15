@@ -1,9 +1,19 @@
 "use client";
 
 import { LogoutButton } from "@/app/components/login/logout-button";
-import { Box, Typography, Container, Paper, TextField, Button, Alert, CircularProgress } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Container,
+  Paper,
+  TextField,
+  Button,
+  Alert,
+  CircularProgress,
+} from "@mui/material";
 import SignedInAs from "@/app/components/login/signed-in-as";
 import LoginPopup from "@/app/components/login/login-popup";
+import Navigation from "@/app/navigation/nav-bar";
 import { useUserAuth } from "@/context/auth-context";
 import { useUserProfile } from "@/context/user-profile-context";
 import { useParams } from "next/navigation";
@@ -11,7 +21,8 @@ import { useState, useEffect } from "react";
 
 export default function UserProfilePage() {
   const { user } = useUserAuth();
-  const { userProfile, loadingProfile, updateDisplayName, getUserProfileById } = useUserProfile();
+  const { userProfile, loadingProfile, updateDisplayName, getUserProfileById } =
+    useUserProfile();
   const params = useParams();
   const userId = params.id;
 
@@ -64,7 +75,7 @@ export default function UserProfilePage() {
     setUpdateSuccess("");
 
     const result = await updateDisplayName(editDisplayName);
-    
+
     if (result.success) {
       setUpdateSuccess("Display name updated successfully!");
       setIsEditing(false);
@@ -72,7 +83,7 @@ export default function UserProfilePage() {
     } else {
       setUpdateError(result.error || "Failed to update display name");
     }
-    
+
     setIsUpdating(false);
   };
 
@@ -86,8 +97,13 @@ export default function UserProfilePage() {
     return (
       <Container maxWidth="lg">
         <LoginPopup />
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-          <CircularProgress color="primary" />
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          minHeight="400px"
+        >
+          <CircularProgress sx={{ color: "#E03FD8" }} />
         </Box>
       </Container>
     );
@@ -96,7 +112,7 @@ export default function UserProfilePage() {
   return (
     <Container maxWidth="lg">
       <LoginPopup />
-      
+
       {/* Header and Logout */}
       <Box
         display="flex"
@@ -113,6 +129,9 @@ export default function UserProfilePage() {
         </Box>
       </Box>
 
+      {/* Navigation Bar */}
+      <Navigation />
+
       {/* Profile Content */}
       <Box
         component={Paper}
@@ -125,6 +144,7 @@ export default function UserProfilePage() {
           mx: "auto",
           p: { xs: 3, md: 4 },
           borderRadius: 2,
+          border: "1px solid #444",
         }}
       >
         <Typography variant="h5" fontWeight="bold" mb={3}>
@@ -149,9 +169,13 @@ export default function UserProfilePage() {
                       mb: 2,
                       "& .MuiOutlinedInput-root": {
                         color: "white",
-                        "& fieldset": { borderColor: "#555" },
+                        bgcolor: "#3a3a3a",
+                        "& fieldset": { borderColor: "#444" },
                         "&:hover fieldset": { borderColor: "#888" },
-                        "&.Mui-focused fieldset": { borderColor: "#E03FD8" },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "#E03FD8",
+                          borderWidth: "2px",
+                        },
                       },
                       "& .MuiInputLabel-root": { color: "#ccc" },
                     }}
@@ -163,7 +187,13 @@ export default function UserProfilePage() {
                       disabled={isUpdating}
                       sx={{
                         bgcolor: "#E03FD8",
-                        "&:hover": { bgcolor: "#c935c4" },
+                        "&:hover": {
+                          bgcolor: "#c133b9",
+                          transform: "translateY(-2px)",
+                          boxShadow: "0 4px 12px rgba(224, 63, 216, 0.4)",
+                        },
+                        transition: "all 0.2s",
+                        fontWeight: "bold",
                       }}
                     >
                       {isUpdating ? <CircularProgress size={20} /> : "Save"}
@@ -173,9 +203,12 @@ export default function UserProfilePage() {
                       onClick={handleCancelEdit}
                       disabled={isUpdating}
                       sx={{
-                        color: "white",
-                        borderColor: "#888",
-                        "&:hover": { borderColor: "#aaa" },
+                        color: "#888",
+                        borderColor: "#444",
+                        "&:hover": {
+                          borderColor: "#888",
+                          bgcolor: "#3a3a3a",
+                        },
                       }}
                     >
                       Cancel
@@ -183,7 +216,11 @@ export default function UserProfilePage() {
                   </Box>
                 </Box>
               ) : (
-                <Box display="flex" justifyContent="space-between" alignItems="center">
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
                   <Typography variant="body1" fontSize="1.1rem">
                     {viewingProfile.displayName}
                   </Typography>
@@ -194,8 +231,13 @@ export default function UserProfilePage() {
                       onClick={() => setIsEditing(true)}
                       sx={{
                         color: "white",
-                        borderColor: "#888",
-                        "&:hover": { borderColor: "#E03FD8", color: "#E03FD8" },
+                        borderColor: "#444",
+                        "&:hover": {
+                          borderColor: "#E03FD8",
+                          color: "#E03FD8",
+                          transform: "translateY(-2px)",
+                        },
+                        transition: "all 0.2s",
                       }}
                     >
                       Edit
@@ -220,7 +262,11 @@ export default function UserProfilePage() {
               <Typography variant="h6" mb={1}>
                 Sign-in Provider
               </Typography>
-              <Typography variant="body1" fontSize="1.1rem" sx={{ textTransform: "capitalize" }}>
+              <Typography
+                variant="body1"
+                fontSize="1.1rem"
+                sx={{ textTransform: "capitalize" }}
+              >
                 {viewingProfile.provider}
               </Typography>
             </Box>
@@ -237,19 +283,27 @@ export default function UserProfilePage() {
 
             {/* Update Messages */}
             {updateError && (
-              <Alert severity="error" sx={{ mb: 2 }}>
+              <Alert
+                severity="error"
+                sx={{ bgcolor: "#3d1a1a", color: "#ff6b6b" }}
+              >
                 {updateError}
               </Alert>
             )}
             {updateSuccess && (
-              <Alert severity="success" sx={{ mb: 2 }}>
+              <Alert
+                severity="success"
+                sx={{ bgcolor: "#1a3d1a", color: "#69ff6b" }}
+              >
                 {updateSuccess}
               </Alert>
             )}
           </Box>
         ) : (
           <Typography variant="body1">
-            {isOwnProfile ? "Profile not found. Please try signing in again." : "User profile not found."}
+            {isOwnProfile
+              ? "Profile not found. Please try signing in again."
+              : "User profile not found."}
           </Typography>
         )}
       </Box>

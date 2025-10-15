@@ -1,7 +1,6 @@
 // HOME PAGE (DASHBOARD)
 // Only shown to logged in users, otherwise login popup is shown
 // AudioPlayer component is located in the layout.jsx file so it's always visible to logged in users
-
 "use client";
 import SearchBar from "@/app/components/search-bar.jsx";
 import { LogoutButton } from "@/app/components/login/logout-button";
@@ -9,6 +8,7 @@ import { Box, Typography, Container, Paper } from "@mui/material";
 import { PlayList } from "@/app/components/audio/playlist.jsx";
 import SignedInAs from "@/app/components/login/signed-in-as";
 import LoginPopup from "@/app/components/login/login-popup";
+import Navigation from "@/app/navigation/nav-bar";
 
 export default function HomePage() {
   return (
@@ -30,6 +30,9 @@ export default function HomePage() {
         </Box>
       </Box>
 
+      {/* Navigation Bar */}
+      <Navigation />
+
       {/* Search Bar */}
       <Box
         sx={{
@@ -44,7 +47,6 @@ export default function HomePage() {
           <SearchBar />
         </Box>
       </Box>
-
       {/* Playlist (aka search results) */}
       {/* Outer playlist box */}
       <Box
