@@ -1,7 +1,7 @@
 // Spotify Playlist API Route
 import { getValidAccessToken } from "./accesstoken/spotifyroute";
 
-export async function GET(req) {
+export async function getPlaylist(req) {
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
   

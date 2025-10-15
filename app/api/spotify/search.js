@@ -1,7 +1,8 @@
 // Spotify Search API Route
 import { getValidAccessToken } from "./accesstoken/spotifyroute";
 
-export async function GET(req) {
+//used to get track ids from spotify
+export async function spotifySearch(req) {
   const { searchParams } = new URL(req.url);
   const q = searchParams.get("q");
   const type = searchParams.get("type") || "track";
