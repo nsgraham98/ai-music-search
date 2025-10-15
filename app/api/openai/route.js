@@ -9,6 +9,7 @@ import {
   authenticateIdToken,
   authenticateCookie,
 } from "@/lib/authenticate-calls";
+import { runSpotifySearch } from "@/app/api/openai/openai-handler/openai.js"; // need to toggle royaltyFree TODO; royalty free logic
 
 // Initialize OpenAI client
 const openai = new OpenAI({
