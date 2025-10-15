@@ -26,6 +26,7 @@ import SignedInAs from "@/app/components/login/signed-in-as";
 import LoginPopup from "@/app/components/login/login-popup";
 import { useUserAuth } from "@/context/auth-context";
 import Link from "next/link";
+import { formatDate } from "@/utils/date-utils";
 
 export default function SoundRoomPage() {
   const { user } = useUserAuth();
@@ -296,11 +297,7 @@ export default function SoundRoomPage() {
                               {game.players?.length || 1} player(s)
                             </Typography>
                             <Typography variant="body2" color="#ccc">
-                              Created:{" "}
-                              {new Date(
-                                game.created_at?.seconds * 1000 ||
-                                  game.created_at
-                              ).toLocaleDateString()}
+                              Created: {formatDate(game.created_at)}
                             </Typography>
                           </Box>
                           <Chip

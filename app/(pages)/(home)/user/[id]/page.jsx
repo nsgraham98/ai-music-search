@@ -1,17 +1,28 @@
 "use client";
 
 import { LogoutButton } from "@/app/components/login/logout-button";
-import { Box, Typography, Container, Paper, TextField, Button, Alert, CircularProgress } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Container,
+  Paper,
+  TextField,
+  Button,
+  Alert,
+  CircularProgress,
+} from "@mui/material";
 import SignedInAs from "@/app/components/login/signed-in-as";
 import LoginPopup from "@/app/components/login/login-popup";
 import { useUserAuth } from "@/context/auth-context";
 import { useUserProfile } from "@/context/user-profile-context";
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
+import { formatDate } from "@/utils/date-utils";
 
 export default function UserProfilePage() {
   const { user } = useUserAuth();
-  const { userProfile, loadingProfile, updateDisplayName, getUserProfileById } = useUserProfile();
+  const { userProfile, loadingProfile, updateDisplayName, getUserProfileById } =
+    useUserProfile();
   const params = useParams();
   const userId = params.id;
 
@@ -64,7 +75,7 @@ export default function UserProfilePage() {
     setUpdateSuccess("");
 
     const result = await updateDisplayName(editDisplayName);
-    
+
     if (result.success) {
       setUpdateSuccess("Display name updated successfully!");
       setIsEditing(false);
@@ -72,7 +83,7 @@ export default function UserProfilePage() {
     } else {
       setUpdateError(result.error || "Failed to update display name");
     }
-    
+
     setIsUpdating(false);
   };
 
@@ -86,7 +97,12 @@ export default function UserProfilePage() {
     return (
       <Container maxWidth="lg">
         <LoginPopup />
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          minHeight="400px"
+        >
           <CircularProgress color="primary" />
         </Box>
       </Container>
@@ -96,7 +112,7 @@ export default function UserProfilePage() {
   return (
     <Container maxWidth="lg">
       <LoginPopup />
-      
+
       {/* Header and Logout */}
       <Box
         display="flex"
@@ -183,7 +199,11 @@ export default function UserProfilePage() {
                   </Box>
                 </Box>
               ) : (
-                <Box display="flex" justifyContent="space-between" alignItems="center">
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
                   <Typography variant="body1" fontSize="1.1rem">
                     {viewingProfile.displayName}
                   </Typography>
@@ -220,7 +240,11 @@ export default function UserProfilePage() {
               <Typography variant="h6" mb={1}>
                 Sign-in Provider
               </Typography>
-              <Typography variant="body1" fontSize="1.1rem" sx={{ textTransform: "capitalize" }}>
+              <Typography
+                variant="body1"
+                fontSize="1.1rem"
+                sx={{ textTransform: "capitalize" }}
+              >
                 {viewingProfile.provider}
               </Typography>
             </Box>
@@ -231,7 +255,7 @@ export default function UserProfilePage() {
                 Member Since
               </Typography>
               <Typography variant="body1" fontSize="1.1rem">
-                {new Date(viewingProfile.created_at).toLocaleDateString()}
+                {formatDate(viewingProfile.created_at)}
               </Typography>
             </Box>
 
@@ -249,7 +273,9 @@ export default function UserProfilePage() {
           </Box>
         ) : (
           <Typography variant="body1">
-            {isOwnProfile ? "Profile not found. Please try signing in again." : "User profile not found."}
+            {isOwnProfile
+              ? "Profile not found. Please try signing in again."
+              : "User profile not found."}
           </Typography>
         )}
       </Box>

@@ -6,7 +6,7 @@ import { getGameById } from "../game-handler/games";
 
 export async function GET(request, { params }) {
   try {
-    const { id: gameId } = params;
+    const { id: gameId } = await params;
 
     // Get the user ID from the Authorization header
     const authHeader = request.headers.get("Authorization");
