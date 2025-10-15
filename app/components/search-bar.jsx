@@ -114,30 +114,6 @@ const SearchBar = () => {
             },
           }}
         />
-
-        <FormControlLabel
-          control={
-            <Switch
-              checked={royaltyFree}
-              onChange={(e) => setRoyaltyFree(e.target.checked)}
-              disabled={isLoading}
-              sx={{
-                "& .MuiSwitch-switchBase.Mui-checked": {
-                  color: "#E03FD8",
-                },
-                "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-                  bgcolor: "#E03FD8",
-                },
-              }}
-            />
-          }
-          label="Royalty-Free"
-          sx={{
-            color: "white",
-            whiteSpace: "nowrap",
-            m: 0,
-          }}
-        />
         <FormControlLabel
           control={
             <Switch
