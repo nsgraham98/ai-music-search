@@ -39,7 +39,7 @@ function createSearchString(searchArgsObj) {
   let dynamicSearchParams;
 
   const staticSearchParams = {
-    client_id: process.env.NEXT_PUBLIC_JAMENDO_CLIENT_ID,
+    client_id: process.env.JAMENDO_CLIENT_ID,
     format: "json",
     limit: 25, // how many results to return
     type: "single albumtrack",
