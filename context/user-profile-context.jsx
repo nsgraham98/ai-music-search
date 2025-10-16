@@ -6,12 +6,11 @@
 
 import { useContext, createContext, useState, useEffect } from "react";
 import { useUserAuth } from "@/context/auth-context";
-import { getIdToken } from "firebase/auth";
 
 const UserProfileContext = createContext();
 
 export const UserProfileContextProvider = ({ children }) => {
-  const { user } = useUserAuth(); // Get the authenticated user
+  const { authUser } = useUserAuth(); // Get the authenticated user
   const [userProfile, setUserProfile] = useState(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [profileError, setProfileError] = useState(null);
@@ -20,9 +19,9 @@ export const UserProfileContextProvider = ({ children }) => {
   useEffect(() => {
     const fetchProfile = async () => {
       // do something when user is authenticated in auth context
-      if (user) {
+      if (authUser) {
         setLoadingProfile(true);
-        const userProfile = await fetchUserProfile(user);
+        const userProfile = await fetchUserProfile();
         setUserProfile(userProfile);
         setLoadingProfile(false);
         setProfileError(null);
@@ -33,7 +32,7 @@ export const UserProfileContextProvider = ({ children }) => {
       }
     };
     fetchProfile();
-  }, [user]);
+  }, [authUser]);
 
   // Fetch user profile from the backend for setting the userProfile state
   // user argument is optional
@@ -41,7 +40,7 @@ export const UserProfileContextProvider = ({ children }) => {
   // If not provided, it will fetch the current user's profile
   const fetchUserProfile = async (uid = null) => {
     // No user, clear profile state
-    if (!user) {
+    if (!authUser) {
       setUserProfile(null);
       setLoadingProfile(false);
       setProfileError(null);
@@ -94,7 +93,7 @@ export const UserProfileContextProvider = ({ children }) => {
   // Update user profile (currently only display name)
   // updateProfileData = { displayName: "New Name", email: "newemail@example.com", etc. }
   const updateUserProfile = async (updateProfileData) => {
-    if (!user || !updateProfileData.displayName?.trim()) {
+    if (!authUser || !updateProfileData.displayName?.trim()) {
       return { success: false, error: "Invalid display name" };
     }
 
@@ -156,7 +155,7 @@ export const UserProfileContextProvider = ({ children }) => {
 
   // Refresh current user's profile
   const refreshProfile = async () => {
-    // if (!user) return;
+    // if (!authUser) return;
     // try {
     //   setLoadingProfile(true);
     //   const response = await fetch("/api/users", {

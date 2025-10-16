@@ -27,6 +27,14 @@ export async function saveUserProfile(uid, profileData) {
     throw error;
   }
 }
+/* 
+  THIS FILE IS PENDING DELETION
+  I moved the user CRUD functions to the users/route.js file to simplify the API structure.
+  This file was originally created to separate logic from route handlers, but it adds unnecessary complexity.
+  The functions here are now redundant with those in users/route.js.
+  I will delete this file after confirming everything works correctly without it.
+  - Nick
+*/
 
 // Retrieve a user profile by UID
 export async function getUserProfile(uid) {

@@ -29,7 +29,7 @@ import { useUserProfile } from "@/context/user-profile-context";
 */
 
 export const AppInitializer = () => {
-  const { setUser, setAuthFlowComplete } = useUserAuth();
+  const { setAuthUser, setAuthFlowComplete } = useUserAuth();
   const { fetchUserProfile } = useUserProfile();
 
   useEffect(() => {
@@ -43,23 +43,23 @@ export const AppInitializer = () => {
         });
         // 3. If authenticated, set user
         if (response.ok) {
-          const data = await response.json(); // { ok, user, session }
-          if (data.user) {
+          const data = await response.json(); // { ok, authUser, session }
+          if (data.authUser) {
             // set user in context
-            setUser(data.user);
+            setAuthUser(data.authUser);
             setAuthFlowComplete(true);
-            return data.user;
+            return data.authUser;
           } else {
             // handle no user found
             console.log("No user found");
-            setUser(null);
+            setAuthUser(null);
             setAuthFlowComplete(true);
             return null;
           }
         } else {
           // handle no session found (response not ok)
           console.log("No valid session found");
-          setUser(null);
+          setAuthUser(null);
           setAuthFlowComplete(true);
           return null;
         }
@@ -67,18 +67,18 @@ export const AppInitializer = () => {
         console.error("Error checking session, in checkSession:", error);
       }
     };
-    const getUserProfile = async (user) => {
+    const getUserProfile = async () => {
       // 4. Get user profile from firestore
-      await fetchUserProfile(user);
+      await fetchUserProfile();
       // 5. If profile exists, load user data
       //   5.1. If no profile, create one - not sure if this is possible at this point in the flow though?
     };
     // run both functions sequentially
     const initApp = async () => {
-      const user = await checkSession();
-      console.log("AppInitializer: Session check complete, User:", user);
-      if (user) {
-        const profile = await getUserProfile(user);
+      const authUser = await checkSession();
+      console.log("AppInitializer: Session check complete, User:", authUser);
+      if (authUser) {
+        const profile = await getUserProfile();
         console.log(
           "AppInitializer: User profile fetch complete, Profile:",
           profile

@@ -2,16 +2,10 @@
 // Handles creating, updating, and retrieving user profiles
 
 import {
-  saveUserProfile,
-  getUserProfile,
-  updateUserProfile,
-} from "./user-handler/user-profile";
-import {
   authenticateCookie,
   // authenticateIdToken,
 } from "@/lib/authenticate-calls";
 import { db } from "@/lib/firebase-admin.js";
-import { updateDoc } from "firebase/firestore";
 
 // GET - Retrieve user profile
 // if ?uid= is provided, get that user's profile (for viewing other users)

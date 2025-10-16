@@ -15,7 +15,6 @@ import {
   CircularProgress,
   Typography,
 } from "@mui/material";
-import { useUserAuth } from "@/context/auth-context";
 
 const SearchBar = () => {
   const [userQuery, setUserQuery] = useState("");
@@ -23,7 +22,6 @@ const SearchBar = () => {
   const [aiResponse, setAiResponse] = useState(null);
   const [royaltyFree, setRoyaltyFree] = useState(true);
   const { setTracks } = useAudioPlayerContext();
-  const { user } = useUserAuth();
 
   // sends a POST request with the user's query to the OpenAI API route
   async function handleSearch() {

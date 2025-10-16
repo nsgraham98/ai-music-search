@@ -20,7 +20,7 @@ import { auth } from "@/lib/firebase.js";
 const AuthContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // active logged in user object
+  const [authUser, setAuthUser] = useState(null); // active logged in user object
   const [loadingUser, setLoadingUser] = useState(true); // loading while checking auth state
   const [authFlowComplete, setAuthFlowComplete] = useState(false); // true after initial auth check is done
 
@@ -29,7 +29,7 @@ export const AuthContextProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (authFlowComplete) {
-        setUser(currentUser);
+        setAuthUser(currentUser);
         setLoadingUser(false);
       }
     });
@@ -82,12 +82,12 @@ export const AuthContextProvider = ({ children }) => {
         }
         const data = await postUserResponse.json();
         console.log("New User Profile Created:", data.userProfile);
-        setUser(user);
+        setAuthUser(user);
         setAuthFlowComplete(true);
         return;
       }
 
-      setUser(user);
+      setAuthUser(user);
       setAuthFlowComplete(true);
     } catch (error) {
       console.error("Error during sign-in:", error);
@@ -170,15 +170,15 @@ export const AuthContextProvider = ({ children }) => {
       credentials: "include",
     });
     setAuthFlowComplete(false);
-    setUser(null);
+    setAuthUser(null);
     return signOut(auth);
   };
 
   return (
     <AuthContext.Provider
       value={{
-        user,
-        setUser,
+        authUser,
+        setAuthUser,
         loadingUser,
         firebaseSignOut,
         setAuthFlowComplete,

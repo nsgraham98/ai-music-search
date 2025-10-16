@@ -19,7 +19,7 @@ import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 
 export default function UserProfilePage() {
-  const { user } = useUserAuth();
+  const { authUser } = useUserAuth();
   const {
     userProfile,
     loadingProfile,
@@ -44,8 +44,8 @@ export default function UserProfilePage() {
 
   // Determine if viewing own profile or someone else's
   useEffect(() => {
-    if (user && userId) {
-      const ownProfile = userId === user.uid;
+    if (authUser && userId) {
+      const ownProfile = userId === authUser.uid;
       setIsOwnProfile(ownProfile);
 
       if (ownProfile) {
@@ -66,7 +66,7 @@ export default function UserProfilePage() {
         fetchOtherProfile();
       }
     }
-  }, [user, userId, userProfile, getUserProfileById]);
+  }, [authUser, userId, userProfile, getUserProfileById]);
 
   const handleSaveDisplayName = async () => {
     if (!editDisplayName.trim()) {

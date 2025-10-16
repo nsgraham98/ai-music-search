@@ -84,7 +84,7 @@ export async function GET(req) {
     }
     const sessionData = docSnap.data();
     return new Response(
-      JSON.stringify({ ok: true, session: sessionData, user: decoded }),
+      JSON.stringify({ ok: true, session: sessionData, authUser: decoded }),
       {
         status: 200,
         headers: { "Content-Type": "application/json" },
