@@ -7,7 +7,7 @@ import { Button, Box, Stack } from "@mui/material";
 import { useUserAuth } from "/context/auth-context";
 
 export function LoginForm() {
-  const { gitHubSignIn, googleSignIn, facebookSignIn, signIn } = useUserAuth(); // get sign-in functions from context
+  const { signIn } = useUserAuth(); // get sign-in functions from context
 
   // Handlers for button clicks
   // Each handler calls the corresponding sign-in function (in auth-context) and catches errors

@@ -16,8 +16,29 @@ export const UserProfileContextProvider = ({ children }) => {
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [profileError, setProfileError] = useState(null);
 
-  // Fetch user profile from the backend
+  // When auth user changes, fetch the profile
+  useEffect(() => {
+    const fetchProfile = async () => {
+      // do something when user is authenticated in auth context
+      if (user) {
+        setLoadingProfile(true);
+        const userProfile = await fetchUserProfile(user);
+        setUserProfile(userProfile);
+        setLoadingProfile(false);
+        setProfileError(null);
+      } else {
+        setUserProfile(null);
+        setLoadingProfile(false);
+        setProfileError(null);
+      }
+    };
+    fetchProfile();
+  }, [user]);
+
+  // Fetch user profile from the backend for setting the userProfile state
   // user argument is optional
+  // If provided, will fetch that user's profile
+  // If not provided, it will clear the profile state
   const fetchUserProfile = async (user = null) => {
     console.log("user-profile-context: Fetching user profile...");
     console.log("user-profile-context: Authenticated user: ", user);
@@ -32,8 +53,6 @@ export const UserProfileContextProvider = ({ children }) => {
       setLoadingProfile(true);
       setProfileError(null);
 
-      // const token = await getIdToken(user, true);
-
       const response = await fetch("/api/users", {
         method: "GET",
         credentials: "include",
@@ -42,17 +61,12 @@ export const UserProfileContextProvider = ({ children }) => {
         },
       });
 
-      //if (response.success) {
       const result = await response.json();
       if (result.success) {
-        setUserProfile(result.data);
+        return result.data;
       } else {
-        // consider create profile here if not found?
         setProfileError("Profile not found");
       }
-      //} else {
-      // setProfileError("Failed to fetch profile");
-      //}
     } catch (error) {
       console.error("Error fetching user profile:", error);
       setProfileError("Error fetching profile");
@@ -60,52 +74,6 @@ export const UserProfileContextProvider = ({ children }) => {
       setLoadingProfile(false);
     }
   };
-
-  // Fetch user profile when user changes
-  // useEffect(() => {
-  //   const fetchUserProfile = async () => {
-  //     if (!user) {
-  //       setUserProfile(null);
-  //       setLoadingProfile(false);
-  //       setProfileError(null);
-  //       return;
-  //     }
-
-  //     try {
-  //       setLoadingProfile(true);
-  //       setProfileError(null);
-
-  //       const token = await getIdToken(user, true);
-
-  //       const response = await fetch("/api/users", {
-  //         method: "GET",
-  //         credentials: "include",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       });
-
-  //       if (response.ok) {
-  //         const result = await response.json();
-  //         if (result.success) {
-  //           setUserProfile(result.data);
-  //         } else {
-  //           setProfileError("Profile not found");
-  //         }
-  //       } else {
-  //         setProfileError("Failed to fetch profile");
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching user profile:", error);
-  //       setProfileError("Error fetching profile");
-  //     } finally {
-  //       setLoadingProfile(false);
-  //     }
-  //   };
-
-  //   fetchUserProfile();
-  // }, [user]);
 
   // Update display name
   const updateDisplayName = async (newDisplayName) => {

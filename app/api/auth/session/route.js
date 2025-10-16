@@ -33,7 +33,7 @@ export async function POST(request) {
         },
         { merge: true }
       );
-    console.log("Session data saved to database");
+    console.log("🍪 Session data saved to database");
 
     // https://firebase.google.com/docs/auth/admin/manage-cookies
     // set the cookie in the response headers
@@ -56,7 +56,7 @@ export async function GET(req) {
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get("session")?.value;
     if (!sessionCookie) {
-      console.log("No session cookie found");
+      console.log("🍪 No session cookie found");
       return new Response(
         JSON.stringify({ error: "No session cookie found" }),
         {

@@ -10,64 +10,68 @@ import {
   authenticateCookie,
   // authenticateIdToken,
 } from "@/lib/authenticate-calls";
+import { db } from "@/lib/firebase-admin.js";
 
 // GET - Retrieve user profile
+// if ?uid= is provided, get that user's profile (for viewing other users)
+// if no uid provided, get the profile of the authenticated user (requires auth)
 export async function GET(req) {
   try {
     // Get the UID from query parameters or from authorization header
     const url = new URL(req.url);
     const uid = url.searchParams.get("uid");
-    // console.log("Requested UID:", uid);
-    // console.log("Full URL:", req.url);
 
-    // should always enter this block for now
+    // Get profile of the authenticated user (if no uid provided)
     if (!uid) {
-      // If no UID provided, try to get it from the auth token
-      // const authHeader = req.headers.get("authorization");
-      // if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      //   return new Response(
-      //     JSON.stringify({ error: "No authorization token provided" }),
-      //     {
-      //       status: 401,
-      //       headers: { "Content-Type": "application/json" },
-      //     }
-      //   );
-      // }
+      const decodedUser = await authenticateCookie(req);
+      const userUid = decodedUser.uid;
 
-      /*
-        @francis i added this, in place of the commented code below
-        it's a method i wrote for authentication logic, but in a centralized location for reusability
-        You give it the request you're making, it extracts and verifies the "session=<session ID>" value of the cookie, throws an error if invalid, then returns the decoded token
-        The decoded object it returns is structured like this:
-        decodedToken: {
-          uid: "user-uid",
-          email: "user@example.com",
-          etc.
-        }
-        -Nick
-      */
-      //console.log("REQUEST", req);
-      const decodedToken = await authenticateCookie(req);
-      const userUid = decodedToken.uid;
+      const docRef = db.collection("users").doc(userUid);
+      const userDoc = await docRef.get();
 
-      // const token = authHeader.split(" ")[1];
-      // const decoded = await adminAuth.verifyIdToken(token);
-      // const userUid = decoded.uid;
+      // handle user not found with a 404
+      if (!userDoc.exists) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: "User not found",
+          }),
+          {
+            status: 404,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      }
 
-      const result = await getUserProfile(userUid);
+      // Return the user profile
+      const user = userDoc.data();
+      const result = { success: true, data: user };
+      console.log("👤 Current user profile retrieved");
       return new Response(JSON.stringify(result), {
-        status: result.success ? 200 : 404,
-        headers: { "Content-Type": "application/json" },
-      });
-    } else {
-      // Get profile by provided UID (for viewing other users' profiles)
-      // doesn't require authentication - double check this
-      const result = await getUserProfile(uid);
-      return new Response(JSON.stringify(result), {
-        status: result.success ? 200 : 404,
+        status: user ? 200 : 404,
         headers: { "Content-Type": "application/json" },
       });
     }
+
+    const docRef = db.collection("users").doc(uid);
+    const userDoc = await docRef.get();
+
+    if (!userDoc.exists) {
+      return new Response(JSON.stringify({ error: "User not found" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    const user = userDoc.data();
+    const cleanedUser = { displayName: user.displayName, uid: user.uid }; // Exclude sensitive fields - can add more public fields as needed
+    const result = { success: true, data: cleanedUser };
+    console.log("👤 Public user profile retrieved");
+    // Return the public user profile
+    return new Response(JSON.stringify(result), {
+      status: result.success ? 200 : 404,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error) {
     console.error("GET user profile error:", error);
     return new Response(
@@ -80,35 +84,55 @@ export async function GET(req) {
   }
 }
 
-// POST - Create or update user profile
+// POST - Create user profile
 export async function POST(req) {
   try {
-    // Get the token and profile data from the request body
-    // const { profileData } = await req.json();
-
-    // if (!token || !profileData) {
-    //   return new Response(
-    //     JSON.stringify({ error: "Missing token or profile data" }),
-    //     {
-    //       status: 400,
-    //       headers: { "Content-Type": "application/json" },
-    //     }
-    //   );
-    // }
-
+    // Authenticate the user making the request
     const decodedUser = await authenticateCookie(req);
     const uid = decodedUser.uid;
-
-    // const token = authHeader.split(" ")[1];
-    // const decoded = await adminAuth.verifyIdToken(token);
-    // const userUid = decoded.uid;
-
-    console.log("Decoded User in POST /api/users:", decodedUser);
-    const result = await saveUserProfile(decodedUser, decodedUser.provider); // save to the database
-
-    if (!result.success) {
+    const { provider } = await req.json();
+    if (!uid || !provider) {
       return new Response(
-        JSON.stringify({ error: "Failed to save user profile" }),
+        JSON.stringify({ error: "Missing UID or provider in request" }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // Check if user profile already exists
+    const existingProfile = await db.collection("users").doc(uid).get();
+    if (existingProfile.exists) {
+      return new Response(
+        JSON.stringify({ error: "User profile already exists" }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // Create a new user profile with default values
+    await db
+      .collection("users")
+      .doc(uid)
+      .set({
+        uid,
+        provider,
+        displayName: decodedUser.name || "New User",
+        email: decodedUser.email,
+        created_at: new Date().toISOString(),
+        // Add other default fields as needed
+      });
+
+    console.log("👤 User profile created for UID:", uid);
+    // Return the created user profile
+    const createdUserProfile = await db.collection("users").doc(uid).get();
+    const result = createdUserProfile.data();
+    if (!result) {
+      return new Response(
+        JSON.stringify({ error: "Failed to retrieve created user profile" }),
         {
           status: 500,
           headers: { "Content-Type": "application/json" },
@@ -116,17 +140,14 @@ export async function POST(req) {
       );
     }
 
-    return new Response(
-      JSON.stringify({ ok: true, userProfileData: result.data }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    return new Response(JSON.stringify({ ok: true, userProfile: result }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error) {
     console.error("POST user profile error:", error);
     return new Response(
-      JSON.stringify({ error: "Failed to save user profile" }),
+      JSON.stringify({ error: "Failed to create user profile" }),
       {
         status: 500,
         headers: { "Content-Type": "application/json" },
@@ -135,21 +156,11 @@ export async function POST(req) {
   }
 }
 
+// TODO: improve PATCH to allow updating other fields
 // PATCH - Update specific fields (like displayName)
 export async function PATCH(req) {
   try {
     const { displayName } = await req.json();
-    // const token = req.headers.get("authorization");
-
-    // if (!token || !displayName) {
-    //   return new Response(
-    //     JSON.stringify({ error: "Missing token or displayName" }),
-    //     {
-    //       status: 400,
-    //       headers: { "Content-Type": "application/json" },
-    //     }
-    //   );
-    // }
 
     const decodedToken = await authenticateCookie(req);
     const uid = decodedToken.uid;
@@ -160,6 +171,7 @@ export async function PATCH(req) {
 
     const result = await updateDisplayName(uid, displayName);
 
+    console.log("👤 User profile updated for UID:", uid);
     return new Response(JSON.stringify(result), {
       status: 200,
       headers: { "Content-Type": "application/json" },
@@ -174,4 +186,15 @@ export async function PATCH(req) {
       }
     );
   }
+}
+
+// TODO: add DELETE method to delete user profile (admin only?)
+export async function DELETE(req) {
+  return new Response(
+    JSON.stringify({ error: "DELETE method not implemented" }),
+    {
+      status: 501,
+      headers: { "Content-Type": "application/json" },
+    }
+  );
 }

@@ -16,7 +16,6 @@ import {
   FacebookAuthProvider,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase.js";
-import { saveUserProfile } from "@/app/api/users/user-handler/save-user-profile.js";
 
 const AuthContext = createContext();
 
@@ -40,24 +39,67 @@ export const AuthContextProvider = ({ children }) => {
   // Sign in with popup for the given provider (github, google, facebook)
   // Called from login-form component
   const signIn = async (providerName) => {
-    //setAuthFlowComplete(false);
-    const provider = getAuthProvider(providerName);
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user; // user object from firebase
-    const idToken = await user.getIdToken(true /* force refresh */);
+    try {
+      //setAuthFlowComplete(false);
+      const provider = getAuthProvider(providerName);
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user; // user object from firebase
+      const idToken = await user.getIdToken(true /* force refresh */);
 
-    await loginWithToken(idToken);
-    await saveUserSession(); // Save session data
+      const loginSuccess = await loginWithToken(idToken);
+      if (!loginSuccess) {
+        console.error("Login with token failed");
+        return;
+      }
 
-    // Create or update user profile
-    await saveUserProfile(user, providerName); // consider only calling this on first login?
-    setAuthFlowComplete(true);
+      const sessionResult = await saveUserSession(); // Save session data
+      if (!sessionResult) {
+        console.error("Saving user session failed");
+        return;
+      }
+
+      const getUserResponse = await fetch("/api/users", {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      // create new user profile if not found
+      if (getUserResponse.status === 404) {
+        const postUserResponse = await fetch("/api/users", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ provider: providerName }),
+        });
+        if (!postUserResponse.ok) {
+          console.error("Failed to create user profile");
+          return;
+        }
+        const data = await postUserResponse.json();
+        console.log("New User Profile Created:", data.userProfile);
+        setUser(user);
+        setAuthFlowComplete(true);
+        return;
+      }
+
+      setUser(user);
+      setAuthFlowComplete(true);
+    } catch (error) {
+      console.error("Error during sign-in:", error);
+      throw error;
+    }
   };
 
   /*
     Send the Firebase ID token to the backend (/api/auth/login/route.js) to:
       Verify the token
       Create a cookie with a sessionID
+      returns true if successful
     Runs only once on login
   */
   async function loginWithToken(idToken) {
@@ -75,6 +117,7 @@ export const AuthContextProvider = ({ children }) => {
         throw new Error("Login failed");
       }
       console.log("Login successful");
+      return true;
     } catch (error) {
       console.error("Error during login:", error);
     }
@@ -84,6 +127,7 @@ export const AuthContextProvider = ({ children }) => {
     Send the token to the backend (/api/session/route.js) to:
       Save the session data in the database
       Set the session cookie (to be used for authenticating API calls)
+    returns true if successful
   */
   async function saveUserSession() {
     try {
@@ -94,6 +138,7 @@ export const AuthContextProvider = ({ children }) => {
 
       if (response.ok) {
         console.log("Session and Cookie successfully set");
+        return true;
       }
     } catch (error) {
       console.error("Error saving user session:", error);

@@ -24,7 +24,7 @@ export async function POST(request) {
     await adminAuth.revokeRefreshTokens(uid); // revoke all refresh tokens for the user to force re-authentication
     cookieStore.delete("session");
     cookieStore.delete("Max-Age");
-    console.log("User logged out, session cookie deleted");
+    console.log("🔒 User logged out, session cookie deleted");
     return new Response(JSON.stringify({ ok: true }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
