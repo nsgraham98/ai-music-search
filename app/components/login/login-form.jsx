@@ -18,27 +18,6 @@ export function LoginForm() {
       console.error(`Error signing in with ${providerName}:`, error);
     }
   };
-  const handleGitHubSignIn = async () => {
-    try {
-      await gitHubSignIn();
-    } catch (error) {
-      console.error("Error signing in with GitHub:", error);
-    }
-  };
-  const handleGoogleSignIn = async () => {
-    try {
-      await googleSignIn();
-    } catch (error) {
-      console.error("Error signing in with Google:", error);
-    }
-  };
-  const handleFacebookSignIn = async () => {
-    try {
-      await facebookSignIn();
-    } catch (error) {
-      console.error("Error signing in with Facebook:", error);
-    }
-  };
 
   return (
     <Stack spacing={2} width="100%" maxWidth={300}>

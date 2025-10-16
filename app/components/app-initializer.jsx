@@ -45,21 +45,23 @@ export const AppInitializer = () => {
         if (response.ok) {
           const data = await response.json(); // { ok, user, session }
           if (data.user) {
+            // set user in context
             setUser(data.user);
             setAuthFlowComplete(true);
-            console.log("In data.user block");
             return data.user;
           } else {
-            console.log("in else block");
-            // 2.1. If no session, user is null, show login options
-          }
-          if (data.session) {
-            console.log("in data.session block");
-            // handle session data if needed
+            // handle no user found
+            console.log("No user found");
+            setUser(null);
+            setAuthFlowComplete(true);
+            return null;
           }
         } else {
-          // handle non-OK response
+          // handle no session found (response not ok)
           console.log("No valid session found");
+          setUser(null);
+          setAuthFlowComplete(true);
+          return null;
         }
       } catch (error) {
         console.error("Error checking session, in checkSession:", error);
@@ -74,9 +76,14 @@ export const AppInitializer = () => {
     // run both functions sequentially
     const initApp = async () => {
       const user = await checkSession();
-      console.log("AppInitializer: Session check complete");
-      await getUserProfile(user);
-      console.log("AppInitializer: User profile fetch complete");
+      console.log("AppInitializer: Session check complete, User:", user);
+      if (user) {
+        const profile = await getUserProfile(user);
+        console.log(
+          "AppInitializer: User profile fetch complete, Profile:",
+          profile
+        );
+      }
     };
     initApp();
   }, []);

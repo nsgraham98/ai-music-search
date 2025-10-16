@@ -16,15 +16,15 @@ function generateDisplayName(email, providerDisplayName = null) {
   // Last resort
   return "User";
 }
-
-export async function saveUserProfile(user, provider, token) {
+// user, provider <- old
+export async function saveUserProfile(user, provider) {
   try {
     // Extract display name from the user object (comes from OAuth provider)
     // Different providers store displayName in different places
-    let providerDisplayName = user.displayName;
+    // const providerDisplayName = user.providerDisplayName;
 
     // Generate a display name using our utility function
-    const displayName = generateDisplayName(user.email, providerDisplayName);
+    const displayName = generateDisplayName(user.email, provider);
 
     // Prepare profile data
     const profileData = {
@@ -39,10 +39,8 @@ export async function saveUserProfile(user, provider, token) {
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        // Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        //token,
         profileData,
       }),
     });

@@ -17,7 +17,7 @@ export const UserProfileContextProvider = ({ children }) => {
   const [profileError, setProfileError] = useState(null);
 
   // Fetch user profile from the backend
-  // user argument is optional, if not provided, will use context user
+  // user argument is optional
   const fetchUserProfile = async (user = null) => {
     console.log("user-profile-context: Fetching user profile...");
     console.log("user-profile-context: Authenticated user: ", user);
@@ -42,16 +42,17 @@ export const UserProfileContextProvider = ({ children }) => {
         },
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        if (result.success) {
-          setUserProfile(result.data);
-        } else {
-          setProfileError("Profile not found");
-        }
+      //if (response.success) {
+      const result = await response.json();
+      if (result.success) {
+        setUserProfile(result.data);
       } else {
-        setProfileError("Failed to fetch profile");
+        // consider create profile here if not found?
+        setProfileError("Profile not found");
       }
+      //} else {
+      // setProfileError("Failed to fetch profile");
+      //}
     } catch (error) {
       console.error("Error fetching user profile:", error);
       setProfileError("Error fetching profile");

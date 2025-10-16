@@ -50,7 +50,7 @@ export const AuthContextProvider = ({ children }) => {
     await saveUserSession(); // Save session data
 
     // Create or update user profile
-    await saveUserProfile(user, providerName, idToken); // consider only calling this on first login?
+    await saveUserProfile(user, providerName); // consider only calling this on first login?
     setAuthFlowComplete(true);
   };
 

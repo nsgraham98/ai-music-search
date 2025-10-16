@@ -20,6 +20,7 @@ export async function GET(req) {
     // console.log("Requested UID:", uid);
     // console.log("Full URL:", req.url);
 
+    // should always enter this block for now
     if (!uid) {
       // If no UID provided, try to get it from the auth token
       // const authHeader = req.headers.get("authorization");
@@ -83,7 +84,7 @@ export async function GET(req) {
 export async function POST(req) {
   try {
     // Get the token and profile data from the request body
-    const { profileData } = await req.json();
+    // const { profileData } = await req.json();
 
     // if (!token || !profileData) {
     //   return new Response(
@@ -95,14 +96,15 @@ export async function POST(req) {
     //   );
     // }
 
-    const decodedToken = await authenticateCookie(req);
-    const uid = decodedToken.uid;
+    const decodedUser = await authenticateCookie(req);
+    const uid = decodedUser.uid;
 
     // const token = authHeader.split(" ")[1];
     // const decoded = await adminAuth.verifyIdToken(token);
     // const userUid = decoded.uid;
 
-    const result = await saveUserProfile(uid, profileData); // save to the database
+    console.log("Decoded User in POST /api/users:", decodedUser);
+    const result = await saveUserProfile(decodedUser, decodedUser.provider); // save to the database
 
     if (!result.success) {
       return new Response(
@@ -117,7 +119,6 @@ export async function POST(req) {
     return new Response(
       JSON.stringify({ ok: true, userProfileData: result.data }),
       {
-        // data = userProfileData
         status: 200,
         headers: { "Content-Type": "application/json" },
       }
