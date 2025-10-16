@@ -63,7 +63,7 @@ export function generateDisplayName(email, providerDisplayName = null) {
 }
 
 // Update only the display name of a user profile
-export async function updateDisplayName(uid, newDisplayName) {
+export async function updateUserProfile(uid, newDisplayName) {
   try {
     await db.collection("users").doc(uid).update({
       displayName: newDisplayName,

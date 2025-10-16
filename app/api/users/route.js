@@ -4,20 +4,21 @@
 import {
   saveUserProfile,
   getUserProfile,
-  updateDisplayName,
+  updateUserProfile,
 } from "./user-handler/user-profile";
 import {
   authenticateCookie,
   // authenticateIdToken,
 } from "@/lib/authenticate-calls";
 import { db } from "@/lib/firebase-admin.js";
+import { updateDoc } from "firebase/firestore";
 
 // GET - Retrieve user profile
 // if ?uid= is provided, get that user's profile (for viewing other users)
 // if no uid provided, get the profile of the authenticated user (requires auth)
 export async function GET(req) {
   try {
-    // Get the UID from query parameters or from authorization header
+    // Get the optional UID from query parameters, to view other users' profiles
     const url = new URL(req.url);
     const uid = url.searchParams.get("uid");
 
@@ -160,19 +161,21 @@ export async function POST(req) {
 // PATCH - Update specific fields (like displayName)
 export async function PATCH(req) {
   try {
-    const { displayName } = await req.json();
+    const updatedProfileData = await req.json();
 
     const decodedToken = await authenticateCookie(req);
     const uid = decodedToken.uid;
 
-    // const token = authHeader.split(" ")[1];
-    // const decoded = await adminAuth.verifyIdToken(token);
-    // const userUid = decoded.uid;
-
-    const result = await updateDisplayName(uid, displayName);
+    await db
+      .collection("users")
+      .doc(uid)
+      .update({
+        ...updatedProfileData,
+        lastUpdated: Date.now(),
+      });
 
     console.log("👤 User profile updated for UID:", uid);
-    return new Response(JSON.stringify(result), {
+    return new Response(JSON.stringify({ ok: true }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });

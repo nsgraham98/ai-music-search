@@ -1,7 +1,16 @@
 "use client";
 
 import { LogoutButton } from "@/app/components/login/logout-button";
-import { Box, Typography, Container, Paper, TextField, Button, Alert, CircularProgress } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Container,
+  Paper,
+  TextField,
+  Button,
+  Alert,
+  CircularProgress,
+} from "@mui/material";
 import SignedInAs from "@/app/components/login/signed-in-as";
 import LoginPopup from "@/app/components/login/login-popup";
 import { useUserAuth } from "@/context/auth-context";
@@ -11,7 +20,13 @@ import { useState, useEffect } from "react";
 
 export default function UserProfilePage() {
   const { user } = useUserAuth();
-  const { userProfile, loadingProfile, updateDisplayName, getUserProfileById } = useUserProfile();
+  const {
+    userProfile,
+    loadingProfile,
+    updateUserProfile,
+    getUserProfileById,
+    fetchUserProfile,
+  } = useUserProfile();
   const params = useParams();
   const userId = params.id;
 
@@ -63,8 +78,8 @@ export default function UserProfilePage() {
     setUpdateError("");
     setUpdateSuccess("");
 
-    const result = await updateDisplayName(editDisplayName);
-    
+    const result = await updateUserProfile({ displayName: editDisplayName });
+
     if (result.success) {
       setUpdateSuccess("Display name updated successfully!");
       setIsEditing(false);
@@ -72,7 +87,7 @@ export default function UserProfilePage() {
     } else {
       setUpdateError(result.error || "Failed to update display name");
     }
-    
+
     setIsUpdating(false);
   };
 
@@ -86,7 +101,12 @@ export default function UserProfilePage() {
     return (
       <Container maxWidth="lg">
         <LoginPopup />
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          minHeight="400px"
+        >
           <CircularProgress color="primary" />
         </Box>
       </Container>
@@ -96,7 +116,7 @@ export default function UserProfilePage() {
   return (
     <Container maxWidth="lg">
       <LoginPopup />
-      
+
       {/* Header and Logout */}
       <Box
         display="flex"
@@ -183,7 +203,11 @@ export default function UserProfilePage() {
                   </Box>
                 </Box>
               ) : (
-                <Box display="flex" justifyContent="space-between" alignItems="center">
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
                   <Typography variant="body1" fontSize="1.1rem">
                     {viewingProfile.displayName}
                   </Typography>
@@ -220,7 +244,11 @@ export default function UserProfilePage() {
               <Typography variant="h6" mb={1}>
                 Sign-in Provider
               </Typography>
-              <Typography variant="body1" fontSize="1.1rem" sx={{ textTransform: "capitalize" }}>
+              <Typography
+                variant="body1"
+                fontSize="1.1rem"
+                sx={{ textTransform: "capitalize" }}
+              >
                 {viewingProfile.provider}
               </Typography>
             </Box>
@@ -249,7 +277,9 @@ export default function UserProfilePage() {
           </Box>
         ) : (
           <Typography variant="body1">
-            {isOwnProfile ? "Profile not found. Please try signing in again." : "User profile not found."}
+            {isOwnProfile
+              ? "Profile not found. Please try signing in again."
+              : "User profile not found."}
           </Typography>
         )}
       </Box>

@@ -38,12 +38,10 @@ export const UserProfileContextProvider = ({ children }) => {
   // Fetch user profile from the backend for setting the userProfile state
   // user argument is optional
   // If provided, will fetch that user's profile
-  // If not provided, it will clear the profile state
-  const fetchUserProfile = async (user = null) => {
-    console.log("user-profile-context: Fetching user profile...");
-    console.log("user-profile-context: Authenticated user: ", user);
+  // If not provided, it will fetch the current user's profile
+  const fetchUserProfile = async (uid = null) => {
+    // No user, clear profile state
     if (!user) {
-      // No user, clear profile state
       setUserProfile(null);
       setLoadingProfile(false);
       setProfileError(null);
@@ -53,19 +51,37 @@ export const UserProfileContextProvider = ({ children }) => {
       setLoadingProfile(true);
       setProfileError(null);
 
-      const response = await fetch("/api/users", {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      const result = await response.json();
-      if (result.success) {
-        return result.data;
+      // Fetch specific user's profile by UID
+      if (uid) {
+        const response = await fetch(`/api/users?uid=${uid}`, {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const result = await response.json();
+        if (result.success) {
+          return result.data;
+        } else {
+          setProfileError("Profile not found");
+        }
       } else {
-        setProfileError("Profile not found");
+        // Fetch current authenticated user's profile
+        const response = await fetch("/api/users", {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const result = await response.json();
+        if (result.success) {
+          const user = result.data;
+          return user;
+        } else {
+          setProfileError("Profile not found");
+        }
       }
     } catch (error) {
       console.error("Error fetching user profile:", error);
@@ -75,9 +91,10 @@ export const UserProfileContextProvider = ({ children }) => {
     }
   };
 
-  // Update display name
-  const updateDisplayName = async (newDisplayName) => {
-    if (!user || !newDisplayName.trim()) {
+  // Update user profile (currently only display name)
+  // updateProfileData = { displayName: "New Name", email: "newemail@example.com", etc. }
+  const updateUserProfile = async (updateProfileData) => {
+    if (!user || !updateProfileData.displayName?.trim()) {
       return { success: false, error: "Invalid display name" };
     }
 
@@ -87,10 +104,9 @@ export const UserProfileContextProvider = ({ children }) => {
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          // Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          displayName: newDisplayName.trim(),
+          ...updateProfileData,
         }),
       });
 
@@ -98,7 +114,7 @@ export const UserProfileContextProvider = ({ children }) => {
         // Update local state
         setUserProfile((prev) => ({
           ...prev,
-          displayName: newDisplayName.trim(),
+          ...updateProfileData,
           lastUpdated: Date.now(),
         }));
         return { success: true };
@@ -106,11 +122,11 @@ export const UserProfileContextProvider = ({ children }) => {
         const error = await response.json();
         return {
           success: false,
-          error: error.error || "Failed to update display name",
+          error: error.error || "Failed to update user profile",
         };
       }
     } catch (error) {
-      console.error("Error updating display name:", error);
+      console.error("Error updating user profile:", error);
       return { success: false, error: "Network error" };
     }
   };
@@ -140,30 +156,27 @@ export const UserProfileContextProvider = ({ children }) => {
 
   // Refresh current user's profile
   const refreshProfile = async () => {
-    if (!user) return;
-
-    try {
-      setLoadingProfile(true);
-
-      const response = await fetch("/api/users", {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        if (result.success) {
-          setUserProfile(result.data);
-        }
-      }
-    } catch (error) {
-      console.error("Error refreshing profile:", error);
-    } finally {
-      setLoadingProfile(false);
-    }
+    // if (!user) return;
+    // try {
+    //   setLoadingProfile(true);
+    //   const response = await fetch("/api/users", {
+    //     method: "GET",
+    //     credentials: "include",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //   });
+    //   if (response.ok) {
+    //     const result = await response.json();
+    //     if (result.success) {
+    //       setUserProfile(result.data);
+    //     }
+    //   }
+    // } catch (error) {
+    //   console.error("Error refreshing profile:", error);
+    // } finally {
+    //   setLoadingProfile(false);
+    // }
   };
 
   return (
@@ -172,7 +185,7 @@ export const UserProfileContextProvider = ({ children }) => {
         userProfile,
         loadingProfile,
         profileError,
-        updateDisplayName,
+        updateUserProfile,
         getUserProfileById,
         refreshProfile,
         fetchUserProfile,
