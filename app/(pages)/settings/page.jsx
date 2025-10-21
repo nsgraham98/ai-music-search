@@ -28,6 +28,11 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import PersonIcon from "@mui/icons-material/Person";
 import PaletteIcon from "@mui/icons-material/Palette";
 import AccessibilityNewIcon from "@mui/icons-material/AccessibilityNew";
+import Logout from "@/app/components/settings/logout";
+import DarkLightMode from "@/app/components/settings/dark-lightmode";
+import ColourblindSelector from "@/app/components/settings/colourblind-selector";
+import HighContrastToggle from "@/app/components/settings/high-contrast-toggle";
+import ReducedMotionToggle from "@/app/components/settings/reduced-motion-toggle";
 
 export default function SettingsPage() {
   const { user } = useUserAuth();
