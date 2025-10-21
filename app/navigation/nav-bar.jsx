@@ -21,7 +21,7 @@ export default function Navigation() {
       icon: <PersonIcon />,
     },
     { label: "Playlists", path: "/playlists", icon: <PlaylistPlayIcon /> },
-    { label: "Game Room", path: "/game-room", icon: <SportsEsportsIcon /> },
+    { label: "Game Room", path: "/sound-room", icon: <SportsEsportsIcon /> },
     { label: "Settings", path: "/settings", icon: <SettingsIcon /> },
   ];
 
