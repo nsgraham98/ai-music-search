@@ -19,6 +19,7 @@ export async function POST(request) {
     // Authenticate the user using Firebase token
     const decodedToken = await authenticateCookie(request); // we don't use the result, but it will throw an error if invalid
 
+    console.log("🧠 Starting OpenAI search");
     const body = await request.json();
     const result = await runOpenAISearch(body.userQuery); // main function to handle the OpenAI search logic
 

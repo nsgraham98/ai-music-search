@@ -16,7 +16,7 @@ import { AudioPlayer } from "@/app/components/audio/audio-player.jsx";
 
 export default function DashboardLayout({ children }) {
   // must be logged in to see this page
-  const { user, loadingUser } = useUserAuth();
+  const { authUser, loadingUser } = useUserAuth();
   const router = useRouter();
 
   // if (loadingUser) {

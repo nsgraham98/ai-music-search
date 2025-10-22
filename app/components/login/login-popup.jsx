@@ -10,18 +10,18 @@ import { Dialog, DialogTitle, DialogContent, Typography } from "@mui/material";
 import { LoginForm } from "@/app/components/login/login-form";
 
 export default function LoginPopup() {
-  const { user } = useUserAuth();
+  const { authUser } = useUserAuth();
   // state to control dialog open/close
   const [open, setOpen] = useState(false);
 
   // open dialog if user is not logged in
   useEffect(() => {
-    if (!user) {
+    if (!authUser) {
       setOpen(true);
     } else {
       setOpen(false);
     }
-  }, [user]);
+  }, [authUser]);
 
   return (
     <Dialog

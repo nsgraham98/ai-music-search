@@ -15,7 +15,7 @@ export async function getSongsJamendo(searchParams) {
 
   // console.log("Jamendo Search Params:", searchParamsString); // Log the search parameters for debugging
   console.log(
-    `Jamendo call: https://api.jamendo.com/v3.0/tracks/?${searchParamsString}`
+    `🎵 Jamendo call: https://api.jamendo.com/v3.0/tracks/?${searchParamsString}`
   );
 
   const response = await fetch(
@@ -33,6 +33,7 @@ export async function getSongsJamendo(searchParams) {
     return;
   }
   const data = await response.json(); // Parse the response as JSON
+  console.log("🎵 Jamendo results received:", data.results.length, "tracks");
   return data;
 }
 

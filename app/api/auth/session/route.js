@@ -33,6 +33,7 @@ export async function POST(request) {
         },
         { merge: true }
       );
+    console.log("🍪 Session data saved to database");
 
     // https://firebase.google.com/docs/auth/admin/manage-cookies
     // set the cookie in the response headers
@@ -51,6 +52,19 @@ export async function POST(request) {
 // GET - Verify session cookie and return session data, user info
 export async function GET(req) {
   try {
+    // Check if session cookie exists
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get("session")?.value;
+    if (!sessionCookie) {
+      console.log("🍪 No session cookie found");
+      return new Response(
+        JSON.stringify({ error: "No session cookie found" }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
     const decoded = await authenticateCookie(req);
     if (!decoded) {
       return new Response(JSON.stringify({ error: "No valid session" }), {
@@ -70,7 +84,7 @@ export async function GET(req) {
     }
     const sessionData = docSnap.data();
     return new Response(
-      JSON.stringify({ ok: true, session: sessionData, user: decoded }),
+      JSON.stringify({ ok: true, session: sessionData, authUser: decoded }),
       {
         status: 200,
         headers: { "Content-Type": "application/json" },
