@@ -17,12 +17,14 @@ export const UserProfileContextProvider = ({ children }) => {
 
   // When auth user changes, fetch the profile
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchProfileListener = async () => {
       // do something when user is authenticated in auth context
+      console.log("in user-profile-context, authUser changed:", authUser);
       if (authUser) {
         setLoadingProfile(true);
-        const userProfile = await fetchUserProfile();
-        setUserProfile(userProfile);
+        const user = await fetchUserProfile();
+        console.log("Fetched user profile:", user);
+        setUserProfile(user);
         setLoadingProfile(false);
         setProfileError(null);
       } else {
@@ -31,7 +33,7 @@ export const UserProfileContextProvider = ({ children }) => {
         setProfileError(null);
       }
     };
-    fetchProfile();
+    fetchProfileListener();
   }, [authUser]);
 
   // Fetch user profile from the backend for setting the userProfile state
@@ -40,6 +42,7 @@ export const UserProfileContextProvider = ({ children }) => {
   // If not provided, it will fetch the current user's profile
   const fetchUserProfile = async (uid = null) => {
     // No user, clear profile state
+    console.log("fetchUserProfile called with uid:", uid);
     if (!authUser) {
       setUserProfile(null);
       setLoadingProfile(false);
@@ -52,6 +55,7 @@ export const UserProfileContextProvider = ({ children }) => {
 
       // Fetch specific user's profile by UID
       if (uid) {
+        console.log("Fetching profile for user by specified UID:", uid);
         const response = await fetch(`/api/users?uid=${uid}`, {
           method: "GET",
           credentials: "include",
@@ -67,6 +71,7 @@ export const UserProfileContextProvider = ({ children }) => {
         }
       } else {
         // Fetch current authenticated user's profile
+        console.log("Fetching profile for current user");
         const response = await fetch("/api/users", {
           method: "GET",
           credentials: "include",
@@ -75,6 +80,7 @@ export const UserProfileContextProvider = ({ children }) => {
           },
         });
         const result = await response.json();
+        console.log("fetchUserProfile result:", result);
         if (result.success) {
           const user = result.data;
           return user;

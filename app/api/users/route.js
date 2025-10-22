@@ -16,11 +16,18 @@ export async function GET(req) {
     const url = new URL(req.url);
     const uid = url.searchParams.get("uid");
 
-    // Get profile of the authenticated user (if no uid provided)
+    // Get profile of the current authenticated user (if no uid provided)
     if (!uid) {
-      const decodedUser = await authenticateCookie(req);
-      const userUid = decodedUser.uid;
+      const decoded = await authenticateCookie(req);
+      console.log("GET user profile for authenticated user:", decoded);
+      const userUid = decoded.uid;
 
+      if (!userUid) {
+        return new Response(JSON.stringify({ error: "No user ID found" }), {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
       const docRef = db.collection("users").doc(userUid);
       const userDoc = await docRef.get();
 

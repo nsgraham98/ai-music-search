@@ -40,43 +40,48 @@ export const AppInitializer = () => {
         const response = await fetch("/api/auth/session", {
           method: "GET",
           credentials: "include",
+          cache: "no-store",
         });
-        // 3. If authenticated, set user
-        if (response.ok) {
-          const data = await response.json(); // { ok, authUser, session }
-          if (data.authUser) {
-            // set user in context
-            setAuthUser(data.authUser);
-            setAuthFlowComplete(true);
-            return data.authUser;
-          } else {
-            // handle no user found
-            console.log("No user found");
-            setAuthUser(null);
-            setAuthFlowComplete(true);
-            return null;
-          }
-        } else {
-          // handle no session found (response not ok)
+        if (!response.ok) {
           console.log("No valid session found");
           setAuthUser(null);
           setAuthFlowComplete(true);
           return null;
         }
+        // 3. If authenticated, set user
+        const data = await response.json(); // { ok, authUser, session }
+        if (data?.authUser) {
+          // set user in context
+          setAuthUser(data.authUser);
+          setAuthFlowComplete(true);
+          return data.authUser;
+        } else {
+          // handle no user found
+          console.log("No user found");
+          setAuthUser(null);
+          setAuthFlowComplete(true);
+          return null;
+        }
+
+        // handle no session found (response not ok)
       } catch (error) {
         console.error("Error checking session, in checkSession:", error);
       }
     };
     const getUserProfile = async () => {
       // 4. Get user profile from firestore
-      await fetchUserProfile();
+      const user = await fetchUserProfile();
+      return user;
       // 5. If profile exists, load user data
       //   5.1. If no profile, create one - not sure if this is possible at this point in the flow though?
     };
     // run both functions sequentially
     const initApp = async () => {
       const authUser = await checkSession();
-      console.log("AppInitializer: Session check complete, User:", authUser);
+      console.log(
+        "AppInitializer: Session check complete, authUser:",
+        authUser
+      );
       if (authUser) {
         const profile = await getUserProfile();
         console.log(

@@ -24,6 +24,11 @@ export const AuthContextProvider = ({ children }) => {
   const [loadingUser, setLoadingUser] = useState(true); // loading while checking auth state
   const [authFlowComplete, setAuthFlowComplete] = useState(false); // true after initial auth check is done
 
+  // test UseEffect authUser listener
+  useEffect(() => {
+    console.log("AuthUser changed:", authUser);
+  }, [authUser]);
+
   // Listener for auth state changes
   // Sets the user state (logged in user or null) and loading state (is mid login or not)
   useEffect(() => {
@@ -87,6 +92,7 @@ export const AuthContextProvider = ({ children }) => {
         return;
       }
 
+      console.log("setAuthUser called: ", user);
       setAuthUser(user);
       setAuthFlowComplete(true);
     } catch (error) {
