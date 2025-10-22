@@ -13,6 +13,7 @@ import { useEffect } from "react";
 import { AudioPlayerProvider } from "@/context/audio-player-context";
 import { Box, CircularProgress, Container } from "@mui/material";
 import { AudioPlayer } from "@/app/components/audio/audio-player.jsx";
+import Navigation from "@/app/navigation/nav-bar.jsx";
 
 export default function DashboardLayout({ children }) {
   // must be logged in to see this page
