@@ -2,10 +2,10 @@
 // Endpoint to handle Jamendo account token exchange and refresh
 // Used in conjunction with jamendo-callback.jsx
 
-import { authenticateAPICall } from "@/lib/authenticate-calls.js";
+import { authenticateIdToken } from "@/lib/authenticate-calls.js";
 
 export async function POST(req) {
-  const decodedToken = await authenticateAPICall(request);
+  const decodedToken = await authenticateIdToken(request);
   // const userId = decodedToken.uid; // you can log or use this if needed
   const { code, grant_type } = await req.json();
 

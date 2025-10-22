@@ -20,19 +20,19 @@ export default function DashboardLayout({ children }) {
   const { user, loadingUser } = useUserAuth();
   const router = useRouter();
 
-  if (loadingUser) {
-    // show loading spinner while waiting for auth status
-    return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="100vh"
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
+  // if (loadingUser) {
+  //   // show loading spinner while waiting for auth status
+  //   return (
+  //     <Box
+  //       display="flex"
+  //       justifyContent="center"
+  //       alignItems="center"
+  //       height="100vh"
+  //     >
+  //       <CircularProgress />
+  //     </Box>
+  //   );
+  // }
 
   // if user is logged in, show page
   return (

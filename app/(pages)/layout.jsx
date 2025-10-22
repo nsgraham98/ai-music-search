@@ -13,6 +13,7 @@ import "/styles/customize-progress-bar.css";
 import { AudioPlayerProvider } from "@/context/audio-player-context.jsx";
 import { AuthContextProvider } from "@/context/auth-context.jsx";
 import { UserProfileContextProvider } from "@/context/user-profile-context.jsx";
+import { AppInitializer } from "@/app/components/app-initializer.jsx";
 import ClientErrorBoundary from "@/app/components/error-boundary-client.jsx";
 
 const geistSans = Geist({
@@ -49,6 +50,7 @@ export default function RootLayout({ children }) {
                     minHeight: "100vh",
                   }}
                 >
+                  <AppInitializer />
                   {children}
                   <nav style={{ marginBottom: "1rem" }}>
                     <Link href="/spotify-test">

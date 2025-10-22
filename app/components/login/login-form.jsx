@@ -1,8 +1,7 @@
+"use client";
 // The login form component with buttons for GitHub, Google, and Facebook sign-in
 // enclosed in login-popup.jsx
 // uses auth-context.jsx for authentication functions
-
-"use client";
 
 import { Button, Box, Stack } from "@mui/material";
 import { useUserAuth } from "/context/auth-context";
@@ -37,6 +36,7 @@ export function LoginForm() {
   return (
     <Stack spacing={2} width="100%" maxWidth={300}>
       <Button
+        type="button"
         variant="contained"
         fullWidth
         sx={{
