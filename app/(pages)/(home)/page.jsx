@@ -9,6 +9,7 @@ import { Box, Typography, Container, Paper } from "@mui/material";
 import { PlayList } from "@/app/components/audio/playlist.jsx";
 import SignedInAs from "@/app/components/login/signed-in-as";
 import LoginPopup from "@/app/components/login/login-popup";
+import { testUserProfile } from "@/test-data/user-profile.js";
 
 export default function HomePage() {
   return (
@@ -21,6 +22,7 @@ export default function HomePage() {
         alignItems="center"
         mb={4}
       >
+
         <Typography variant="h4" fontWeight="bold">
           TUTTi.
         </Typography>
