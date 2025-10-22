@@ -30,56 +30,60 @@ const SearchBar = () => {
   const { setTracks } = useAudioPlayerContext();
 
   async function handleSearch() {
+    console.log(
+      "Starting search with query:",
+      userQuery,
+      "Royalty-Free:",
+      royaltyFree
+    );
     if (!userQuery.trim()) {
       setError("Please enter a search query");
       setTimeout(() => setError(null), 3000);
-      // base case - no query
-      if (!userQuery) return;
-      setIsLoading(true);
-      // const idToken = await user.getIdToken();
+      return;
+    }
+    // base case - no query
+    setIsLoading(true);
+    // const idToken = await user.getIdToken();
+    const response = await fetch("/api/openai", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        // Authorization: `Bearer ${idToken}`,
+      },
+      body: JSON.stringify({ userQuery, royaltyFree }),
+    });
+    if (!response.ok) {
+      console.error("Error fetching data:", response.statusText);
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    setAiResponse(null);
+
+    try {
       const response = await fetch("/api/openai", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // Authorization: `Bearer ${idToken}`,
         },
         body: JSON.stringify({ userQuery, royaltyFree }),
       });
+
       if (!response.ok) {
-        console.error("Error fetching data:", response.statusText);
-        setIsLoading(false);
-        return;
+        throw new Error(`Search failed: ${response.statusText}`);
       }
 
-      setIsLoading(true);
-      setError(null);
-      setAiResponse(null);
-
-      try {
-        const idToken = await user.getIdToken();
-        const response = await fetch("/api/openai", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${idToken}`,
-          },
-          body: JSON.stringify({ userQuery, royaltyFree }),
-        });
-
-        if (!response.ok) {
-          throw new Error(`Search failed: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        setTracks(data.jamendoResponse || []);
-        setAiResponse(data.aiResponse?.output_text || "Search completed");
-      } catch (err) {
-        console.error("Search error:", err);
-        setError(err.message || "Failed to search. Please try again.");
-        setTracks([]);
-      } finally {
-        setIsLoading(false);
-      }
+      const data = await response.json();
+      setTracks(data.jamendoResponse || []);
+      setAiResponse(data.aiResponse?.output_text || "Search completed");
+    } catch (err) {
+      console.error("Search error:", err);
+      setError(err.message || "Failed to search. Please try again.");
+      setTracks([]);
+    } finally {
+      setIsLoading(false);
     }
   }
 
