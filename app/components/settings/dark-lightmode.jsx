@@ -2,7 +2,7 @@
 
 import { Box, Typography, FormControlLabel, Switch } from "@mui/material";
 
-export default function DarkModeToggle({ darkMode, onToggle }) {
+export default function DarkLightMode({ darkMode, onToggle }) {
   return (
     <Box
       sx={{
