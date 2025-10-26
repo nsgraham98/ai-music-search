@@ -1,0 +1,2 @@
+add in profile, settings, game room, home and playlists to the bar and have them visible on ear page, and when pressed will take the user to that page.
+have it available on all pages with the buttons on all pages so that they can navigate between any page they want.
