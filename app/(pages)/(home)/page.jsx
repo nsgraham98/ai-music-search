@@ -9,7 +9,6 @@ import { Box, Typography, Container, Paper } from "@mui/material";
 import { PlayList } from "@/app/components/audio/playlist.jsx";
 import SignedInAs from "@/app/components/login/signed-in-as";
 import LoginPopup from "@/app/components/login/login-popup";
-import TestShowCurrentUserProfile from "@/app/components/test-show-current-user-profile.jsx";
 
 export default function HomePage() {
   return (
@@ -26,7 +25,6 @@ export default function HomePage() {
           TUTTi.
         </Typography>
 
-        <TestShowCurrentUserProfile />
         <Box display="flex" alignItems="center" gap={2}>
           <SignedInAs />
           <LogoutButton />

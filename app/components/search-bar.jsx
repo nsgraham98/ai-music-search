@@ -21,7 +21,7 @@ const SearchBar = () => {
   const [isLoading, setIsLoading] = React.useState(false);
   const [aiResponse, setAiResponse] = useState(null);
   const [royaltyFree, setRoyaltyFree] = useState(true);
-  const { setTracks } = useAudioPlayerContext();
+  const { setCurrentPlaylist } = useAudioPlayerContext();
 
   // sends a POST request with the user's query to the OpenAI API route
   async function handleSearch() {
@@ -43,7 +43,7 @@ const SearchBar = () => {
       return;
     }
     const data = await response.json();
-    setTracks(data.jamendoResponse);
+    setCurrentPlaylist(data.jamendoResponse);
     setAiResponse(data.aiResponse.output_text);
     setIsLoading(false);
   }

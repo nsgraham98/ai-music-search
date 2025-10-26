@@ -8,7 +8,7 @@ import { createContext, useContext, useState, useRef } from "react";
 const AudioPlayerContext = createContext(undefined);
 
 export const AudioPlayerProvider = ({ children }) => {
-  const [tracks, setTracks] = useState([]); // array of track objects (for the playlist)
+  const [currentPlaylist, setCurrentPlaylist] = useState([]); // array of track objects (for the playlist)
   const [trackIndex, setTrackIndex] = useState(0);
   const [currentTrack, setCurrentTrack] = useState(null);
   const [timeProgress, setTimeProgress] = useState(0);
@@ -24,8 +24,8 @@ export const AudioPlayerProvider = ({ children }) => {
   const contextValue = {
     currentTrack,
     setCurrentTrack,
-    tracks,
-    setTracks,
+    currentPlaylist,
+    setCurrentPlaylist,
     timeProgress,
     setTimeProgress,
     isPlaying,

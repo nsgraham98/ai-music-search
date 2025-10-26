@@ -1,3 +1,4 @@
+// user profile page
 "use client";
 
 import { LogoutButton } from "@/app/components/login/logout-button";
