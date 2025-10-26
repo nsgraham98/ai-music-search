@@ -18,7 +18,7 @@ import { getTools } from "@/lib/ai-tools.js";
 
 // Initialize OpenAI client
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_SECRET_KEY,
 });
 
 // Main function to handle the OpenAI search workflow
