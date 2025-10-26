@@ -18,6 +18,7 @@ import { useUserAuth } from "@/context/auth-context";
 import { useUserProfile } from "@/context/user-profile-context";
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
+import { formatDate } from "@/utils/date-utils";
 
 export default function UserProfilePage() {
   const { authUser } = useUserAuth();
@@ -282,7 +283,7 @@ export default function UserProfilePage() {
                 Member Since
               </Typography>
               <Typography variant="body1" fontSize="1.1rem">
-                {new Date(viewingProfile.created_at).toLocaleDateString()}
+                {formatDate(viewingProfile.created_at)}
               </Typography>
             </Box>
 
