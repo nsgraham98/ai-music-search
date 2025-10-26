@@ -1,50 +1,79 @@
 // API route for user profile operations
 // Handles creating, updating, and retrieving user profiles
 
-import { adminAuth } from "@/lib/firebase-admin";
 import {
-  saveUserProfile,
-  getUserProfile,
-  updateDisplayName,
-} from "./user-handler/user-profile";
+  authenticateCookie,
+  // authenticateIdToken,
+} from "@/lib/authenticate-calls";
+import { db } from "@/lib/firebase-admin.js";
 
 // GET - Retrieve user profile
+// if ?uid= is provided, get that user's profile (for viewing other users)
+// if no uid provided, get the profile of the authenticated user (requires auth)
 export async function GET(req) {
   try {
-    // Get the UID from query parameters or from authorization header
+    // Get the optional UID from query parameters, to view other users' profiles
     const url = new URL(req.url);
     const uid = url.searchParams.get("uid");
 
+    // Get profile of the current authenticated user (if no uid provided)
     if (!uid) {
-      // If no UID provided, try to get it from the auth token
-      const authHeader = req.headers.get("authorization");
-      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      const decoded = await authenticateCookie(req);
+      console.log("GET user profile for authenticated user:", decoded);
+      const userUid = decoded.uid;
+
+      if (!userUid) {
+        return new Response(JSON.stringify({ error: "No user ID found" }), {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      const docRef = db.collection("users").doc(userUid);
+      const userDoc = await docRef.get();
+
+      // handle user not found with a 404
+      if (!userDoc.exists) {
         return new Response(
-          JSON.stringify({ error: "No authorization token provided" }),
+          JSON.stringify({
+            success: false,
+            error: "User not found",
+          }),
           {
-            status: 401,
+            status: 404,
             headers: { "Content-Type": "application/json" },
           }
         );
       }
 
-      const token = authHeader.split(" ")[1];
-      const decoded = await adminAuth.verifyIdToken(token);
-      const userUid = decoded.uid;
-
-      const result = await getUserProfile(userUid);
+      // Return the user profile
+      const user = userDoc.data();
+      const result = { success: true, data: user };
+      console.log("👤 Current user profile retrieved");
       return new Response(JSON.stringify(result), {
-        status: result.success ? 200 : 404,
-        headers: { "Content-Type": "application/json" },
-      });
-    } else {
-      // Get profile by provided UID (for viewing other users' profiles)
-      const result = await getUserProfile(uid);
-      return new Response(JSON.stringify(result), {
-        status: result.success ? 200 : 404,
+        status: user ? 200 : 404,
         headers: { "Content-Type": "application/json" },
       });
     }
+
+    const docRef = db.collection("users").doc(uid);
+    const userDoc = await docRef.get();
+
+    if (!userDoc.exists) {
+      return new Response(JSON.stringify({ error: "User not found" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    const user = userDoc.data();
+    const cleanedUser = { displayName: user.displayName, uid: user.uid }; // Exclude sensitive fields - can add more public fields as needed
+    const result = { success: true, data: cleanedUser };
+    console.log("👤 Public user profile retrieved");
+    // Return the public user profile
+    return new Response(JSON.stringify(result), {
+      status: result.success ? 200 : 404,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error) {
     console.error("GET user profile error:", error);
     return new Response(
@@ -57,14 +86,16 @@ export async function GET(req) {
   }
 }
 
-// POST - Create or update user profile
+// POST - Create user profile
 export async function POST(req) {
   try {
-    const { token, profileData } = await req.json();
-
-    if (!token || !profileData) {
+    // Authenticate the user making the request
+    const decodedUser = await authenticateCookie(req);
+    const uid = decodedUser.uid;
+    const { provider } = await req.json();
+    if (!uid || !provider) {
       return new Response(
-        JSON.stringify({ error: "Missing token or profile data" }),
+        JSON.stringify({ error: "Missing UID or provider in request" }),
         {
           status: 400,
           headers: { "Content-Type": "application/json" },
@@ -72,19 +103,53 @@ export async function POST(req) {
       );
     }
 
-    const decoded = await adminAuth.verifyIdToken(token);
-    const uid = decoded.uid;
+    // Check if user profile already exists
+    const existingProfile = await db.collection("users").doc(uid).get();
+    if (existingProfile.exists) {
+      return new Response(
+        JSON.stringify({ error: "User profile already exists" }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
 
-    const result = await saveUserProfile(uid, profileData);
+    // Create a new user profile with default values
+    await db
+      .collection("users")
+      .doc(uid)
+      .set({
+        uid,
+        provider,
+        displayName: decodedUser.name || "New User",
+        email: decodedUser.email,
+        created_at: new Date().toISOString(),
+        // Add other default fields as needed
+      });
 
-    return new Response(JSON.stringify(result), {
+    console.log("👤 User profile created for UID:", uid);
+    // Return the created user profile
+    const createdUserProfile = await db.collection("users").doc(uid).get();
+    const result = createdUserProfile.data();
+    if (!result) {
+      return new Response(
+        JSON.stringify({ error: "Failed to retrieve created user profile" }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    return new Response(JSON.stringify({ ok: true, userProfile: result }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
     console.error("POST user profile error:", error);
     return new Response(
-      JSON.stringify({ error: "Failed to save user profile" }),
+      JSON.stringify({ error: "Failed to create user profile" }),
       {
         status: 500,
         headers: { "Content-Type": "application/json" },
@@ -93,27 +158,25 @@ export async function POST(req) {
   }
 }
 
+// TODO: improve PATCH to allow updating other fields
 // PATCH - Update specific fields (like displayName)
 export async function PATCH(req) {
   try {
-    const { token, displayName } = await req.json();
+    const updatedProfileData = await req.json();
 
-    if (!token || !displayName) {
-      return new Response(
-        JSON.stringify({ error: "Missing token or displayName" }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-    }
+    const decodedToken = await authenticateCookie(req);
+    const uid = decodedToken.uid;
 
-    const decoded = await adminAuth.verifyIdToken(token);
-    const uid = decoded.uid;
+    await db
+      .collection("users")
+      .doc(uid)
+      .update({
+        ...updatedProfileData,
+        lastUpdated: Date.now(),
+      });
 
-    const result = await updateDisplayName(uid, displayName);
-
-    return new Response(JSON.stringify(result), {
+    console.log("👤 User profile updated for UID:", uid);
+    return new Response(JSON.stringify({ ok: true }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
@@ -127,4 +190,15 @@ export async function PATCH(req) {
       }
     );
   }
+}
+
+// TODO: add DELETE method to delete user profile (admin only?)
+export async function DELETE(req) {
+  return new Response(
+    JSON.stringify({ error: "DELETE method not implemented" }),
+    {
+      status: 501,
+      headers: { "Content-Type": "application/json" },
+    }
+  );
 }

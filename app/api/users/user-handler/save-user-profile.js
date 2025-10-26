@@ -1,7 +1,14 @@
+/* 
+  THIS FILE IS PENDING DELETION
+  I moved the user CRUD functions to the users/route.js file to simplify the API structure.
+  This file was originally created to separate logic from route handlers, but it adds unnecessary complexity.
+  The functions here are now redundant with those in users/route.js.
+  I will delete this file after confirming everything works correctly without it.
+  - Nick
+*/
+
 // This file handles saving user profiles during the sign-in process
 // Called from auth-context.jsx within its sign-in functions
-
-import { getIdToken } from "firebase/auth";
 
 // Generate a default display name from email or provider display name
 function generateDisplayName(email, providerDisplayName = null) {
@@ -18,21 +25,15 @@ function generateDisplayName(email, providerDisplayName = null) {
   // Last resort
   return "User";
 }
-
-export async function saveUserProfile(
-  user,
-  provider,
-  providerAccessToken = null
-) {
+// user, provider <- old
+export async function saveUserProfile(user, provider) {
   try {
-    const token = await getIdToken(user, true);
-
     // Extract display name from the user object (comes from OAuth provider)
     // Different providers store displayName in different places
-    let providerDisplayName = user.displayName;
+    // const providerDisplayName = user.providerDisplayName;
 
     // Generate a display name using our utility function
-    const displayName = generateDisplayName(user.email, providerDisplayName);
+    const displayName = generateDisplayName(user.email, provider);
 
     // Prepare profile data
     const profileData = {
@@ -44,12 +45,15 @@ export async function saveUserProfile(
     // Send the profile data to the backend (/api/users/route.js)
     const response = await fetch("/api/users", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
-        token,
         profileData,
       }),
     });
+    // response = { success: true, userProfileData: userProfileData }
 
     if (!response.ok) {
       console.error("Failed to save user profile:", await response.text());

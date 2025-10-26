@@ -72,7 +72,6 @@ export async function createGame({ name, invitedEmails, authToken }) {
     await gameRef.set(gameData);
 
     // For now, automatically add the creator as confirmed player
-    // In the future, you might want to implement an invitation system
 
     console.log(`Game created successfully: ${gameId} by ${userEmail}`);
 

@@ -80,7 +80,7 @@ export default function SoundRoomPage() {
   };
 
   const handleGameClick = (gameId) => {
-    // Navigate to specific game page (we'll create this next)
+    // Navigate to specific game page
     window.location.href = `/sound-room/game/${gameId}`;
   };
 

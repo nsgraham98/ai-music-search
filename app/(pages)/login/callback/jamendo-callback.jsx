@@ -8,13 +8,12 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { saveUserSession } from "@/app/api/session/session-handler/session";
 import { useUserAuth } from "@/context/auth-context";
 
 export default function JamendoCallback() {
   const params = useSearchParams();
   const router = useRouter();
-  const { user, loadingUser } = useUserAuth();
+  const { authUser, loadingUser } = useUserAuth();
 
   // When the component mounts (on change to: user or loadingUser), exchange the code for a jamendo access token
   useEffect(() => {
@@ -39,8 +38,8 @@ export default function JamendoCallback() {
         const { access_token, refresh_token, expires_at } = await res.json();
 
         // Save the jamendo tokens to the OAuth user's session in the database
-        if (user) {
-          await saveUserSession(user, null, {
+        if (authUser) {
+          await saveUserSession(authUser, null, {
             thirdPartyTokens: {
               access_token,
               refresh_token,
@@ -57,7 +56,7 @@ export default function JamendoCallback() {
     };
 
     exchangeCodeForToken();
-  }, [user, loadingUser, params]);
+  }, [authUser, loadingUser, params]);
 
   return <p>Completing login...</p>;
 }
