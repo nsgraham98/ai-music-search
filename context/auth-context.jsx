@@ -16,16 +16,98 @@ import {
   FacebookAuthProvider,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase.js";
-import { saveUserProfile } from "@/app/api/users/user-handler/save-user-profile.js";
 
 const AuthContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // active logged in user object
+  const [authUser, setAuthUser] = useState(null); // active logged in user object
   const [loadingUser, setLoadingUser] = useState(true); // loading while checking auth state
   const [authFlowComplete, setAuthFlowComplete] = useState(false); // true after initial auth check is done
-  // const [userReady, setUserReady] = useState(false); // true when user profile is loaded
 
+  // test UseEffect authUser listener
+  useEffect(() => {
+    console.log("AuthUser changed:", authUser);
+  }, [authUser]);
+
+  // Listener for auth state changes
+  // Sets the user state (logged in user or null) and loading state (is mid login or not)
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (authFlowComplete) {
+        setAuthUser(currentUser);
+        setLoadingUser(false);
+      }
+    });
+    return () => unsubscribe(); // cleanup the listener on unmount
+  }, [authFlowComplete]);
+
+  // Sign in with popup for the given provider (github, google, facebook)
+  // Called from login-form component
+  const signIn = async (providerName) => {
+    try {
+      //setAuthFlowComplete(false);
+      const provider = getAuthProvider(providerName);
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user; // user object from firebase
+      const idToken = await user.getIdToken(true /* force refresh */);
+
+      const loginSuccess = await loginWithToken(idToken);
+      if (!loginSuccess) {
+        console.error("Login with token failed");
+        return;
+      }
+
+      const sessionResult = await saveUserSession(); // Save session data
+      if (!sessionResult) {
+        console.error("Saving user session failed");
+        return;
+      }
+
+      const getUserResponse = await fetch("/api/users", {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      // create new user profile if not found
+      if (getUserResponse.status === 404) {
+        const postUserResponse = await fetch("/api/users", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ provider: providerName }),
+        });
+        if (!postUserResponse.ok) {
+          console.error("Failed to create user profile");
+          return;
+        }
+        const data = await postUserResponse.json();
+        console.log("New User Profile Created:", data.userProfile);
+        setAuthUser(user);
+        setAuthFlowComplete(true);
+        return;
+      }
+
+      console.log("setAuthUser called: ", user);
+      setAuthUser(user);
+      setAuthFlowComplete(true);
+    } catch (error) {
+      console.error("Error during sign-in:", error);
+      throw error;
+    }
+  };
+
+  /*
+    Send the Firebase ID token to the backend (/api/auth/login/route.js) to:
+      Verify the token
+      Create a cookie with a sessionID
+      returns true if successful
+    Runs only once on login
+  */
   async function loginWithToken(idToken) {
     if (!idToken) return;
     try {
@@ -41,14 +123,17 @@ export const AuthContextProvider = ({ children }) => {
         throw new Error("Login failed");
       }
       console.log("Login successful");
+      return true;
     } catch (error) {
       console.error("Error during login:", error);
     }
   }
+
   /* 
     Send the token to the backend (/api/session/route.js) to:
       Save the session data in the database
       Set the session cookie (to be used for authenticating API calls)
+    returns true if successful
   */
   async function saveUserSession() {
     try {
@@ -59,62 +144,28 @@ export const AuthContextProvider = ({ children }) => {
 
       if (response.ok) {
         console.log("Session and Cookie successfully set");
+        return true;
       }
     } catch (error) {
       console.error("Error saving user session:", error);
     }
   }
 
-  // https://firebase.google.com/docs/auth/web/github-auth
-  const gitHubSignIn = async () => {
-    //setAuthFlowComplete(false);
-    const provider = new GithubAuthProvider();
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user; // user object from firebase
-    const idToken = await user.getIdToken();
-
-    // this commented out code gets a github access token, if we need to work with the github api later (different from firebase api we do use for auth)
-    // const credential = GithubAuthProvider.credentialFromResult(result);
-    // const gitHubToken = credential.accessToken;
-
-    await loginWithToken(idToken);
-    await saveUserSession(); // Save session data
-
-    // Create or update user profile
-    await saveUserProfile(user, "github", idToken);
-    setAuthFlowComplete(true);
-  };
-
-  // https://firebase.google.com/docs/auth/web/google-signin
-  const googleSignIn = async () => {
-    const provider = new GoogleAuthProvider();
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user; // user object from firebase
-    const idToken = await user.getIdToken();
-
-    // this commented out code gets a github access token, if we need to work with the github api later (different from firebase api we do use for auth)
-    // const credential = GithubAuthProvider.credentialFromResult(result);
-    // const gitHubToken = credential.accessToken;
-
-    await loginWithToken(idToken);
-    await saveUserSession(); // Save session data
-
-    // Create or update user profile
-    await saveUserProfile(user, "google", idToken);
-    setAuthFlowComplete(true);
-  };
-  // https://firebase.google.com/docs/auth/web/facebook-login
-  const facebookSignIn = async () => {
-    const provider = new FacebookAuthProvider();
-    const result = await signInWithPopup(auth, provider);
-    const accessToken = await result.user.getIdToken();
-
-    await loginWithToken(idToken);
-    await saveUserSession(); // Save session data
-
-    // Create or update user profile
-    await saveUserProfile(user, "facebook", idToken);
-    setAuthFlowComplete(true);
+  // Get the appropriate auth provider based on the provider name
+  const getAuthProvider = (providerName) => {
+    switch (providerName) {
+      case "github":
+        // https://firebase.google.com/docs/auth/web/github-auth
+        return new GithubAuthProvider();
+      case "google":
+        // https://firebase.google.com/docs/auth/web/google-signin
+        return new GoogleAuthProvider();
+      case "facebook":
+        // https://firebase.google.com/docs/auth/web/facebook-login
+        return new FacebookAuthProvider();
+      default:
+        throw new Error("Unsupported provider");
+    }
   };
 
   // Sign out user
@@ -125,34 +176,19 @@ export const AuthContextProvider = ({ children }) => {
       credentials: "include",
     });
     setAuthFlowComplete(false);
-    setUser(null);
+    setAuthUser(null);
     return signOut(auth);
   };
-
-  // Listener for auth state changes
-  // Sets the user state (logged in user or null) and loading state (is mid login or not)
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (authFlowComplete) {
-        setUser(currentUser);
-        setLoadingUser(false);
-      }
-    });
-    return () => unsubscribe();
-  }, [authFlowComplete]);
 
   return (
     <AuthContext.Provider
       value={{
-        user,
-        setUser,
+        authUser,
+        setAuthUser,
         loadingUser,
-        // userReady,
-        gitHubSignIn,
-        googleSignIn,
-        facebookSignIn,
         firebaseSignOut,
         setAuthFlowComplete,
+        signIn,
       }}
     >
       {children}

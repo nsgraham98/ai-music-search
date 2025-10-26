@@ -6,17 +6,17 @@ import { Typography, Box, CircularProgress } from "@mui/material";
 import { useRouter } from "next/navigation";
 
 export default function SignedInAs() {
-  const { user } = useUserAuth();
+  const { authUser } = useUserAuth();
   const { userProfile, loadingProfile } = useUserProfile();
   const router = useRouter();
 
   const handleClick = () => {
-    if (user) {
-      router.push(`/user/${user.uid}`);
+    if (authUser) {
+      router.push(`/user/${authUser.uid}`);
     }
   };
 
-  if (!user) {
+  if (!authUser) {
     return (
       <div className="flex items-center justify-center w-full h-full p-4 bg-gray-100 rounded-lg shadow-md">
         <Typography fontSize="small">Not signed in</Typography>
@@ -45,7 +45,7 @@ export default function SignedInAs() {
           </Typography>
         )}
         <Typography fontSize="small" color="gray">
-          {user.email}
+          {authUser.email}
         </Typography>
       </Box>
     </div>

@@ -20,9 +20,14 @@ import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 
 export default function UserProfilePage() {
-  const { user } = useUserAuth();
-  const { userProfile, loadingProfile, updateDisplayName, getUserProfileById } =
-    useUserProfile();
+  const { authUser } = useUserAuth();
+  const {
+    userProfile,
+    loadingProfile,
+    updateUserProfile,
+    getUserProfileById,
+    fetchUserProfile,
+  } = useUserProfile();
   const params = useParams();
   const userId = params.id;
 
@@ -40,8 +45,8 @@ export default function UserProfilePage() {
 
   // Determine if viewing own profile or someone else's
   useEffect(() => {
-    if (user && userId) {
-      const ownProfile = userId === user.uid;
+    if (authUser && userId) {
+      const ownProfile = userId === authUser.uid;
       setIsOwnProfile(ownProfile);
 
       if (ownProfile) {
@@ -62,7 +67,7 @@ export default function UserProfilePage() {
         fetchOtherProfile();
       }
     }
-  }, [user, userId, userProfile, getUserProfileById]);
+  }, [authUser, userId, userProfile, getUserProfileById]);
 
   const handleSaveDisplayName = async () => {
     if (!editDisplayName.trim()) {
@@ -74,7 +79,7 @@ export default function UserProfilePage() {
     setUpdateError("");
     setUpdateSuccess("");
 
-    const result = await updateDisplayName(editDisplayName);
+    const result = await updateUserProfile({ displayName: editDisplayName });
 
     if (result.success) {
       setUpdateSuccess("Display name updated successfully!");
@@ -103,7 +108,7 @@ export default function UserProfilePage() {
           alignItems="center"
           minHeight="400px"
         >
-          <CircularProgress sx={{ color: "#E03FD8" }} />
+          <CircularProgress color="primary" />
         </Box>
       </Container>
     );

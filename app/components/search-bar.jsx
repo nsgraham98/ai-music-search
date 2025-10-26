@@ -28,12 +28,33 @@ const SearchBar = () => {
   const [royaltyFree, setRoyaltyFree] = useState(true);
   const [error, setError] = useState(null);
   const { setTracks } = useAudioPlayerContext();
-  const { user } = useUserAuth();
 
   async function handleSearch() {
+    console.log(
+      "Starting search with query:",
+      userQuery,
+      "Royalty-Free:",
+      royaltyFree
+    );
     if (!userQuery.trim()) {
       setError("Please enter a search query");
       setTimeout(() => setError(null), 3000);
+      return;
+    }
+    // base case - no query
+    setIsLoading(true);
+    // const idToken = await user.getIdToken();
+    const response = await fetch("/api/openai", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        // Authorization: `Bearer ${idToken}`,
+      },
+      body: JSON.stringify({ userQuery, royaltyFree }),
+    });
+    if (!response.ok) {
+      console.error("Error fetching data:", response.statusText);
+      setIsLoading(false);
       return;
     }
 
@@ -42,12 +63,10 @@ const SearchBar = () => {
     setAiResponse(null);
 
     try {
-      const idToken = await user.getIdToken();
       const response = await fetch("/api/openai", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${idToken}`,
         },
         body: JSON.stringify({ userQuery, royaltyFree }),
       });
@@ -227,5 +246,4 @@ const SearchBar = () => {
     </Box>
   );
 };
-
 export default SearchBar;

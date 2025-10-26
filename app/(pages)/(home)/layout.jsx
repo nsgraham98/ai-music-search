@@ -17,7 +17,7 @@ import Navigation from "@/app/navigation/nav-bar.jsx";
 
 export default function DashboardLayout({ children }) {
   // must be logged in to see this page
-  const { user, loadingUser } = useUserAuth();
+  const { authUser, loadingUser } = useUserAuth();
   const router = useRouter();
 
   // if (loadingUser) {
