@@ -9,6 +9,7 @@ import { PlayList } from "@/app/components/audio/playlist.jsx";
 import SignedInAs from "@/app/components/login/signed-in-as";
 import LoginPopup from "@/app/components/login/login-popup";
 import Link from "next/link";
+import Navigation from "@/app/components/navigation/nav-bar.jsx";
 
 export default function HomePage() {
   return (
