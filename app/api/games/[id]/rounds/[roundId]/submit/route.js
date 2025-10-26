@@ -2,7 +2,7 @@
 // Handles submitting songs for a specific round
 
 import { NextResponse } from "next/server";
-import { submitSong } from "../../../../../game-handler/games";
+import { submitSong } from "../../../../game-handler/games";
 
 export async function POST(request, { params }) {
   try {

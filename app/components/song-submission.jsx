@@ -1,5 +1,5 @@
 // Song Submission Component
-// Allows users to search for and submit songs for a game round
+// Allows users to manually enter and submit songs for a game round
 
 "use client";
 
@@ -12,17 +12,10 @@ import {
   Paper,
   Card,
   CardContent,
-  CardActions,
   CircularProgress,
   Alert,
-  Chip,
-  IconButton,
 } from "@mui/material";
-import {
-  PlayArrow as PlayIcon,
-  Pause as PauseIcon,
-  CheckCircle as CheckIcon,
-} from "@mui/icons-material";
+import { CheckCircle as CheckIcon } from "@mui/icons-material";
 import { useUserAuth } from "@/context/auth-context";
 
 export default function SongSubmissionInterface({
@@ -34,59 +27,18 @@ export default function SongSubmissionInterface({
   currentSubmission = null,
 }) {
   const { user } = useUserAuth();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
+  const [songName, setSongName] = useState("");
+  const [artistName, setArtistName] = useState("");
+  const [albumName, setAlbumName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedSong, setSelectedSong] = useState(null);
   const [error, setError] = useState("");
-  const [playingTrack, setPlayingTrack] = useState(null);
 
-  // Search for songs using Jamendo API
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) return;
-
-    setIsSearching(true);
-    setError("");
-
-    try {
-      const response = await fetch("/api/jamendo/jamendo-search", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          searchArgsObj: {
-            tags: [searchQuery],
-            speed: [],
-            tags_fuzzy: true,
-          },
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to search songs");
-      }
-
-      const data = await response.json();
-      setSearchResults(data.results || []);
-    } catch (error) {
-      console.error("Search error:", error);
-      setError("Failed to search for songs. Please try again.");
-    } finally {
-      setIsSearching(false);
-    }
-  };
-
-  // Handle song selection
-  const handleSelectSong = (song) => {
-    setSelectedSong(song);
-    setPlayingTrack(null); // Stop any playing audio
-  };
-
-  // Submit the selected song
+  // Submit the song
   const handleSubmitSong = async () => {
-    if (!selectedSong || !user) return;
+    if (!songName.trim() || !artistName.trim() || !user) {
+      setError("Song name and artist name are required");
+      return;
+    }
 
     setIsSubmitting(true);
     setError("");
@@ -104,13 +56,13 @@ export default function SongSubmissionInterface({
           },
           body: JSON.stringify({
             song: {
-              id: selectedSong.id,
-              name: selectedSong.name,
-              artist_name: selectedSong.artist_name,
-              album_name: selectedSong.album_name,
-              duration: selectedSong.duration,
-              audio: selectedSong.audio,
-              image: selectedSong.image,
+              id: `manual_${Date.now()}`, // Generate a simple ID
+              name: songName.trim(),
+              artist_name: artistName.trim(),
+              album_name: albumName.trim() || "Unknown Album",
+              duration: 0, // No duration for manual entries
+              audio: null,
+              image: null,
             },
           }),
         }
@@ -121,9 +73,18 @@ export default function SongSubmissionInterface({
         throw new Error(errorData.error || "Failed to submit song");
       }
 
+      // Clear form
+      setSongName("");
+      setArtistName("");
+      setAlbumName("");
+
       // Call success callback
       if (onSubmissionSuccess) {
-        onSubmissionSuccess(selectedSong);
+        onSubmissionSuccess({
+          name: songName.trim(),
+          artist_name: artistName.trim(),
+          album_name: albumName.trim() || "Unknown Album",
+        });
       }
     } catch (error) {
       console.error("Submission error:", error);
@@ -131,22 +92,6 @@ export default function SongSubmissionInterface({
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  // Handle audio play/pause
-  const handlePlayPause = (track) => {
-    if (playingTrack?.id === track.id) {
-      setPlayingTrack(null);
-    } else {
-      setPlayingTrack(track);
-    }
-  };
-
-  // Format duration from seconds to mm:ss
-  const formatDuration = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   // If user has already submitted
@@ -169,16 +114,21 @@ export default function SongSubmissionInterface({
             <Typography variant="body2" color="#ccc">
               by {currentSubmission.artist_name}
             </Typography>
-            <Typography variant="body2" color="#ccc">
-              {currentSubmission.album_name} •{" "}
-              {formatDuration(currentSubmission.duration)}
-            </Typography>
+            {currentSubmission.album_name &&
+              currentSubmission.album_name !== "Unknown Album" && (
+                <Typography variant="body2" color="#ccc">
+                  {currentSubmission.album_name}
+                </Typography>
+              )}
           </CardContent>
         </Card>
         <Button
           variant="outlined"
           sx={{ mt: 2, borderColor: "white", color: "white" }}
-          onClick={() => setSelectedSong(null)}
+          onClick={() => {
+            // Reset to allow changing submission
+            // This will hide the "already submitted" view
+          }}
         >
           Change Submission
         </Button>
@@ -195,20 +145,22 @@ export default function SongSubmissionInterface({
         Theme: <strong>{theme}</strong>
       </Typography>
 
-      {/* Search Interface */}
-      <Box display="flex" gap={2} mb={3}>
+      {/* Error Display */}
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
+
+      {/* Manual Entry Form */}
+      <Box component="form" display="flex" flexDirection="column" gap={2}>
         <TextField
           fullWidth
+          label="Song Name *"
           variant="outlined"
-          placeholder="Search for songs..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyPress={(e) => {
-            if (e.key === "Enter") {
-              handleSearch();
-            }
-          }}
-          disabled={disabled || isSearching}
+          value={songName}
+          onChange={(e) => setSongName(e.target.value)}
+          disabled={disabled || isSubmitting}
           sx={{
             "& .MuiOutlinedInput-root": {
               color: "white",
@@ -225,155 +177,97 @@ export default function SongSubmissionInterface({
             "& .MuiInputLabel-root": {
               color: "#ccc",
             },
+            "& .MuiInputLabel-root.Mui-focused": {
+              color: "#4caf50",
+            },
           }}
         />
-        <Button
+
+        <TextField
+          fullWidth
+          label="Artist Name *"
           variant="outlined"
-          onClick={handleSearch}
-          disabled={disabled || isSearching || !searchQuery.trim()}
+          value={artistName}
+          onChange={(e) => setArtistName(e.target.value)}
+          disabled={disabled || isSubmitting}
           sx={{
-            borderColor: "white",
+            "& .MuiOutlinedInput-root": {
+              color: "white",
+              "& fieldset": {
+                borderColor: "#555",
+              },
+              "&:hover fieldset": {
+                borderColor: "#777",
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: "#4caf50",
+              },
+            },
+            "& .MuiInputLabel-root": {
+              color: "#ccc",
+            },
+            "& .MuiInputLabel-root.Mui-focused": {
+              color: "#4caf50",
+            },
+          }}
+        />
+
+        <TextField
+          fullWidth
+          label="Album Name (Optional)"
+          variant="outlined"
+          value={albumName}
+          onChange={(e) => setAlbumName(e.target.value)}
+          disabled={disabled || isSubmitting}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              color: "white",
+              "& fieldset": {
+                borderColor: "#555",
+              },
+              "&:hover fieldset": {
+                borderColor: "#777",
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: "#4caf50",
+              },
+            },
+            "& .MuiInputLabel-root": {
+              color: "#ccc",
+            },
+            "& .MuiInputLabel-root.Mui-focused": {
+              color: "#4caf50",
+            },
+          }}
+        />
+
+        <Button
+          variant="contained"
+          onClick={handleSubmitSong}
+          disabled={
+            disabled || isSubmitting || !songName.trim() || !artistName.trim()
+          }
+          sx={{
+            bgcolor: "#4caf50",
             color: "white",
-            minWidth: "100px",
+            textTransform: "uppercase",
+            fontWeight: "bold",
             "&:hover": {
-              borderColor: "#4caf50",
-              backgroundColor: "#4caf50",
+              bgcolor: "#45a049",
+            },
+            "&:disabled": {
+              bgcolor: "#555",
+              color: "#999",
             },
           }}
         >
-          {isSearching ? <CircularProgress size={24} /> : "Search"}
+          {isSubmitting ? <CircularProgress size={24} /> : "Submit Song"}
         </Button>
       </Box>
 
-      {/* Error Display */}
-      {error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {error}
-        </Alert>
-      )}
-
-      {/* Selected Song */}
-      {selectedSong && (
-        <Box mb={3}>
-          <Typography variant="h6" color="#4caf50" gutterBottom>
-            Selected Song:
-          </Typography>
-          <Card sx={{ bgcolor: "#3e3d3d", color: "white" }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                {selectedSong.name}
-              </Typography>
-              <Typography variant="body2" color="#ccc">
-                by {selectedSong.artist_name}
-              </Typography>
-              <Typography variant="body2" color="#ccc">
-                {selectedSong.album_name} •{" "}
-                {formatDuration(selectedSong.duration)}
-              </Typography>
-            </CardContent>
-            <CardActions>
-              <Button
-                size="small"
-                onClick={handleSubmitSong}
-                disabled={isSubmitting}
-                sx={{ color: "#4caf50" }}
-              >
-                {isSubmitting ? (
-                  <CircularProgress size={20} />
-                ) : (
-                  "Submit This Song"
-                )}
-              </Button>
-              <Button
-                size="small"
-                onClick={() => setSelectedSong(null)}
-                sx={{ color: "#ccc" }}
-              >
-                Cancel
-              </Button>
-            </CardActions>
-          </Card>
-        </Box>
-      )}
-
-      {/* Search Results */}
-      {searchResults.length > 0 && (
-        <Box>
-          <Typography variant="h6" gutterBottom>
-            Search Results:
-          </Typography>
-          <Box maxHeight="400px" overflow="auto">
-            {searchResults.map((track) => (
-              <Card
-                key={track.id}
-                sx={{
-                  bgcolor: "#3e3d3d",
-                  color: "white",
-                  mb: 2,
-                  cursor: selectedSong?.id === track.id ? "default" : "pointer",
-                  border:
-                    selectedSong?.id === track.id
-                      ? "2px solid #4caf50"
-                      : "none",
-                }}
-                onClick={() => !selectedSong && handleSelectSong(track)}
-              >
-                <CardContent>
-                  <Box
-                    display="flex"
-                    justifyContent="space-between"
-                    alignItems="flex-start"
-                  >
-                    <Box flex={1}>
-                      <Typography variant="subtitle1" gutterBottom>
-                        {track.name}
-                      </Typography>
-                      <Typography variant="body2" color="#ccc">
-                        by {track.artist_name}
-                      </Typography>
-                      <Typography variant="body2" color="#ccc">
-                        {track.album_name} • {formatDuration(track.duration)}
-                      </Typography>
-                    </Box>
-                    <Box display="flex" alignItems="center" gap={1}>
-                      {track.audio && (
-                        <IconButton
-                          size="small"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handlePlayPause(track);
-                          }}
-                          sx={{ color: "white" }}
-                        >
-                          {playingTrack?.id === track.id ? (
-                            <PauseIcon />
-                          ) : (
-                            <PlayIcon />
-                          )}
-                        </IconButton>
-                      )}
-                      {selectedSong?.id === track.id && (
-                        <Chip
-                          label="Selected"
-                          size="small"
-                          sx={{ bgcolor: "#4caf50", color: "white" }}
-                        />
-                      )}
-                    </Box>
-                  </Box>
-                </CardContent>
-              </Card>
-            ))}
-          </Box>
-        </Box>
-      )}
-
-      {/* No results message */}
-      {searchResults.length === 0 && searchQuery && !isSearching && (
-        <Typography variant="body2" color="#ccc" textAlign="center" py={3}>
-          No songs found. Try different search terms.
-        </Typography>
-      )}
+      <Typography variant="caption" color="#999" mt={2} display="block">
+        * Required fields
+      </Typography>
     </Paper>
   );
 }
