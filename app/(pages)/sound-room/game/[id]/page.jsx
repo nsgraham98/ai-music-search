@@ -20,6 +20,8 @@ import LoginPopup from "@/app/components/login/login-popup";
 import { useUserAuth } from "@/context/auth-context";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import { formatDate } from "@/utils/date-utils";
+import SongSubmissionInterface from "@/app/components/song-submission";
 
 export default function GamePage() {
   const { user } = useUserAuth();
@@ -29,12 +31,23 @@ export default function GamePage() {
   const [game, setGame] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [startingGame, setStartingGame] = useState(false);
+  const [currentRound, setCurrentRound] = useState(null);
+  const [loadingRound, setLoadingRound] = useState(false);
+  const [userSubmission, setUserSubmission] = useState(null);
 
   useEffect(() => {
     if (user && gameId) {
       fetchGameDetails();
     }
   }, [user, gameId]);
+
+  useEffect(() => {
+    // Fetch current round data when game becomes active
+    if (game && game.status === "active" && game.current_round) {
+      fetchCurrentRound();
+    }
+  }, [game]);
 
   const fetchGameDetails = async () => {
     setLoading(true);
@@ -63,6 +76,82 @@ export default function GamePage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleStartGame = async () => {
+    setStartingGame(true);
+    setError("");
+
+    try {
+      const token = await user.getIdToken();
+
+      const response = await fetch(`/api/games/${gameId}/start`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Refresh the game data to show the updated state
+        await fetchGameDetails();
+      } else {
+        setError(data.error || "Failed to start game");
+      }
+    } catch (error) {
+      console.error("Error starting game:", error);
+      setError("Failed to start game");
+    } finally {
+      setStartingGame(false);
+    }
+  };
+
+  const fetchCurrentRound = async () => {
+    if (!game || !game.current_round) return;
+
+    setLoadingRound(true);
+    try {
+      const token = await user.getIdToken();
+
+      const response = await fetch(
+        `/api/games/${gameId}/rounds/${game.current_round}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        setCurrentRound(data.round);
+
+        // Check if user has already submitted for this round
+        const userId = user.uid;
+        const submissions = data.round.submissions || {};
+        if (submissions[userId]) {
+          setUserSubmission(submissions[userId].song);
+        } else {
+          setUserSubmission(null);
+        }
+      } else {
+        console.error("Failed to fetch round:", data.error);
+      }
+    } catch (error) {
+      console.error("Error fetching current round:", error);
+    } finally {
+      setLoadingRound(false);
+    }
+  };
+
+  const handleSubmissionSuccess = (submittedSong) => {
+    setUserSubmission(submittedSong);
+    // Optionally refresh the round data
+    fetchCurrentRound();
   };
 
   const getGameStatusText = (game) => {
@@ -179,9 +268,7 @@ export default function GamePage() {
                   </Typography>
                   <Typography variant="body1" color="#ccc">
                     {game.players?.length || 1} player(s) • Created{" "}
-                    {new Date(
-                      game.created_at?.seconds * 1000 || game.created_at
-                    ).toLocaleDateString()}
+                    {formatDate(game.created_at)}
                   </Typography>
                 </Box>
                 <Chip
@@ -227,7 +314,8 @@ export default function GamePage() {
                     Waiting for Players
                   </Typography>
                   <Typography variant="body1" color="#ccc" mb={3}>
-                    The game will start once all invited players join.
+                    The game will start once all invited players join, or you
+                    can start now.
                   </Typography>
                   <Button
                     variant="outlined"
@@ -236,13 +324,15 @@ export default function GamePage() {
                       color: "white",
                       textTransform: "uppercase",
                       fontWeight: "bold",
+                      "&:hover": {
+                        borderColor: "#4caf50",
+                        backgroundColor: "#4caf50",
+                      },
                     }}
-                    onClick={() => {
-                      // TODO: Implement start game functionality
-                      alert("Start game functionality coming soon!");
-                    }}
+                    onClick={handleStartGame}
+                    disabled={startingGame}
                   >
-                    Start Game
+                    {startingGame ? "Starting..." : "Start Game"}
                   </Button>
                 </Box>
               ) : game.status === "active" ? (
@@ -250,16 +340,45 @@ export default function GamePage() {
                   <Typography variant="h5" gutterBottom>
                     Round {game.current_round}
                   </Typography>
-                  <Typography variant="body1" color="#ccc" mb={3}>
-                    Round functionality coming soon! Here you'll be able to:
-                  </Typography>
-                  <ul style={{ color: "#ccc", paddingLeft: "20px" }}>
-                    <li>See the current theme/prompt</li>
-                    <li>Submit your song choice</li>
-                    <li>View other players' submissions</li>
-                    <li>Vote on submissions</li>
-                    <li>See round results</li>
-                  </ul>
+
+                  {loadingRound ? (
+                    <Box display="flex" alignItems="center" gap={2} mb={3}>
+                      <CircularProgress size={20} />
+                      <Typography variant="body1" color="#ccc">
+                        Loading round details...
+                      </Typography>
+                    </Box>
+                  ) : currentRound ? (
+                    <Box mb={3}>
+                      <Typography variant="h6" color="#4caf50" gutterBottom>
+                        Theme: {currentRound.theme}
+                      </Typography>
+                      <Typography variant="body2" color="#ccc" mb={2}>
+                        Status:{" "}
+                        {currentRound.status?.replace(/_/g, " ").toUpperCase()}
+                      </Typography>
+                      <Typography variant="body2" color="#ccc">
+                        Submissions due:{" "}
+                        {formatDate(currentRound.submissions_deadline)}
+                      </Typography>
+                    </Box>
+                  ) : (
+                    <Typography variant="body1" color="#ff5722" mb={3}>
+                      Error loading round details
+                    </Typography>
+                  )}
+
+                  {/* Song Submission Interface */}
+                  {currentRound && (
+                    <SongSubmissionInterface
+                      gameId={gameId}
+                      roundId={game.current_round.toString()}
+                      theme={currentRound.theme}
+                      onSubmissionSuccess={handleSubmissionSuccess}
+                      disabled={loadingRound}
+                      currentSubmission={userSubmission}
+                    />
+                  )}
                 </Box>
               ) : game.status === "completed" ? (
                 <Box textAlign="center" py={4}>
