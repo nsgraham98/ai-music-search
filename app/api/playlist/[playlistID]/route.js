@@ -27,9 +27,9 @@ import { authenticateIdToken } from "@/lib/authenticate-calls";
 // Get a specific playlist by ID
 export async function GET(request, { params }) {
   try {
-    const { playlistID } = params;
+    const { trackID, musicService, playlistID } = params;
     const decodedToken = await authenticateIdToken(request);
-    const uid = decodedToken.uid;
+    // const uid = decodedToken.uid;
     // someGetPlaylistByIDFunction(playlistID, uid)
     // return successful response to client
     return new Response(

@@ -21,14 +21,16 @@ We can fetch the full track data from Jamendo API when needed, and store it clie
     check this using chrome devtools memory tab -> Total JS heap size
         mine is ~160MB, ~20 kB/sec  
 */
-
-import { authenticateIdToken } from "@/lib/authenticate-calls";
+import { db } from "@/lib/firebase.js";
+import { authenticateCookie } from "@/lib/authenticate-calls";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import axios from "axios";
 
 // Get user playlists
 export async function GET(request) {
   try {
     const body = await request.json();
-    const decodedToken = await authenticateIdToken(request);
+    const decodedToken = await authenticateCookie(request);
 
     // const playlists = await someGetUserPlaylistsFunction();
 
@@ -59,15 +61,53 @@ export async function GET(request) {
 }
 
 // Create a new playlist
+// returns the new playlist object
 export async function POST(request) {
   try {
     const body = await request.json();
-    const decodedToken = await authenticateIdToken(request);
+    const playlistName = body.name;
+    const decodedToken = await authenticateCookie(request);
 
-    // return successful response to client
+    const uid = decodedToken.uid;
+
+    // Create new playlist document in Firestore
+    const playlistCollectionRef = collection(db, "playlists");
+    const newPlaylistRef = await addDoc(playlistCollectionRef, {
+      name: playlistName,
+      userID: uid,
+      timeCreated: serverTimestamp(),
+      timeUpdated: serverTimestamp(),
+      public: false,
+      tracks: [],
+    });
+
+    // Update user's profile to include this new playlist
+    const url = new URL(request.url);
+    const origin = url.origin;
+    const cookie = request.headers.get("cookie") ?? ""; // get cookies to pass for authentication (doesn't happen automatically on server-side fetch)
+    // Make a PATCH request to update the user's profile route with the new playlist
+    await axios.patch(
+      `${origin}/api/users`,
+      {
+        playlists: { [newPlaylistRef.id]: playlistName },
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Cookie: cookie,
+        },
+      }
+    );
+
     return new Response(
       JSON.stringify({
-        // some response data
+        id: newPlaylistRef.id,
+        name: playlistName,
+        userID: uid,
+        tracks: [],
+        created_at: serverTimestamp(),
+        updated_at: serverTimestamp(),
+        public: false,
       }),
       {
         status: 200,

@@ -163,17 +163,19 @@ export async function POST(req) {
 export async function PATCH(req) {
   try {
     const updatedProfileData = await req.json();
-
     const decodedToken = await authenticateCookie(req);
     const uid = decodedToken.uid;
 
     await db
       .collection("users")
       .doc(uid)
-      .update({
-        ...updatedProfileData,
-        lastUpdated: Date.now(),
-      });
+      .set(
+        {
+          ...updatedProfileData,
+          lastUpdated: Date.now(),
+        },
+        { merge: true }
+      );
 
     console.log("👤 User profile updated for UID:", uid);
     return new Response(JSON.stringify({ ok: true }), {

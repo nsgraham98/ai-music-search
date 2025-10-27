@@ -76,12 +76,12 @@ const SearchBar = () => {
       }
 
       const data = await response.json();
-      setTracks(data.jamendoResponse || []);
+      setCurrentPlaylist(data.jamendoResponse || []);
       setAiResponse(data.aiResponse?.output_text || "Search completed");
     } catch (err) {
       console.error("Search error:", err);
       setError(err.message || "Failed to search. Please try again.");
-      setTracks([]);
+      setCurrentPlaylist([]);
     } finally {
       setIsLoading(false);
     }

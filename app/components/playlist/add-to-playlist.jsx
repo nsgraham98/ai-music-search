@@ -5,31 +5,24 @@
 
 import { Button } from "@mui/material";
 import { useAudioPlayerContext } from "@/context/audio-player-context";
+import axios from "axios"; // library for making API requests easily -> https://axios-http.com/docs/intro
 
 export const AddToPlaylistButton = () => {
-  // const { currentTrack } = useAudioPlayerContext();
-  const testTrack = {
-    id: "12345",
-    name: "Test Track",
-    artist_name: "Test Artist",
-    album_name: "Test Album",
-  };
-  async function handleAddToPlaylist(trackID, playlistID) {
+  const { testTrack, testPlaylist } = useAudioPlayerContext();
+
+  async function handleAddToPlaylist(trackID, musicService, playlistID) {
     try {
-      const response = await fetch(`/api/playlist/${playlistID}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ trackID, playlistID }),
+      const response = await axios.post(`/api/playlist/${playlistID}`, {
+        trackID,
+        musicService,
+        playlistID,
       });
 
-      if (!response.ok) {
+      if (response.status !== 200) {
         throw new Error("Failed to add track to playlist");
       }
 
-      const data = await response.json();
-      return data;
+      return response.data;
     } catch (error) {
       console.error("Error adding track to playlist:", error);
       throw error;
@@ -38,9 +31,10 @@ export const AddToPlaylistButton = () => {
   return (
     <Button
       onClick={async () => {
-        // const trackID = currentTrack?.id; // Get the track ID from your state or props
-        const playlistID = ""; // Get the playlist ID from your state or props
-        await handleAddToPlaylist(trackID, playlistID);
+        const trackID = testTrack.id; // Get the track ID from your state or props
+        const playlistID = testPlaylist.id; // Get the playlist ID from your state or props
+        const musicService = "jamendo"; // Example music provider
+        await handleAddToPlaylist(trackID, musicService, playlistID);
       }}
     >
       Add to Playlist

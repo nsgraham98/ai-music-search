@@ -10,7 +10,7 @@ import SignedInAs from "@/app/components/login/signed-in-as";
 import LoginPopup from "@/app/components/login/login-popup";
 import Link from "next/link";
 import Navigation from "@/app/components/navigation/nav-bar.jsx";
-
+import { CreatePlaylistButton } from "@/app/components/playlist/create-playlist.jsx";
 export default function HomePage() {
   return (
     <Container maxWidth="lg">
@@ -31,6 +31,7 @@ export default function HomePage() {
           <LogoutButton />
         </Box>
       </Box>
+      <CreatePlaylistButton />
 
       {/* Navigation Bar */}
       <Navigation />
