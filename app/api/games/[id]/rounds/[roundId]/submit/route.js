@@ -8,17 +8,6 @@ export async function POST(request, { params }) {
   try {
     const { id: gameId, roundId } = await params;
 
-    // Get the authorization token
-    const authHeader = request.headers.get("Authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return NextResponse.json(
-        { error: "Authorization header missing or invalid" },
-        { status: 401 }
-      );
-    }
-
-    const token = authHeader.substring(7);
-
     // Parse the request body
     const body = await request.json();
     const { song } = body;
@@ -38,8 +27,8 @@ export async function POST(request, { params }) {
       );
     }
 
-    // Submit the song
-    const result = await submitSong(gameId, roundId, song, token);
+    // Submit the song (authentication happens inside submitSong)
+    const result = await submitSong(gameId, roundId, song, request);
 
     if (!result.success) {
       const statusCode =

@@ -29,7 +29,7 @@ import Link from "next/link";
 import { formatDate } from "@/utils/date-utils";
 
 export default function SoundRoomPage() {
-  const { user } = useUserAuth();
+  const { authUser } = useUserAuth();
   const [gameName, setGameName] = useState("");
   const [friendEmail, setFriendEmail] = useState("");
   const [invitedFriends, setInvitedFriends] = useState([]);
@@ -45,23 +45,19 @@ export default function SoundRoomPage() {
 
   // Fetch user's games when component mounts or user changes
   useEffect(() => {
-    if (user) {
+    if (authUser) {
       fetchUserGames();
     }
-  }, [user]);
+  }, [authUser]);
 
   const fetchUserGames = async () => {
     setLoadingGames(true);
     setGamesError("");
 
     try {
-      const token = await user.getIdToken();
-
       const response = await fetch("/api/games", {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include", // Include cookies for authentication
       });
 
       const data = await response.json();
@@ -146,7 +142,7 @@ export default function SoundRoomPage() {
       return;
     }
 
-    if (!user) {
+    if (!authUser) {
       setError("You must be logged in to create a game.");
       return;
     }
@@ -156,14 +152,11 @@ export default function SoundRoomPage() {
     setSuccessMessage("");
 
     try {
-      // Get the user's ID token for authentication
-      const token = await user.getIdToken();
-
       const response = await fetch("/api/games", {
         method: "POST",
+        credentials: "include", // Include cookies for authentication
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           gameName: gameName,
