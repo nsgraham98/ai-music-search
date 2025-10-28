@@ -1,0 +1,73 @@
+/*
+/* Light Mode */
+body.light-mode {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+body.light-mode .MuiPaper-root {
+  background-color: #f5f5f5 !important;
+  color: #000000 !important;
+}
+
+body.light-mode .MuiBox-root {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* High Contrast Mode */
+body.high-contrast {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+body.high-contrast * {
+  border-color: #ffffff !important;
+}
+
+body.high-contrast .MuiPaper-root {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
+body.high-contrast button {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid #ffffff !important;
+}
+
+body.high-contrast button:hover {
+  background-color: #cccccc !important;
+}
+
+/* Reduced Motion */
+body.reduced-motion *,
+body.reduced-motion *::before,
+body.reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Colorblind Modes - Using CSS Filters */
+body[data-colorblind-mode="protanopia"] {
+  filter: url("#protanopia-filter");
+}
+
+body[data-colorblind-mode="deuteranopia"] {
+  filter: url("#deuteranopia-filter");
+}
+
+body[data-colorblind-mode="tritanopia"] {
+  filter: url("#tritanopia-filter");
+}
+
+body[data-colorblind-mode="monochromacy"] {
+  filter: grayscale(100%);
+}
+
+body[data-colorblind-mode="none"] {
+  filter: none;
+}

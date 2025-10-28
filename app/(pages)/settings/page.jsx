@@ -6,17 +6,9 @@ import {
   Typography,
   Container,
   Paper,
-  TextField,
-  Button,
   Alert,
   CircularProgress,
-  Switch,
-  FormControlLabel,
   Divider,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
 } from "@mui/material";
 import SignedInAs from "@/app/components/login/signed-in-as";
 import LoginPopup from "@/app/components/login/login-popup";
@@ -24,26 +16,29 @@ import Navigation from "@/app/components/navigation/nav-bar";
 import { useUserAuth } from "@/context/auth-context";
 import { useUserProfile } from "@/context/user-profile-context";
 import { useState, useEffect } from "react";
-import LogoutIcon from "@mui/icons-material/Logout";
+import { useRouter } from "next/navigation";
 import PersonIcon from "@mui/icons-material/Person";
 import PaletteIcon from "@mui/icons-material/Palette";
 import AccessibilityNewIcon from "@mui/icons-material/AccessibilityNew";
+import UsernameEditor from "@/app/components/settings/username-editor";
 import Logout from "@/app/components/settings/logout";
 import DarkLightMode from "@/app/components/settings/dark-lightmode";
-import ColourblindSelector from "@/app/components/settings/colourblind-selector";
-import HighContrastToggle from "@/app/components/settings/high-contrast-toggle";
+import ColorblindSelector from "@/app/components/settings/colorblind-selector";
+import HighContrast from "@/app/components/settings/high-contrast-toggle";
 import ReducedMotionToggle from "@/app/components/settings/reduced-motion-toggle";
+import ColorblindFilters from "@/app/components/settings/colorblind-filters";
+import SettingsSection from "@/app/components/settings/settings-section";
+
+// Import CSS
+import "@/styles/accessibility.css";
 
 export default function SettingsPage() {
-  const { user } = useUserAuth();
+  const { user, logout } = useUserAuth();
   const { userProfile, loadingProfile, updateDisplayName } = useUserProfile();
+  const router = useRouter();
 
-  // Username state
-  const [isEditingUsername, setIsEditingUsername] = useState(false);
-  const [newUsername, setNewUsername] = useState("");
-  const [usernameError, setUsernameError] = useState("");
+  // Success message state
   const [usernameSuccess, setUsernameSuccess] = useState("");
-  const [isUpdatingUsername, setIsUpdatingUsername] = useState(false);
 
   // Theme state
   const [darkMode, setDarkMode] = useState(true);
@@ -53,45 +48,148 @@ export default function SettingsPage() {
   const [highContrast, setHighContrast] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
 
+  // Load saved preferences from localStorage on mount
   useEffect(() => {
-    if (userProfile) {
-      setNewUsername(userProfile.displayName || "");
+    if (typeof window !== "undefined") {
+      const savedDarkMode = localStorage.getItem("darkMode");
+      const savedColorblind = localStorage.getItem("colorblindMode");
+      const savedHighContrast = localStorage.getItem("highContrast");
+      const savedReducedMotion = localStorage.getItem("reducedMotion");
+      if (savedDarkMode !== null) {
+        const isDark = savedDarkMode === "true";
+        setDarkMode(isDark);
+        applyDarkMode(isDark);
+      }
+      if (savedColorblind) {
+        setColorblindMode(savedColorblind);
+        applyColorblindMode(savedColorblind);
+      }
+      if (savedHighContrast !== null) {
+        const isEnabled = savedHighContrast === "true";
+        setHighContrast(isEnabled);
+        applyHighContrast(isEnabled);
+      }
+      if (savedReducedMotion !== null) {
+        const isEnabled = savedReducedMotion === "true";
+        setReducedMotion(isEnabled);
+        applyReducedMotion(isEnabled);
+      }
     }
-  }, [userProfile]);
+  }, []);
 
-  const handleSaveUsername = async () => {
-    if (!newUsername.trim()) {
-      setUsernameError("Username cannot be empty");
-      return;
+  // Apply dark mode to DOM
+  const applyDarkMode = (isDark) => {
+    if (typeof window !== "undefined") {
+      if (isDark) {
+        document.body.classList.remove("light-mode");
+        document.body.classList.add("dark-mode");
+        document.documentElement.style.setProperty(
+          "--background-color",
+          "#1a1a1a"
+        );
+        document.documentElement.style.setProperty("--text-color", "#ffffff");
+      } else {
+        document.body.classList.remove("dark-mode");
+        document.body.classList.add("light-mode");
+        document.documentElement.style.setProperty(
+          "--background-color",
+          "#ffffff"
+        );
+        document.documentElement.style.setProperty("--text-color", "#000000");
+      }
     }
+  };
 
-    setIsUpdatingUsername(true);
-    setUsernameError("");
-    setUsernameSuccess("");
+  // Apply colorblind mode to DOM
+  const applyColorblindMode = (mode) => {
+    if (typeof window !== "undefined") {
+      document.body.setAttribute("data-colorblind-mode", mode);
+    }
+  };
 
+  // Apply high contrast to DOM
+  const applyHighContrast = (enabled) => {
+    if (typeof window !== "undefined") {
+      if (enabled) {
+        document.body.classList.add("high-contrast");
+      } else {
+        document.body.classList.remove("high-contrast");
+      }
+    }
+  };
+
+  // Apply reduced motion to DOM
+  const applyReducedMotion = (enabled) => {
+    if (typeof window !== "undefined") {
+      if (enabled) {
+        document.body.classList.add("reduced-motion");
+      } else {
+        document.body.classList.remove("reduced-motion");
+      }
+    }
+  };
+
+  // Handle username update
+  const handleUsernameUpdate = async (newUsername) => {
     const result = await updateDisplayName(newUsername);
 
     if (result.success) {
       setUsernameSuccess("Username updated successfully!");
-      setIsEditingUsername(false);
       setTimeout(() => setUsernameSuccess(""), 3000);
-    } else {
-      setUsernameError(result.error || "Failed to update username");
     }
 
-    setIsUpdatingUsername(false);
+    return result;
   };
 
-  const handleCancelUsername = () => {
-    setIsEditingUsername(false);
-    setNewUsername(userProfile?.displayName || "");
-    setUsernameError("");
+  // Handle logout with actual functionality
+  const handleLogout = async () => {
+    try {
+      await logout();
+      // Clear all settings from localStorage
+      localStorage.removeItem("darkMode");
+      localStorage.removeItem("colorblindMode");
+      localStorage.removeItem("highContrast");
+      localStorage.removeItem("reducedMotion");
+      // Redirect to login or home page
+      router.push("/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
+  // Handle dark mode toggle with actual functionality
+  const handleDarkModeToggle = (isDark) => {
+    setDarkMode(isDark);
+    localStorage.setItem("darkMode", isDark.toString());
+    applyDarkMode(isDark);
+  };
+
+  // Handle colorblind mode change with actual functionality
+  const handleColorblindModeChange = (mode) => {
+    setColorblindMode(mode);
+    localStorage.setItem("colorblindMode", mode);
+    applyColorblindMode(mode);
+  };
+
+  // Handle high contrast toggle with actual functionality
+  const handleHighContrastToggle = (enabled) => {
+    setHighContrast(enabled);
+    localStorage.setItem("highContrast", enabled.toString());
+    applyHighContrast(enabled);
+  };
+
+  // Handle reduced motion toggle with actual functionality
+  const handleReducedMotionToggle = (enabled) => {
+    setReducedMotion(enabled);
+    localStorage.setItem("reducedMotion", enabled.toString());
+    applyReducedMotion(enabled);
   };
 
   if (loadingProfile) {
     return (
       <Container maxWidth="lg">
         <LoginPopup />
+        <ColorblindFilters />
         <Box
           display="flex"
           justifyContent="center"
@@ -107,6 +205,7 @@ export default function SettingsPage() {
   return (
     <Container maxWidth="lg">
       <LoginPopup />
+      <ColorblindFilters />
 
       {/* Header */}
       <Box
@@ -147,366 +246,49 @@ export default function SettingsPage() {
         </Typography>
 
         {/* Account Settings Section */}
-        <Box mb={4}>
-          <Box display="flex" alignItems="center" gap={1} mb={2}>
-            <PersonIcon sx={{ color: "#E03FD8" }} />
-            <Typography variant="h6" fontWeight="bold">
-              Account Settings
-            </Typography>
-          </Box>
-
-          {/* Username */}
-          <Box
-            sx={{
-              bgcolor: "#3a3a3a",
-              p: 3,
-              borderRadius: 2,
-              border: "1px solid #444",
-              mb: 2,
-            }}
-          >
-            <Typography variant="subtitle1" fontWeight="bold" mb={2}>
-              Username
-            </Typography>
-            {isEditingUsername ? (
-              <Box>
-                <TextField
-                  fullWidth
-                  value={newUsername}
-                  onChange={(e) => setNewUsername(e.target.value)}
-                  variant="outlined"
-                  placeholder="Enter new username"
-                  sx={{
-                    mb: 2,
-                    "& .MuiOutlinedInput-root": {
-                      color: "white",
-                      bgcolor: "#2e2d2d",
-                      "& fieldset": { borderColor: "#444" },
-                      "&:hover fieldset": { borderColor: "#888" },
-                      "&.Mui-focused fieldset": {
-                        borderColor: "#E03FD8",
-                        borderWidth: "2px",
-                      },
-                    },
-                  }}
-                />
-                <Box display="flex" gap={2}>
-                  <Button
-                    variant="contained"
-                    onClick={handleSaveUsername}
-                    disabled={isUpdatingUsername}
-                    sx={{
-                      bgcolor: "#E03FD8",
-                      "&:hover": {
-                        bgcolor: "#c133b9",
-                        transform: "translateY(-2px)",
-                        boxShadow: "0 4px 12px rgba(224, 63, 216, 0.4)",
-                      },
-                      transition: "all 0.2s",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {isUpdatingUsername ? (
-                      <CircularProgress size={20} />
-                    ) : (
-                      "Save"
-                    )}
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    onClick={handleCancelUsername}
-                    disabled={isUpdatingUsername}
-                    sx={{
-                      color: "#888",
-                      borderColor: "#444",
-                      "&:hover": {
-                        borderColor: "#888",
-                        bgcolor: "#2e2d2d",
-                      },
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                </Box>
-              </Box>
-            ) : (
-              <Box
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-              >
-                <Typography variant="body1" fontSize="1.1rem">
-                  {userProfile?.displayName}
-                </Typography>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  onClick={() => setIsEditingUsername(true)}
-                  sx={{
-                    color: "white",
-                    borderColor: "#444",
-                    "&:hover": {
-                      borderColor: "#E03FD8",
-                      color: "#E03FD8",
-                      transform: "translateY(-2px)",
-                    },
-                    transition: "all 0.2s",
-                  }}
-                >
-                  Edit
-                </Button>
-              </Box>
-            )}
-          </Box>
-
-          {/* Logout */}
-          <Box
-            sx={{
-              bgcolor: "#3a3a3a",
-              p: 3,
-              borderRadius: 2,
-              border: "1px solid #444",
-            }}
-          >
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-            >
-              <Box>
-                <Typography variant="subtitle1" fontWeight="bold" mb={0.5}>
-                  Log Out
-                </Typography>
-                <Typography variant="body2" color="#888">
-                  Sign out of your account
-                </Typography>
-              </Box>
-              <Button
-                variant="contained"
-                startIcon={<LogoutIcon />}
-                sx={{
-                  bgcolor: "#d32f2f",
-                  "&:hover": {
-                    bgcolor: "#b71c1c",
-                    transform: "translateY(-2px)",
-                    boxShadow: "0 4px 12px rgba(211, 47, 47, 0.4)",
-                  },
-                  transition: "all 0.2s",
-                  fontWeight: "bold",
-                }}
-              >
-                Log Out
-              </Button>
-            </Box>
-          </Box>
-        </Box>
+        <SettingsSection
+          icon={<PersonIcon sx={{ color: "#E03FD8" }} />}
+          title="Account Settings"
+        >
+          <UsernameEditor
+            currentUsername={userProfile?.displayName || ""}
+            onUpdate={handleUsernameUpdate}
+          />
+          <Logout onLogout={handleLogout} />
+        </SettingsSection>
 
         <Divider sx={{ borderColor: "#444", my: 4 }} />
 
         {/* Appearance Section */}
-        <Box mb={4}>
-          <Box display="flex" alignItems="center" gap={1} mb={2}>
-            <PaletteIcon sx={{ color: "#E03FD8" }} />
-            <Typography variant="h6" fontWeight="bold">
-              Appearance
-            </Typography>
-          </Box>
-
-          <Box
-            sx={{
-              bgcolor: "#3a3a3a",
-              p: 3,
-              borderRadius: 2,
-              border: "1px solid #444",
-            }}
-          >
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-            >
-              <Box>
-                <Typography variant="subtitle1" fontWeight="bold" mb={0.5}>
-                  Dark Mode
-                </Typography>
-                <Typography variant="body2" color="#888">
-                  Toggle between light and dark theme
-                </Typography>
-              </Box>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={darkMode}
-                    onChange={(e) => setDarkMode(e.target.checked)}
-                    sx={{
-                      "& .MuiSwitch-switchBase.Mui-checked": {
-                        color: "#E03FD8",
-                      },
-                      "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
-                        {
-                          bgcolor: "#E03FD8",
-                        },
-                    }}
-                  />
-                }
-                label=""
-              />
-            </Box>
-          </Box>
-        </Box>
+        <SettingsSection
+          icon={<PaletteIcon sx={{ color: "#E03FD8" }} />}
+          title="Appearance"
+        >
+          <DarkLightMode darkMode={darkMode} onToggle={handleDarkModeToggle} />
+        </SettingsSection>
 
         <Divider sx={{ borderColor: "#444", my: 4 }} />
 
         {/* Accessibility Section */}
-        <Box mb={2}>
-          <Box display="flex" alignItems="center" gap={1} mb={2}>
-            <AccessibilityNewIcon sx={{ color: "#E03FD8" }} />
-            <Typography variant="h6" fontWeight="bold">
-              Accessibility
-            </Typography>
-          </Box>
+        <SettingsSection
+          icon={<AccessibilityNewIcon sx={{ color: "#E03FD8" }} />}
+          title="Accessibility"
+        >
+          <ColorblindSelector
+            mode={colorblindMode}
+            onChange={handleColorblindModeChange}
+          />
+          <HighContrast
+            enabled={highContrast}
+            onToggle={handleHighContrastToggle}
+          />
+          <ReducedMotionToggle
+            enabled={reducedMotion}
+            onToggle={handleReducedMotionToggle}
+          />
+        </SettingsSection>
 
-          {/* Colorblind Mode */}
-          <Box
-            sx={{
-              bgcolor: "#3a3a3a",
-              p: 3,
-              borderRadius: 2,
-              border: "1px solid #444",
-              mb: 2,
-            }}
-          >
-            <Typography variant="subtitle1" fontWeight="bold" mb={1}>
-              Colorblind Mode
-            </Typography>
-            <Typography variant="body2" color="#888" mb={2}>
-              Adjust colors for better visibility
-            </Typography>
-            <FormControl fullWidth>
-              <Select
-                value={colorblindMode}
-                onChange={(e) => setColorblindMode(e.target.value)}
-                sx={{
-                  color: "white",
-                  bgcolor: "#2e2d2d",
-                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "#444" },
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#888",
-                  },
-                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#E03FD8",
-                  },
-                  "& .MuiSvgIcon-root": { color: "#888" },
-                }}
-              >
-                <MenuItem value="none">None</MenuItem>
-                <MenuItem value="protanopia">Protanopia (Red-Blind)</MenuItem>
-                <MenuItem value="deuteranopia">
-                  Deuteranopia (Green-Blind)
-                </MenuItem>
-                <MenuItem value="tritanopia">Tritanopia (Blue-Blind)</MenuItem>
-                <MenuItem value="monochromacy">Monochromacy</MenuItem>
-              </Select>
-            </FormControl>
-          </Box>
-
-          {/* High Contrast */}
-          <Box
-            sx={{
-              bgcolor: "#3a3a3a",
-              p: 3,
-              borderRadius: 2,
-              border: "1px solid #444",
-              mb: 2,
-            }}
-          >
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-            >
-              <Box>
-                <Typography variant="subtitle1" fontWeight="bold" mb={0.5}>
-                  High Contrast
-                </Typography>
-                <Typography variant="body2" color="#888">
-                  Increase contrast for better readability
-                </Typography>
-              </Box>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={highContrast}
-                    onChange={(e) => setHighContrast(e.target.checked)}
-                    sx={{
-                      "& .MuiSwitch-switchBase.Mui-checked": {
-                        color: "#E03FD8",
-                      },
-                      "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
-                        {
-                          bgcolor: "#E03FD8",
-                        },
-                    }}
-                  />
-                }
-                label=""
-              />
-            </Box>
-          </Box>
-
-          {/* Reduced Motion */}
-          <Box
-            sx={{
-              bgcolor: "#3a3a3a",
-              p: 3,
-              borderRadius: 2,
-              border: "1px solid #444",
-            }}
-          >
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-            >
-              <Box>
-                <Typography variant="subtitle1" fontWeight="bold" mb={0.5}>
-                  Reduce Motion
-                </Typography>
-                <Typography variant="body2" color="#888">
-                  Minimize animations and transitions
-                </Typography>
-              </Box>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={reducedMotion}
-                    onChange={(e) => setReducedMotion(e.target.checked)}
-                    sx={{
-                      "& .MuiSwitch-switchBase.Mui-checked": {
-                        color: "#E03FD8",
-                      },
-                      "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
-                        {
-                          bgcolor: "#E03FD8",
-                        },
-                    }}
-                  />
-                }
-                label=""
-              />
-            </Box>
-          </Box>
-        </Box>
-
-        {/* Status Messages */}
-        {usernameError && (
-          <Alert
-            severity="error"
-            sx={{ mt: 3, bgcolor: "#3d1a1a", color: "#ff6b6b" }}
-          >
-            {usernameError}
-          </Alert>
-        )}
+        {/* Success Message */}
         {usernameSuccess && (
           <Alert
             severity="success"
