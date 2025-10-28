@@ -97,7 +97,7 @@ export async function DELETE(request, { params }) {
     const { playlistID, trackID } = await params;
     const decodedToken = await authenticateCookie(request);
     const uid = decodedToken.uid;
-    const playlistRef = doc(db, "playlists", playlistID); // ✅ modular doc() helper
+    const playlistRef = doc(db, "playlists", playlistID);
     const playlistSnap = await getDoc(playlistRef);
     if (!playlistSnap.exists()) {
       return new Response(JSON.stringify({ error: "Playlist not found" }), {
