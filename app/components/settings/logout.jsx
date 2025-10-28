@@ -3,7 +3,7 @@
 import { Box, Typography, Button } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 
-export default function LogoutSetting({ onLogout }) {
+export default function Logout({ onLogout }) {
   return (
     <Box
       sx={{

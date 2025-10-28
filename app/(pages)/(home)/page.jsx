@@ -8,6 +8,7 @@ import { Box, Typography, Container, Paper, Button } from "@mui/material";
 import { PlayList } from "@/app/components/audio/playlist.jsx";
 import SignedInAs from "@/app/components/login/signed-in-as";
 import LoginPopup from "@/app/components/login/login-popup";
+import Navigation from "@/app/navigation/nav-bar";
 import Link from "next/link";
 import Navigation from "@/app/components/navigation/nav-bar.jsx";
 
