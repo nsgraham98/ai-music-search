@@ -8,7 +8,7 @@ import { useTestingContext } from "@/context/testing-context";
 import axios from "axios"; // library for making API requests easily -> https://axios-http.com/docs/intro
 
 export const AddToTrackPlaylistButton = () => {
-  const { testTrack, testPlaylist } = useTestingContext();
+  const { testTrack, userID, testPlaylistID } = useTestingContext();
 
   async function handleAddTrackToPlaylist(trackID, playlistID) {
     try {
@@ -30,7 +30,7 @@ export const AddToTrackPlaylistButton = () => {
     <Button
       onClick={async () => {
         const trackID = testTrack.id; // Get the track ID from your state or props
-        const playlistID = testPlaylist.id; // Get the playlist ID from your state or props
+        const playlistID = testPlaylistID; // Get the playlist ID from your state or props
         await handleAddTrackToPlaylist(trackID, playlistID);
       }}
     >

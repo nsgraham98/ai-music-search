@@ -10,8 +10,6 @@ import SignedInAs from "@/app/components/login/signed-in-as";
 import LoginPopup from "@/app/components/login/login-popup";
 import Link from "next/link";
 import Navigation from "@/app/components/navigation/nav-bar.jsx";
-import { CreatePlaylistButton } from "@/app/components/playlist/create-playlist.jsx";
-import { GetPlaylistsButton } from "@/app/components/playlist/get-all-playlists";
 import { Add } from "@mui/icons-material";
 
 import { AddToTrackPlaylistButton } from "@/app/components/playlist/add-track-to-playlist.jsx";

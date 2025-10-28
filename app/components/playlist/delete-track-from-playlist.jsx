@@ -8,7 +8,7 @@ import { useTestingContext } from "@/context/testing-context";
 import axios from "axios"; // library for making API requests easily -> https://axios-http.com/docs/intro
 
 export const DeleteTrackFromPlaylistButton = () => {
-  const { testTrack, testPlaylist } = useTestingContext();
+  const { testTrack, testPlaylistID, userID } = useTestingContext();
 
   async function handleDeleteTrackFromPlaylist(trackID, playlistID) {
     try {
@@ -30,7 +30,7 @@ export const DeleteTrackFromPlaylistButton = () => {
     <Button
       onClick={async () => {
         const trackID = testTrack.id; // Get the track ID from your state or props
-        const playlistID = testPlaylist.id; // Get the playlist ID from your state or props
+        const playlistID = testPlaylistID; // Get the playlist ID from your state or props
         await handleDeleteTrackFromPlaylist(trackID, playlistID);
       }}
     >

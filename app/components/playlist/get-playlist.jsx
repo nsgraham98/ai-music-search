@@ -8,7 +8,7 @@ import { useTestingContext } from "@/context/testing-context";
 import axios from "axios"; // library for making API requests easily -> https://axios-http.com/docs/intro
 
 export const GetPlaylistButton = () => {
-  const { testPlaylist } = useTestingContext();
+  const { testPlaylist, userID, testPlaylistID } = useTestingContext();
 
   async function fetchPlaylist(playlistID) {
     try {
@@ -25,7 +25,7 @@ export const GetPlaylistButton = () => {
   return (
     <Button
       onClick={async () => {
-        const playlistID = testPlaylist.id;
+        const playlistID = testPlaylistID;
         await fetchPlaylist(playlistID);
       }}
     >

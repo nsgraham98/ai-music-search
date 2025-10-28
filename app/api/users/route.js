@@ -19,7 +19,6 @@ export async function GET(req) {
     // Get profile of the current authenticated user (if no uid provided)
     if (!uid) {
       const decoded = await authenticateCookie(req);
-      console.log("GET user profile for authenticated user:", decoded);
       const userUid = decoded.uid;
 
       if (!userUid) {

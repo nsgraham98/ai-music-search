@@ -5,25 +5,53 @@
 
 import { authenticateCookie } from "@/lib/authenticate-calls";
 import { db } from "@/lib/firebase.js";
-import { serverTimestamp, arrayUnion, arrayRemove } from "firebase/firestore";
+import {
+  serverTimestamp,
+  arrayUnion,
+  arrayRemove,
+  setDoc,
+  doc,
+  getDoc,
+} from "firebase/firestore";
 
 // Add a track to a specific playlist by ID
 // Call using axios example:
 // await axios.patch(/api/users/{userID}/playlists/{playlistID}/{trackID})
 export async function PATCH(request, { params }) {
   try {
-    const { playlistID, trackID } = params;
-
+    const { playlistID, trackID } = await params;
+    if (!playlistID || !trackID) {
+      return Response.json(
+        { success: false, error: "Missing playlistID or trackID in URL." },
+        { status: 400 }
+      );
+    }
     const decodedToken = await authenticateCookie(request);
     const uid = decodedToken.uid;
 
-    const playlistRef = await db.collection("playlists").doc(playlistID);
-    if (playlistRef.userID !== uid) {
+    // const playlistRef = await db.collection("playlists").doc(playlistID);
+
+    const playlistRef = doc(db, "playlists", playlistID); // ✅ modular doc() helper
+    const playlistSnap = await getDoc(playlistRef);
+    if (!playlistSnap.exists()) {
+      return new Response(JSON.stringify({ error: "Playlist not found" }), {
+        status: 404,
+      });
+    }
+    if (playlistSnap.data().userID !== uid) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
       });
     }
-    await playlistRef.set(
+    // await playlistRef.set(
+    //   {
+    //     tracks: arrayUnion(trackID), // add the trackID to the tracks array (create array if it doesn't exist, adds if no duplicate)
+    //     updatedAt: serverTimestamp(),
+    //   },
+    //   { merge: true }
+    // );
+    await setDoc(
+      playlistRef,
       {
         tracks: arrayUnion(trackID), // add the trackID to the tracks array (create array if it doesn't exist, adds if no duplicate)
         updatedAt: serverTimestamp(),
@@ -31,6 +59,7 @@ export async function PATCH(request, { params }) {
       { merge: true }
     );
     // return successful response to client
+    console.log("🎶 Track added to playlist:", trackID, "to", playlistID);
     return new Response(
       JSON.stringify({
         ok: true,
@@ -65,16 +94,23 @@ export async function PATCH(request, { params }) {
 // await axios.delete(/api/users/{userID}/playlists/{playlistID}/{trackID})
 export async function DELETE(request, { params }) {
   try {
-    const { playlistID, trackID } = params;
+    const { playlistID, trackID } = await params;
     const decodedToken = await authenticateCookie(request);
     const uid = decodedToken.uid;
-    const playlistRef = await db.collection("playlists").doc(playlistID);
-    if (playlistRef.userID !== uid) {
+    const playlistRef = doc(db, "playlists", playlistID); // ✅ modular doc() helper
+    const playlistSnap = await getDoc(playlistRef);
+    if (!playlistSnap.exists()) {
+      return new Response(JSON.stringify({ error: "Playlist not found" }), {
+        status: 404,
+      });
+    }
+    if (playlistSnap.data().userID !== uid) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
       });
     }
-    await playlistRef.set(
+    await setDoc(
+      playlistRef,
       {
         tracks: arrayRemove(trackID), // remove the trackID from the tracks array
         updatedAt: serverTimestamp(),
@@ -82,6 +118,7 @@ export async function DELETE(request, { params }) {
       { merge: true }
     );
     // return successful response to client
+    console.log("🎶 Track removed from playlist:", trackID, "from", playlistID);
     return new Response(
       JSON.stringify({
         ok: true,

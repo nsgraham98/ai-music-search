@@ -51,7 +51,7 @@ export async function GET(request) {
     const snap = await getDocs(getQuery); // snap = read only collection of documents
     // map through documents to load playlists into an array
     const playlists = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-    console.log("Playlists: ", playlists);
+    console.log("🎶 Playlists: ", playlists);
 
     // return successful response to client
     return new Response(
@@ -120,6 +120,7 @@ export async function POST(request) {
       }
     );
 
+    console.log("🎶 New playlist created:", newPlaylistRef.id);
     return new Response(
       JSON.stringify({
         id: newPlaylistRef.id,

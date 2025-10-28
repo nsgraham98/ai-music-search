@@ -8,7 +8,7 @@ import { useTestingContext } from "@/context/testing-context";
 import axios from "axios"; // library for making API requests easily -> https://axios-http.com/docs/intro
 
 export const CreatePlaylistButton = () => {
-  const { testTrack, testPlaylist } = useTestingContext();
+  const { userID } = useTestingContext();
 
   async function handleCreatePlaylist(playlistName) {
     try {

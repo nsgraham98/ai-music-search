@@ -14,13 +14,18 @@ import {
   where,
   getDocs,
   documentId,
+  setDoc,
+  doc,
+  getDoc,
+  deleteDoc,
 } from "firebase/firestore";
+import { db } from "@/lib/firebase.js";
 // Get a specific playlist by ID
 // Call using axios example:
 // await axios.get(/api/users/{userID}/playlists/{playlistID})
 export async function GET(request, { params }) {
   try {
-    const { playlistID } = params;
+    const { playlistID } = await params;
     const decodedToken = await authenticateCookie(request);
     const uid = decodedToken.uid;
 
@@ -34,7 +39,8 @@ export async function GET(request, { params }) {
       id: doc.id,
       ...doc.data(),
     }))[0]; // there should only be one playlist with this ID
-    console.log("Playlist: ", playlist);
+
+    console.log("🎶 Playlist: ", playlist);
     /*
       playlistEntry = {
         id: string (document ID),
@@ -47,9 +53,6 @@ export async function GET(request, { params }) {
         tracks: Array<track_id> (IDs of tracks in the playlist),
       }
     */
-
-    // const uid = decodedToken.uid;
-    // someGetPlaylistByIDFunction(playlistID, uid)
     // return successful response to client
     return new Response(
       JSON.stringify({
@@ -84,7 +87,7 @@ export async function GET(request, { params }) {
 // await axios.patch(/api/users/{userID}/playlists/{playlistID}, { name: "New Playlist Name", description: "New Description", public: true })
 export async function PATCH(request, { params }) {
   try {
-    const { playlistID } = params;
+    const { playlistID } = await params;
     const body = await request.json();
     const { name, description, isPublic } = body;
 
@@ -98,21 +101,28 @@ export async function PATCH(request, { params }) {
     if (isPublic !== undefined) payload.public = isPublic;
     payload.timeUpdated = serverTimestamp();
 
-    const playlistRef = await db.collection("playlists").doc(playlistID);
-    if (playlistRef.userID !== uid) {
+    const playlistRef = doc(db, "playlists", playlistID); // ✅ modular doc() helper
+    const playlistSnap = await getDoc(playlistRef);
+    if (!playlistSnap.exists()) {
+      return new Response(JSON.stringify({ error: "Playlist not found" }), {
+        status: 404,
+      });
+    }
+    if (playlistSnap.data().userID !== uid) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
       });
     }
 
-    await playlistRef.set(
+    await setDoc(
+      playlistRef,
       {
         ...payload,
       },
       { merge: true }
     );
 
-    // someUpdatePlaylistByIDFunction(playlistID, uid, body)
+    console.log("🎶 Playlist updated:", playlistID, payload);
     // return successful response to client
     return new Response(
       JSON.stringify({
@@ -148,17 +158,24 @@ export async function PATCH(request, { params }) {
 // await axios.delete(/api/users/{userID}/playlists/{playlistID})
 export async function DELETE(request, { params }) {
   try {
-    const { playlistID } = params;
+    const { playlistID } = await params;
     const decodedToken = await authenticateCookie(request);
     const uid = decodedToken.uid;
 
-    const playlistRef = await db.collection("playlists").doc(playlistID);
-    if (playlistRef.userID !== uid) {
+    const playlistRef = doc(db, "playlists", playlistID); // ✅ modular doc() helper
+    const playlistSnap = await getDoc(playlistRef);
+    if (!playlistSnap.exists()) {
+      return new Response(JSON.stringify({ error: "Playlist not found" }), {
+        status: 404,
+      });
+    }
+    if (playlistSnap.data().userID !== uid) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
       });
     }
-    await playlistRef.delete();
+    await deleteDoc(playlistRef);
+    console.log("🎶 Playlist deleted:", playlistID);
     // return successful response to client
     return new Response(
       JSON.stringify({

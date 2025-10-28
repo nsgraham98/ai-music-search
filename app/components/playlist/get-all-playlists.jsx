@@ -5,8 +5,10 @@
 
 import { Button } from "@mui/material";
 import axios from "axios"; // library for making API requests easily -> https://axios-http.com/docs/intro
+import { useTestingContext } from "@/context/testing-context";
 
 export const GetAllPlaylistsButton = () => {
+  const { userID } = useTestingContext();
   async function fetchAllPlaylists() {
     try {
       const response = await axios.get(`/api/users/${userID}/playlists`);
