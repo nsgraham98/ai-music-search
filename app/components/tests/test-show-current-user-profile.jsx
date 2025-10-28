@@ -1,14 +1,20 @@
+"use client";
 import React from "react";
 import { useUserProfile } from "@/context/user-profile-context";
+import { useUserAuth } from "@/context/auth-context";
 
-export default function TestShowCurrentUserProfile() {
+export default function TestShowCurrentUser() {
   const { userProfile } = useUserProfile();
+  const { authUser } = useUserAuth();
+
   return (
     <div>
-      <h2>Current User Profile</h2>
-      <pre>{JSON.stringify(userProfile, null, 2)}</pre>
-      <button onClick={() => console.log(userProfile)}>
-        Log User to Console
+      <button
+        onClick={() =>
+          console.log("userProfile:", userProfile, "\nauthUser:", authUser)
+        }
+      >
+        Log userProfile, authUser to Console
       </button>
     </div>
   );

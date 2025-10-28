@@ -8,7 +8,6 @@ import { Box, Typography, Container, Paper, Button } from "@mui/material";
 import { PlayList } from "@/app/components/audio/playlist.jsx";
 import SignedInAs from "@/app/components/login/signed-in-as";
 import LoginPopup from "@/app/components/login/login-popup";
-import Navigation from "@/app/navigation/nav-bar";
 import Link from "next/link";
 import Navigation from "@/app/components/navigation/nav-bar.jsx";
 import { Add } from "@mui/icons-material";
@@ -20,6 +19,7 @@ import { DeleteTrackFromPlaylistButton } from "@/app/components/playlist/delete-
 import { GetAllPlaylistsButton } from "@/app/components/playlist/get-all-playlists.jsx";
 import { GetPlaylistButton } from "@/app/components/playlist/get-playlist.jsx";
 import { UpdatePlaylistButton } from "@/app/components/playlist/update-playlist.jsx";
+import TestShowCurrentUser from "@/app/components/tests/test-show-current-user-profile.jsx";
 
 export default function HomePage() {
   return (
@@ -50,6 +50,7 @@ export default function HomePage() {
       <GetPlaylistButton />
       <AddToTrackPlaylistButton />
       <DeleteTrackFromPlaylistButton />
+      <TestShowCurrentUser />
 
       {/* Navigation Bar */}
       <Navigation />

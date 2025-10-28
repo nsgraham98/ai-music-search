@@ -129,9 +129,9 @@ export async function POST(req) {
 
     console.log("👤 User profile created for UID:", uid);
     // Return the created user profile
-    const createdUserProfile = await db.collection("users").doc(uid).get();
-    const result = createdUserProfile.data();
-    if (!result) {
+    const createdUserProfileRef = await db.collection("users").doc(uid).get();
+    const userProfile = createdUserProfileRef.data();
+    if (!userProfile) {
       return new Response(
         JSON.stringify({ error: "Failed to retrieve created user profile" }),
         {
@@ -141,10 +141,13 @@ export async function POST(req) {
       );
     }
 
-    return new Response(JSON.stringify({ ok: true, userProfile: result }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ ok: true, userProfile: userProfile }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   } catch (error) {
     console.error("POST user profile error:", error);
     return new Response(

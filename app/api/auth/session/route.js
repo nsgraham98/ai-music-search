@@ -3,6 +3,7 @@
 import { db } from "@/lib/firebase-admin";
 import { authenticateCookie } from "@/lib/authenticate-calls.js";
 import { cookies } from "next/headers";
+import axios from "axios";
 
 // saves the session data to the database
 export async function POST(request) {
@@ -37,7 +38,8 @@ export async function POST(request) {
 
     // https://firebase.google.com/docs/auth/admin/manage-cookies
     // set the cookie in the response headers
-    return new Response(JSON.stringify({ ok: true }), {
+    return new Response(JSON.stringify({ uid: uid, ok: true }), {
+      // return uid for confirmation
       status: 200,
       headers: {
         "Content-Type": "application/json",

@@ -1,7 +1,5 @@
 "use client";
 
-"use client";
-
 import { useState, useEffect } from "react";
 import {
   Box,
@@ -27,7 +25,7 @@ import MusicNoteIcon from "@mui/icons-material/MusicNote";
 import { LogoutButton } from "@/app/components/login/logout-button";
 import SignedInAs from "@/app/components/login/signed-in-as";
 import LoginPopup from "@/app/components/login/login-popup";
-import Navigation from "@/app/navigation/nav-bar";
+import Navigation from "@/app/components/navigation/nav-bar";
 import ColorblindFilters from "@/app/components/settings/colorblind-filters";
 import { useUserAuth } from "@/context/auth-context";
 import axios from "axios";
@@ -57,10 +55,22 @@ export default function PlaylistsPage() {
 
   // Fetch all playlists for the user
   useEffect(() => {
-    if (user?.uid) {
-      fetchPlaylists();
+    async function callFetchPlaylists() {
+      try {
+        console.log("useEffect fetching playlists for user:", user.uid);
+        setLoading(true);
+        await fetchPlaylists();
+      } catch (error) {
+        console.error("Error fetching playlists:", error);
+        showSnackbar("Failed to load playlists", "error");
+      } finally {
+        setLoading(false);
+      }
     }
-  }, [user]);
+    if (user?.uid) {
+      callFetchPlaylists();
+    }
+  }, []);
 
   const fetchPlaylists = async () => {
     try {

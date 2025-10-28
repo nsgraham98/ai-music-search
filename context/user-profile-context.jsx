@@ -19,11 +19,9 @@ export const UserProfileContextProvider = ({ children }) => {
   useEffect(() => {
     const fetchProfileListener = async () => {
       // do something when user is authenticated in auth context
-      console.log("in user-profile-context, authUser changed:", authUser);
       if (authUser) {
         setLoadingProfile(true);
-        const user = await fetchUserProfile();
-        console.log("Fetched user profile:", user);
+        const user = await fetchCurrentUserProfile();
         setUserProfile(user);
         setLoadingProfile(false);
         setProfileError(null);
@@ -37,64 +35,123 @@ export const UserProfileContextProvider = ({ children }) => {
   }, [authUser]);
 
   // Fetch user profile from the backend for setting the userProfile state
-  // user argument is optional
-  // If provided, will fetch that user's profile
-  // If not provided, it will fetch the current user's profile
-  const fetchUserProfile = async (uid = null) => {
-    // No user, clear profile state
-    console.log("fetchUserProfile called with uid:", uid);
-    if (!authUser) {
-      setUserProfile(null);
-      setLoadingProfile(false);
-      setProfileError(null);
-      return;
-    }
+  // Works if uid is provided, or uid isn't provided (for when authUser hasn't updated yet)
+  const fetchCurrentUserProfile = async (uid = null) => {
     try {
       setLoadingProfile(true);
       setProfileError(null);
-
-      // Fetch specific user's profile by UID
-      if (uid) {
-        console.log("Fetching profile for user by specified UID:", uid);
-        const response = await fetch(`/api/users?uid=${uid}`, {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        const result = await response.json();
-        if (result.success) {
-          return result.data;
-        } else {
-          setProfileError("Profile not found");
-        }
+      if (!uid && !authUser) {
+        setUserProfile(null);
+        return;
+      }
+      const response = await fetch("/api/users", {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const result = await response.json();
+      if (result.success) {
+        const user = result.data;
+        return user;
       } else {
-        // Fetch current authenticated user's profile
-        console.log("Fetching profile for current user");
-        const response = await fetch("/api/users", {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        const result = await response.json();
-        console.log("fetchUserProfile result:", result);
-        if (result.success) {
-          const user = result.data;
-          return user;
-        } else {
-          setProfileError("Profile not found");
-        }
+        throw new Error("Profile not found");
       }
     } catch (error) {
       console.error("Error fetching user profile:", error);
       setProfileError("Error fetching profile");
+      return;
     } finally {
       setLoadingProfile(false);
     }
   };
+
+  const fetchOtherUserProfile = async (uid) => {
+    try {
+      setLoadingProfile(true);
+      setProfileError(null);
+      if (!uid) {
+        throw new Error("No UID provided for other user profile fetch");
+      }
+      const response = await fetch(`/api/users?uid=${uid}`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const result = await response.json();
+      if (result.success) {
+        const user = result.data;
+        return user;
+      } else {
+        throw new Error("Profile not found");
+      }
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      setProfileError("Error fetching profile");
+      return;
+    } finally {
+      setLoadingProfile(false);
+    }
+  };
+
+  // const fetchUserProfile = async (uid = null) => {
+  //   // No user, clear profile state
+  //   if (!authUser) {
+  //     console.log("fetchUserProfile: No authenticated user");
+  //     setUserProfile(null);
+  //     setLoadingProfile(false);
+  //     setProfileError(null);
+  //     return;
+  //   }
+  //   try {
+  //     setLoadingProfile(true);
+  //     setProfileError(null);
+
+  //     // Fetch specific user's profile by UID
+  //     if (uid) {
+  //       console.log("Fetching profile for user by specified UID:", uid);
+  //       const response = await fetch(`/api/users?uid=${uid}`, {
+  //         method: "GET",
+  //         credentials: "include",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //       });
+  //       const result = await response.json();
+  //       if (result.success) {
+  //         return result.data;
+  //       } else {
+  //         setProfileError("Profile not found");
+  //       }
+  //     } else {
+  //       // Fetch current authenticated user's profile
+  //       console.log("Fetching profile for current user");
+  //       const response = await fetch("/api/users", {
+  //         method: "GET",
+  //         credentials: "include",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //       });
+  //       const result = await response.json();
+  //       console.log("fetchUserProfile result:", result);
+  //       if (result.success) {
+  //         const user = result.data;
+  //         return user;
+  //       } else {
+  //         setProfileError("Profile not found");
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching user profile:", error);
+  //     setProfileError("Error fetching profile");
+  //   } finally {
+  //     setLoadingProfile(false);
+  //   }
+  // };
 
   // Update user profile (currently only display name)
   // updateProfileData = { displayName: "New Name", email: "newemail@example.com", etc. }
@@ -188,12 +245,14 @@ export const UserProfileContextProvider = ({ children }) => {
     <UserProfileContext.Provider
       value={{
         userProfile,
+        setUserProfile,
         loadingProfile,
         profileError,
         updateUserProfile,
         getUserProfileById,
         refreshProfile,
-        fetchUserProfile,
+        fetchCurrentUserProfile,
+        fetchOtherUserProfile,
       }}
     >
       {children}
