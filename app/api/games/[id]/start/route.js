@@ -8,19 +8,8 @@ export async function POST(request, { params }) {
   try {
     const { id: gameId } = await params;
 
-    // Get the authorization token
-    const authHeader = request.headers.get("Authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return NextResponse.json(
-        { error: "Authorization header missing or invalid" },
-        { status: 401 }
-      );
-    }
-
-    const token = authHeader.substring(7);
-
-    // Start the game
-    const result = await startGame(gameId, token);
+    // Start the game (authentication happens inside startGame)
+    const result = await startGame(gameId, request);
 
     if (!result.success) {
       const statusCode =

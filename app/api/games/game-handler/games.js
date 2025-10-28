@@ -2,7 +2,7 @@
 // Manages game creation, retrieval, and updates
 
 import { db } from "@/lib/firebase-admin";
-import { authenticateUser } from "@/lib/authenticate-calls";
+import { authenticateCookie } from "@/lib/authenticate-calls";
 
 // List of hardcoded themes for rounds
 const GAME_THEMES = [
@@ -33,19 +33,21 @@ const GAME_THEMES = [
  * @param {Object} gameData - The game data
  * @param {string} gameData.name - Name of the game
  * @param {Array} gameData.invitedEmails - Array of invited email addresses
- * @param {string} gameData.authToken - Authentication token
+ * @param {Request} gameData.request - Request object for authentication
  * @returns {Object} Result object with success status and game ID or error
  */
-export async function createGame({ name, invitedEmails, authToken }) {
+export async function createGame({ name, invitedEmails, request }) {
   try {
-    // Authenticate the user
-    const authResult = await authenticateUser(authToken);
-    if (!authResult.success) {
-      return { success: false, error: authResult.error };
+    // Authenticate the user using session cookie
+    const decodedToken = await authenticateCookie(request);
+
+    // Check if authentication failed
+    if (decodedToken instanceof Response) {
+      return { success: false, error: "Unauthorized" };
     }
 
-    const userId = authResult.user.uid;
-    const userEmail = authResult.user.email;
+    const userId = decodedToken.uid;
+    const userEmail = decodedToken.email;
 
     // Generate a unique game ID
     const gameRef = db.collection("games").doc();
@@ -91,18 +93,20 @@ export async function createGame({ name, invitedEmails, authToken }) {
 
 /**
  * Gets all games for a specific user
- * @param {string} authToken - Authentication token
+ * @param {Request} request - Request object for authentication
  * @returns {Object} Result object with success status and games array or error
  */
-export async function getGamesByUser(authToken) {
+export async function getGamesByUser(request) {
   try {
-    // Authenticate the user
-    const authResult = await authenticateUser(authToken);
-    if (!authResult.success) {
-      return { success: false, error: authResult.error };
+    // Authenticate the user using session cookie
+    const decodedToken = await authenticateCookie(request);
+
+    // Check if authentication failed
+    if (decodedToken instanceof Response) {
+      return { success: false, error: "Unauthorized" };
     }
 
-    const userId = authResult.user.uid;
+    const userId = decodedToken.uid;
 
     // Query games where user is a player or creator
     const gamesSnapshot = await db
@@ -135,18 +139,20 @@ export async function getGamesByUser(authToken) {
 /**
  * Gets a specific game by ID
  * @param {string} gameId - The game ID
- * @param {string} authToken - Authentication token
+ * @param {Request} request - Request object for authentication
  * @returns {Object} Result object with success status and game data or error
  */
-export async function getGameById(gameId, authToken) {
+export async function getGameById(gameId, request) {
   try {
-    // Authenticate the user
-    const authResult = await authenticateUser(authToken);
-    if (!authResult.success) {
-      return { success: false, error: authResult.error };
+    // Authenticate the user using session cookie
+    const decodedToken = await authenticateCookie(request);
+
+    // Check if authentication failed
+    if (decodedToken instanceof Response) {
+      return { success: false, error: "Unauthorized" };
     }
 
-    const userId = authResult.user.uid;
+    const userId = decodedToken.uid;
 
     // Get the game
     const gameDoc = await db.collection("games").doc(gameId).get();
@@ -182,18 +188,20 @@ export async function getGameById(gameId, authToken) {
  * Starts a game by transitioning from waiting_for_players to active
  * Creates the first round with a random theme
  * @param {string} gameId - The game ID
- * @param {string} authToken - Authentication token
+ * @param {Request} request - Request object for authentication
  * @returns {Object} Result object with success status and game data or error
  */
-export async function startGame(gameId, authToken) {
+export async function startGame(gameId, request) {
   try {
-    // Authenticate the user
-    const authResult = await authenticateUser(authToken);
-    if (!authResult.success) {
-      return { success: false, error: authResult.error };
+    // Authenticate the user using session cookie
+    const decodedToken = await authenticateCookie(request);
+
+    // Check if authentication failed
+    if (decodedToken instanceof Response) {
+      return { success: false, error: "Unauthorized" };
     }
 
-    const userId = authResult.user.uid;
+    const userId = decodedToken.uid;
 
     // Get the game to verify it exists and user is creator
     const gameRef = db.collection("games").doc(gameId);
@@ -278,18 +286,20 @@ export async function startGame(gameId, authToken) {
  * Gets a specific round by game ID and round ID
  * @param {string} gameId - The game ID
  * @param {string} roundId - The round ID (round number as string)
- * @param {string} authToken - Authentication token
+ * @param {Request} request - Request object for authentication
  * @returns {Object} Result object with success status and round data or error
  */
-export async function getRoundById(gameId, roundId, authToken) {
+export async function getRoundById(gameId, roundId, request) {
   try {
-    // Authenticate the user
-    const authResult = await authenticateUser(authToken);
-    if (!authResult.success) {
-      return { success: false, error: authResult.error };
+    // Authenticate the user using session cookie
+    const decodedToken = await authenticateCookie(request);
+
+    // Check if authentication failed
+    if (decodedToken instanceof Response) {
+      return { success: false, error: "Unauthorized" };
     }
 
-    const userId = authResult.user.uid;
+    const userId = decodedToken.uid;
 
     // First check if user has access to the game
     const gameDoc = await db.collection("games").doc(gameId).get();
@@ -338,18 +348,20 @@ export async function getRoundById(gameId, roundId, authToken) {
  * @param {string} gameId - The game ID
  * @param {string} roundId - The round ID (round number as string)
  * @param {Object} songData - The song data to submit
- * @param {string} authToken - Authentication token
+ * @param {Request} request - Request object for authentication
  * @returns {Object} Result object with success status and submission data or error
  */
-export async function submitSong(gameId, roundId, songData, authToken) {
+export async function submitSong(gameId, roundId, songData, request) {
   try {
-    // Authenticate the user
-    const authResult = await authenticateUser(authToken);
-    if (!authResult.success) {
-      return { success: false, error: authResult.error };
+    // Authenticate the user using session cookie
+    const decodedToken = await authenticateCookie(request);
+
+    // Check if authentication failed
+    if (decodedToken instanceof Response) {
+      return { success: false, error: "Unauthorized" };
     }
 
-    const userId = authResult.user.uid;
+    const userId = decodedToken.uid;
 
     // First check if user has access to the game
     const gameDoc = await db.collection("games").doc(gameId).get();
@@ -470,5 +482,225 @@ export async function getRandomTheme(gameId) {
     console.error("Error getting random theme:", error);
     // Fallback to a default theme
     return "Best Song of All Time";
+  }
+}
+
+/**
+ * Submits votes for a specific round
+ * @param {string} gameId - The game ID
+ * @param {string} roundId - The round ID (round number as string)
+ * @param {Object} votesData - Object mapping user IDs to vote counts
+ * @param {Request} request - Request object for authentication
+ * @returns {Object} Result object with success status or error
+ */
+export async function submitVotes(gameId, roundId, votesData, request) {
+  try {
+    // Authenticate the user using session cookie
+    const decodedToken = await authenticateCookie(request);
+
+    // Check if authentication failed
+    if (decodedToken instanceof Response) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const userId = decodedToken.uid;
+
+    // First check if user has access to the game
+    const gameDoc = await db.collection("games").doc(gameId).get();
+
+    if (!gameDoc.exists) {
+      return { success: false, error: "Game not found" };
+    }
+
+    const gameData = gameDoc.data();
+
+    // Check if user has access to this game
+    if (!gameData.players.includes(userId)) {
+      return { success: false, error: "Access denied" };
+    }
+
+    // Get the round
+    const roundRef = db
+      .collection("games")
+      .doc(gameId)
+      .collection("rounds")
+      .doc(roundId);
+
+    const roundDoc = await roundRef.get();
+
+    if (!roundDoc.exists) {
+      return { success: false, error: "Round not found" };
+    }
+
+    const roundData = roundDoc.data();
+
+    // Auto-transition from submissions_open to voting_open if submissions deadline passed
+    let currentStatus = roundData.status;
+    if (currentStatus === "submissions_open") {
+      const now = new Date();
+      const deadline = roundData.submissions_deadline?.toDate
+        ? roundData.submissions_deadline.toDate()
+        : new Date(roundData.submissions_deadline);
+
+      if (now > deadline) {
+        await roundRef.update({
+          status: "voting_open",
+        });
+        currentStatus = "voting_open";
+      }
+    }
+
+    // Check if round is accepting votes
+    if (currentStatus !== "voting_open") {
+      return {
+        success: false,
+        error: "Voting is not currently open for this round",
+      };
+    }
+
+    // Validate that user has submitted a song for this round
+    const submissions = roundData.submissions || {};
+    if (!submissions[userId]) {
+      return {
+        success: false,
+        error: "You must submit a song before voting",
+      };
+    }
+
+    // Validate votes (no voting for yourself, max 5 votes total)
+    const MAX_VOTES = 5;
+    let totalVotes = 0;
+
+    for (const [votedUserId, voteCount] of Object.entries(votesData)) {
+      // Can't vote for yourself
+      if (votedUserId === userId) {
+        return {
+          success: false,
+          error: "You cannot vote for your own submission",
+        };
+      }
+
+      // Validate vote count
+      if (voteCount < 0 || !Number.isInteger(voteCount)) {
+        return { success: false, error: "Invalid vote count" };
+      }
+
+      totalVotes += voteCount;
+    }
+
+    if (totalVotes > MAX_VOTES) {
+      return {
+        success: false,
+        error: `You can only allocate up to ${MAX_VOTES} votes total`,
+      };
+    }
+
+    // Create the vote object
+    const voteSubmission = {
+      user_id: userId,
+      votes: votesData,
+      voted_at: new Date(),
+      total_votes_allocated: totalVotes,
+    };
+
+    // Update the round with the new votes
+    await roundRef.update({
+      [`votes.${userId}`]: voteSubmission,
+    });
+
+    console.log(
+      `Votes submitted for game ${gameId}, round ${roundId} by user ${userId}`
+    );
+
+    return {
+      success: true,
+      voteSubmission: voteSubmission,
+    };
+  } catch (error) {
+    console.error("Error submitting votes:", error);
+    return {
+      success: false,
+      error: "Failed to submit votes",
+    };
+  }
+}
+
+/**
+ * Closes voting for a round and transitions to results
+ * @param {string} gameId - The game ID
+ * @param {string} roundId - The round ID (round number as string)
+ * @param {Request} request - Request object for authentication
+ * @returns {Object} Result object with success status or error
+ */
+export async function closeVoting(gameId, roundId, request) {
+  try {
+    // Authenticate the user using session cookie
+    const decodedToken = await authenticateCookie(request);
+
+    // Check if authentication failed
+    if (decodedToken instanceof Response) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const userId = decodedToken.uid;
+
+    // Get the game to verify user is creator
+    const gameDoc = await db.collection("games").doc(gameId).get();
+
+    if (!gameDoc.exists) {
+      return { success: false, error: "Game not found" };
+    }
+
+    const gameData = gameDoc.data();
+
+    // Check if user is the creator
+    if (gameData.creator !== userId) {
+      return {
+        success: false,
+        error: "Only the game creator can close voting",
+      };
+    }
+
+    // Get the round
+    const roundRef = db
+      .collection("games")
+      .doc(gameId)
+      .collection("rounds")
+      .doc(roundId);
+
+    const roundDoc = await roundRef.get();
+
+    if (!roundDoc.exists) {
+      return { success: false, error: "Round not found" };
+    }
+
+    const roundData = roundDoc.data();
+
+    // Check if round is in voting phase
+    if (roundData.status !== "voting_open") {
+      return {
+        success: false,
+        error: "Voting is not currently open for this round",
+      };
+    }
+
+    // Update round status to show results
+    await roundRef.update({
+      status: "voting_closed",
+      voting_closed_at: new Date(),
+    });
+
+    console.log(`Voting closed for game ${gameId}, round ${roundId}`);
+
+    return {
+      success: true,
+      message: "Voting closed successfully",
+    };
+  } catch (error) {
+    console.error("Error closing voting:", error);
+    return {
+      success: false,
+      error: "Failed to close voting",
+    };
   }
 }

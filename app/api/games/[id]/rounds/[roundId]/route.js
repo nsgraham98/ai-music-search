@@ -8,19 +8,8 @@ export async function GET(request, { params }) {
   try {
     const { id: gameId, roundId } = await params;
 
-    // Get the authorization token
-    const authHeader = request.headers.get("Authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return NextResponse.json(
-        { error: "Authorization header missing or invalid" },
-        { status: 401 }
-      );
-    }
-
-    const token = authHeader.substring(7);
-
-    // Get the round details
-    const result = await getRoundById(gameId, roundId, token);
+    // Get the round details (authentication happens inside getRoundById)
+    const result = await getRoundById(gameId, roundId, request);
 
     if (!result.success) {
       const statusCode =

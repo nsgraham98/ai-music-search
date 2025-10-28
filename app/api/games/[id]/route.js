@@ -8,19 +8,8 @@ export async function GET(request, { params }) {
   try {
     const { id: gameId } = await params;
 
-    // Get the user ID from the Authorization header
-    const authHeader = request.headers.get("Authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return NextResponse.json(
-        { error: "Authorization header missing or invalid" },
-        { status: 401 }
-      );
-    }
-
-    const token = authHeader.substring(7);
-
-    // Get the game details
-    const result = await getGameById(gameId, token);
+    // Get the game details (authentication happens inside getGameById)
+    const result = await getGameById(gameId, request);
 
     if (!result.success) {
       return NextResponse.json(

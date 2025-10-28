@@ -26,17 +26,22 @@ export default function SongSubmissionInterface({
   disabled = false,
   currentSubmission = null,
 }) {
-  const { user } = useUserAuth();
+  const { authUser } = useUserAuth();
   const [songName, setSongName] = useState("");
   const [artistName, setArtistName] = useState("");
-  const [albumName, setAlbumName] = useState("");
+  const [songArgument, setSongArgument] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   // Submit the song
   const handleSubmitSong = async () => {
-    if (!songName.trim() || !artistName.trim() || !user) {
+    if (!songName.trim() || !artistName.trim() || !authUser) {
       setError("Song name and artist name are required");
+      return;
+    }
+
+    if (!songArgument.trim()) {
+      setError("Please write a case for your song choice");
       return;
     }
 
@@ -44,22 +49,20 @@ export default function SongSubmissionInterface({
     setError("");
 
     try {
-      const token = await user.getIdToken();
-
       const response = await fetch(
         `/api/games/${gameId}/rounds/${roundId}/submit`,
         {
           method: "POST",
+          credentials: "include", // Include cookies for authentication
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
             song: {
               id: `manual_${Date.now()}`, // Generate a simple ID
               name: songName.trim(),
               artist_name: artistName.trim(),
-              album_name: albumName.trim() || "Unknown Album",
+              argument: songArgument.trim(), // User's case for the song
               duration: 0, // No duration for manual entries
               audio: null,
               image: null,
@@ -76,14 +79,14 @@ export default function SongSubmissionInterface({
       // Clear form
       setSongName("");
       setArtistName("");
-      setAlbumName("");
+      setSongArgument("");
 
       // Call success callback
       if (onSubmissionSuccess) {
         onSubmissionSuccess({
           name: songName.trim(),
           artist_name: artistName.trim(),
-          album_name: albumName.trim() || "Unknown Album",
+          argument: songArgument.trim(),
         });
       }
     } catch (error) {
@@ -111,15 +114,19 @@ export default function SongSubmissionInterface({
             <Typography variant="h6" gutterBottom>
               {currentSubmission.name}
             </Typography>
-            <Typography variant="body2" color="#ccc">
+            <Typography variant="body2" color="#ccc" mb={2}>
               by {currentSubmission.artist_name}
             </Typography>
-            {currentSubmission.album_name &&
-              currentSubmission.album_name !== "Unknown Album" && (
-                <Typography variant="body2" color="#ccc">
-                  {currentSubmission.album_name}
+            {currentSubmission.argument && (
+              <Box mt={2} p={2} sx={{ bgcolor: "#2e2d2d", borderRadius: 1 }}>
+                <Typography variant="body2" color="#aaa" mb={1}>
+                  Your Explanation:
                 </Typography>
-              )}
+                <Typography variant="body2" color="#ddd">
+                  {currentSubmission.argument}
+                </Typography>
+              </Box>
+            )}
           </CardContent>
         </Card>
         <Button
@@ -214,10 +221,13 @@ export default function SongSubmissionInterface({
 
         <TextField
           fullWidth
-          label="Album Name (Optional)"
+          multiline
+          rows={4}
+          label="Why This Song? *"
           variant="outlined"
-          value={albumName}
-          onChange={(e) => setAlbumName(e.target.value)}
+          placeholder="Explain why this song fits the theme..."
+          value={songArgument}
+          onChange={(e) => setSongArgument(e.target.value)}
           disabled={disabled || isSubmitting}
           sx={{
             "& .MuiOutlinedInput-root": {
@@ -245,7 +255,11 @@ export default function SongSubmissionInterface({
           variant="contained"
           onClick={handleSubmitSong}
           disabled={
-            disabled || isSubmitting || !songName.trim() || !artistName.trim()
+            disabled ||
+            isSubmitting ||
+            !songName.trim() ||
+            !artistName.trim() ||
+            !songArgument.trim()
           }
           sx={{
             bgcolor: "#4caf50",

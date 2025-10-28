@@ -9,17 +9,6 @@ export async function POST(request) {
     const body = await request.json();
     const { gameName, invitedEmails } = body;
 
-    // Get the user ID from the Authorization header
-    const authHeader = request.headers.get("Authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return NextResponse.json(
-        { error: "Authorization header missing or invalid" },
-        { status: 401 }
-      );
-    }
-
-    const token = authHeader.substring(7);
-
     // Validate required fields
     if (!gameName || typeof gameName !== "string" || !gameName.trim()) {
       return NextResponse.json(
@@ -35,11 +24,11 @@ export async function POST(request) {
       );
     }
 
-    // Create the game
+    // Create the game (authentication happens inside createGame)
     const result = await createGame({
       name: gameName.trim(),
       invitedEmails: invitedEmails,
-      authToken: token,
+      request: request,
     });
 
     if (!result.success) {
@@ -62,19 +51,8 @@ export async function POST(request) {
 
 export async function GET(request) {
   try {
-    // Get the user ID from the Authorization header
-    const authHeader = request.headers.get("Authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return NextResponse.json(
-        { error: "Authorization header missing or invalid" },
-        { status: 401 }
-      );
-    }
-
-    const token = authHeader.substring(7);
-
-    // Get games for the user
-    const result = await getGamesByUser(token);
+    // Get games for the user (authentication happens inside getGamesByUser)
+    const result = await getGamesByUser(request);
 
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 500 });

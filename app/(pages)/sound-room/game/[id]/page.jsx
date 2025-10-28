@@ -22,9 +22,10 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { formatDate } from "@/utils/date-utils";
 import SongSubmissionInterface from "@/app/components/song-submission";
+import VotingInterface from "@/app/components/voting-interface";
 
 export default function GamePage() {
-  const { user } = useUserAuth();
+  const { authUser } = useUserAuth();
   const params = useParams();
   const gameId = params.id;
 
@@ -35,12 +36,14 @@ export default function GamePage() {
   const [currentRound, setCurrentRound] = useState(null);
   const [loadingRound, setLoadingRound] = useState(false);
   const [userSubmission, setUserSubmission] = useState(null);
+  const [hasVoted, setHasVoted] = useState(false);
+  const [closingVoting, setClosingVoting] = useState(false);
 
   useEffect(() => {
-    if (user && gameId) {
+    if (authUser && gameId) {
       fetchGameDetails();
     }
-  }, [user, gameId]);
+  }, [authUser, gameId]);
 
   useEffect(() => {
     // Fetch current round data when game becomes active
@@ -54,13 +57,9 @@ export default function GamePage() {
     setError("");
 
     try {
-      const token = await user.getIdToken();
-
       const response = await fetch(`/api/games/${gameId}`, {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include", // Include cookies for authentication
       });
 
       const data = await response.json();
@@ -83,13 +82,9 @@ export default function GamePage() {
     setError("");
 
     try {
-      const token = await user.getIdToken();
-
       const response = await fetch(`/api/games/${gameId}/start`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include", // Include cookies for authentication
       });
 
       const data = await response.json();
@@ -113,15 +108,11 @@ export default function GamePage() {
 
     setLoadingRound(true);
     try {
-      const token = await user.getIdToken();
-
       const response = await fetch(
         `/api/games/${gameId}/rounds/${game.current_round}`,
         {
           method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          credentials: "include", // Include cookies for authentication
         }
       );
 
@@ -131,12 +122,20 @@ export default function GamePage() {
         setCurrentRound(data.round);
 
         // Check if user has already submitted for this round
-        const userId = user.uid;
+        const userId = authUser.uid;
         const submissions = data.round.submissions || {};
         if (submissions[userId]) {
           setUserSubmission(submissions[userId].song);
         } else {
           setUserSubmission(null);
+        }
+
+        // Check if user has already voted
+        const votes = data.round.votes || {};
+        if (votes[userId]) {
+          setHasVoted(true);
+        } else {
+          setHasVoted(false);
         }
       } else {
         console.error("Failed to fetch round:", data.error);
@@ -152,6 +151,42 @@ export default function GamePage() {
     setUserSubmission(submittedSong);
     // Optionally refresh the round data
     fetchCurrentRound();
+  };
+
+  const handleVoteSuccess = () => {
+    setHasVoted(true);
+    // Refresh the round data
+    fetchCurrentRound();
+  };
+
+  const handleCloseVoting = async () => {
+    setClosingVoting(true);
+    setError("");
+
+    try {
+      const response = await fetch(
+        `/api/games/${gameId}/rounds/${game.current_round}/close-voting`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Refresh the round data to show results
+        await fetchCurrentRound();
+        await fetchGameDetails();
+      } else {
+        setError(data.error || "Failed to close voting");
+      }
+    } catch (error) {
+      console.error("Error closing voting:", error);
+      setError("Failed to close voting");
+    } finally {
+      setClosingVoting(false);
+    }
   };
 
   const getGameStatusText = (game) => {
@@ -368,17 +403,69 @@ export default function GamePage() {
                     </Typography>
                   )}
 
-                  {/* Song Submission Interface */}
-                  {currentRound && (
-                    <SongSubmissionInterface
-                      gameId={gameId}
-                      roundId={game.current_round.toString()}
-                      theme={currentRound.theme}
-                      onSubmissionSuccess={handleSubmissionSuccess}
-                      disabled={loadingRound}
-                      currentSubmission={userSubmission}
-                    />
-                  )}
+                  {/* Song Submission or Voting Interface */}
+                  {currentRound &&
+                    currentRound.status === "submissions_open" && (
+                      <SongSubmissionInterface
+                        gameId={gameId}
+                        roundId={game.current_round.toString()}
+                        theme={currentRound.theme}
+                        onSubmissionSuccess={handleSubmissionSuccess}
+                        disabled={loadingRound}
+                        currentSubmission={userSubmission}
+                      />
+                    )}
+
+                  {/* Voting Interface - Show after user has submitted */}
+                  {currentRound &&
+                    (currentRound.status === "voting_open" ||
+                      (currentRound.status === "submissions_open" &&
+                        userSubmission)) && (
+                      <Box mt={userSubmission ? 3 : 0}>
+                        <VotingInterface
+                          gameId={gameId}
+                          roundId={game.current_round.toString()}
+                          theme={currentRound.theme}
+                          submissions={currentRound.submissions}
+                          currentUserId={authUser.uid}
+                          hasVoted={hasVoted}
+                          onVoteSuccess={handleVoteSuccess}
+                        />
+
+                        {/* Close Voting Button (only for game creator after voting) */}
+                        {hasVoted && game.creator === authUser.uid && (
+                          <Box mt={3}>
+                            <Button
+                              variant="outlined"
+                              onClick={handleCloseVoting}
+                              disabled={closingVoting}
+                              fullWidth
+                              sx={{
+                                borderColor: "#ff9800",
+                                color: "#ff9800",
+                                textTransform: "uppercase",
+                                fontWeight: "bold",
+                                py: 1.5,
+                                "&:hover": {
+                                  borderColor: "#f57c00",
+                                  backgroundColor: "rgba(255, 152, 0, 0.1)",
+                                },
+                                "&:disabled": {
+                                  borderColor: "#666",
+                                  color: "#666",
+                                },
+                              }}
+                            >
+                              {closingVoting ? (
+                                <CircularProgress size={24} />
+                              ) : (
+                                "Close Voting & Show Results (Creator Only)"
+                              )}
+                            </Button>
+                          </Box>
+                        )}
+                      </Box>
+                    )}
                 </Box>
               ) : game.status === "completed" ? (
                 <Box textAlign="center" py={4}>
