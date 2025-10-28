@@ -11,6 +11,8 @@ import LoginPopup from "@/app/components/login/login-popup";
 import Link from "next/link";
 import Navigation from "@/app/components/navigation/nav-bar.jsx";
 import { CreatePlaylistButton } from "@/app/components/playlist/create-playlist.jsx";
+import { GetPlaylistsButton } from "@/app/components/playlist/get-playlists";
+
 export default function HomePage() {
   return (
     <Container maxWidth="lg">
@@ -32,6 +34,7 @@ export default function HomePage() {
         </Box>
       </Box>
       <CreatePlaylistButton />
+      <GetPlaylistsButton />
 
       {/* Navigation Bar */}
       <Navigation />

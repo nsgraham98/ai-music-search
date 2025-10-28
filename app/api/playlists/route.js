@@ -23,21 +23,40 @@ We can fetch the full track data from Jamendo API when needed, and store it clie
 */
 import { db } from "@/lib/firebase.js";
 import { authenticateCookie } from "@/lib/authenticate-calls";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
 import axios from "axios";
 
-// Get user playlists
+// This route is for getting all user playlists and creating a new playlist, not for operations on a specific playlist by ID
+// We only need GET and POST methods here - no need for PATCH or DELETE
+
+// Get all user playlists
+// Call using axios example:
+// await axios.get(/api/playlists)
 export async function GET(request) {
   try {
-    const body = await request.json();
     const decodedToken = await authenticateCookie(request);
+    const uid = decodedToken.uid;
 
-    // const playlists = await someGetUserPlaylistsFunction();
+    const getQuery = query(
+      collection(db, "playlists"),
+      where("userID", "==", uid)
+    );
+    const snap = await getDocs(getQuery); // snap = read only collection of documents
+    // map through documents to load playlists into an array
+    const playlists = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    console.log("Playlists: ", playlists);
 
     // return successful response to client
     return new Response(
       JSON.stringify({
-        // some response data
+        playlists: playlists,
       }),
       {
         status: 200,
@@ -62,6 +81,8 @@ export async function GET(request) {
 
 // Create a new playlist
 // returns the new playlist object
+// Call using axios example:
+// await axios.post(/api/playlists, { name: "New Playlist" })
 export async function POST(request) {
   try {
     const body = await request.json();
