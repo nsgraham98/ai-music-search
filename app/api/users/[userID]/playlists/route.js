@@ -38,7 +38,7 @@ import axios from "axios";
 
 // Get all user playlists
 // Call using axios example:
-// await axios.get(/api/users/{userID}/playlists)
+// await axios.get(`/api/users/${userID}/playlists`)
 export async function GET(request) {
   try {
     const decodedToken = await authenticateCookie(request);
@@ -82,7 +82,7 @@ export async function GET(request) {
 // Create a new playlist
 // returns the new playlist object
 // Call using axios example:
-// await axios.post(/api/users/{userID}/playlists, { name: "New Playlist" })
+// await axios.post(`/api/users/${userID}/playlists`, { name: "New Playlist" })
 export async function POST(request) {
   try {
     const body = await request.json();
