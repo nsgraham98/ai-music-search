@@ -1,18 +1,15 @@
-// Component for adding a track to a playlist
+// Component to fetch all playlists for a user
 // rough for now, to be improved later
 
 "use client";
 
 import { Button } from "@mui/material";
-import { useAudioPlayerContext } from "@/context/audio-player-context";
 import axios from "axios"; // library for making API requests easily -> https://axios-http.com/docs/intro
 
-export const GetPlaylistsButton = () => {
-  const { testTrack, testPlaylist } = useAudioPlayerContext();
-
-  async function fetchPlaylists() {
+export const GetAllPlaylistsButton = () => {
+  async function fetchAllPlaylists() {
     try {
-      const response = await axios.get(`/api/playlist`);
+      const response = await axios.get(`/api/users/${userID}/playlists`);
       console.log("Playlists fetched:", response.data);
       return response.data;
     } catch (error) {
@@ -23,7 +20,7 @@ export const GetPlaylistsButton = () => {
   return (
     <Button
       onClick={async () => {
-        await fetchPlaylists();
+        await fetchAllPlaylists();
       }}
     >
       Get Playlists

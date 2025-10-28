@@ -17,7 +17,7 @@ import {
 } from "firebase/firestore";
 // Get a specific playlist by ID
 // Call using axios example:
-// await axios.get(/api/playlists/{playlistID})
+// await axios.get(/api/users/{userID}/playlists/{playlistID})
 export async function GET(request, { params }) {
   try {
     const { playlistID } = params;
@@ -81,7 +81,7 @@ export async function GET(request, { params }) {
 
 // Update a specific playlist by ID (change name, description, public/private, etc.)
 // Call using axios example:
-// await axios.patch(/api/playlists/{playlistID}, { name: "New Playlist Name", description: "New Description", public: true })
+// await axios.patch(/api/users/{userID}/playlists/{playlistID}, { name: "New Playlist Name", description: "New Description", public: true })
 export async function PATCH(request, { params }) {
   try {
     const { playlistID } = params;
@@ -145,7 +145,7 @@ export async function PATCH(request, { params }) {
 
 // Delete a specific playlist by ID
 // Call using axios example:
-// await axios.delete(/api/playlists/{playlistID})
+// await axios.delete(/api/users/{userID}/playlists/{playlistID})
 export async function DELETE(request, { params }) {
   try {
     const { playlistID } = params;

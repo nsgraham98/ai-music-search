@@ -9,7 +9,7 @@ import { serverTimestamp, arrayUnion, arrayRemove } from "firebase/firestore";
 
 // Add a track to a specific playlist by ID
 // Call using axios example:
-// await axios.patch(/api/playlists/{playlistID}/track/{trackID})
+// await axios.patch(/api/users/{userID}/playlists/{playlistID}/{trackID})
 export async function PATCH(request, { params }) {
   try {
     const { playlistID, trackID } = params;
@@ -62,7 +62,7 @@ export async function PATCH(request, { params }) {
 
 // Delete a track from a specific playlist by ID
 // Call using axios example:
-// await axios.delete(/api/playlists/{playlistID}/track/{trackID})
+// await axios.delete(/api/users/{userID}/playlists/{playlistID}/{trackID})
 export async function DELETE(request, { params }) {
   try {
     const { playlistID, trackID } = params;

@@ -1,4 +1,4 @@
-// Component for adding a track to a playlist
+// Component for deleting a playlist
 // rough for now, to be improved later
 
 "use client";
@@ -7,33 +7,33 @@ import { Button } from "@mui/material";
 import { useTestingContext } from "@/context/testing-context";
 import axios from "axios"; // library for making API requests easily -> https://axios-http.com/docs/intro
 
-export const CreatePlaylistButton = () => {
+export const DeletePlaylistButton = () => {
   const { testTrack, testPlaylist } = useTestingContext();
 
-  async function handleCreatePlaylist(playlistName) {
+  async function handleDeletePlaylist(playlistID) {
     try {
-      const response = await axios.post(`/api/users/${userID}/playlists`, {
-        name: playlistName,
-      });
+      const response = await axios.delete(
+        `/api/users/${userID}/playlists/${playlistID}`
+      );
 
       if (response.status !== 200) {
-        throw new Error("Failed to create playlist");
+        throw new Error("Failed to delete playlist");
       }
 
       return response.data;
     } catch (error) {
-      console.error("Error creating playlist:", error);
+      console.error("Error deleting playlist:", error);
       throw error;
     }
   }
   return (
     <Button
       onClick={async () => {
-        const playlistName = "My New Playlist"; // Placeholder name for the new playlist
-        await handleCreatePlaylist(playlistName);
+        const playlistID = testPlaylist.id; // Get the playlist ID from your state or props
+        await handleDeletePlaylist(playlistID);
       }}
     >
-      Create Playlist
+      Delete Playlist
     </Button>
   );
 };

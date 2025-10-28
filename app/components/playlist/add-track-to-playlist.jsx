@@ -4,19 +4,17 @@
 "use client";
 
 import { Button } from "@mui/material";
-import { useAudioPlayerContext } from "@/context/audio-player-context";
+import { useTestingContext } from "@/context/testing-context";
 import axios from "axios"; // library for making API requests easily -> https://axios-http.com/docs/intro
 
-export const AddToPlaylistButton = () => {
-  const { testTrack, testPlaylist } = useAudioPlayerContext();
+export const AddToTrackPlaylistButton = () => {
+  const { testTrack, testPlaylist } = useTestingContext();
 
-  async function handleAddToPlaylist(trackID, musicService, playlistID) {
+  async function handleAddTrackToPlaylist(trackID, playlistID) {
     try {
-      const response = await axios.post(`/api/playlist/${playlistID}`, {
-        trackID,
-        musicService,
-        playlistID,
-      });
+      const response = await axios.patch(
+        `/api/users/${userID}/playlists/${playlistID}/${trackID}/`
+      );
 
       if (response.status !== 200) {
         throw new Error("Failed to add track to playlist");
@@ -33,8 +31,7 @@ export const AddToPlaylistButton = () => {
       onClick={async () => {
         const trackID = testTrack.id; // Get the track ID from your state or props
         const playlistID = testPlaylist.id; // Get the playlist ID from your state or props
-        const musicService = "jamendo"; // Example music provider
-        await handleAddToPlaylist(trackID, musicService, playlistID);
+        await handleAddTrackToPlaylist(trackID, playlistID);
       }}
     >
       Add to Playlist
