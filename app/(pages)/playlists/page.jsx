@@ -32,7 +32,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 
 export default function PlaylistsPage() {
-  const { user } = useUserAuth();
+  const { authUser } = useUserAuth();
   const router = useRouter();
   const [playlists, setPlaylists] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -57,7 +57,7 @@ export default function PlaylistsPage() {
   useEffect(() => {
     async function callFetchPlaylists() {
       try {
-        console.log("useEffect fetching playlists for user:", user.uid);
+        console.log("useEffect fetching playlists for user:", authUser.uid);
         setLoading(true);
         await fetchPlaylists();
       } catch (error) {
@@ -67,7 +67,7 @@ export default function PlaylistsPage() {
         setLoading(false);
       }
     }
-    if (user?.uid) {
+    if (authUser?.uid) {
       callFetchPlaylists();
     }
   }, []);
@@ -75,8 +75,9 @@ export default function PlaylistsPage() {
   const fetchPlaylists = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`/api/users/${user.uid}/playlists`);
-      setPlaylists(response.data || []);
+      const response = await axios.get(`/api/users/${authUser.uid}/playlists`);
+      console.log("Playlists fetched:", response.data.playlists);
+      setPlaylists(response.data.playlists || []);
     } catch (error) {
       console.error("Error fetching playlists:", error);
       showSnackbar("Failed to load playlists", "error");
@@ -94,13 +95,17 @@ export default function PlaylistsPage() {
 
     try {
       setSubmitting(true);
-      const response = await axios.post(`/api/users/${user.uid}/playlists`, {
-        name: form.name,
-        description: form.description,
-        public: form.public,
-      });
+      const response = await axios.post(
+        `/api/users/${authUser.uid}/playlists`,
+        {
+          name: form.name,
+          description: form.description,
+          public: form.public,
+        }
+      );
+      const newPlaylist = response.data;
 
-      setPlaylists([...playlists, response.data]);
+      setPlaylists([...playlists, newPlaylist]);
       setDialog({ open: false, type: "", playlist: null });
       setForm({ name: "", description: "", public: false });
       showSnackbar("Playlist created successfully!", "success");
@@ -122,7 +127,7 @@ export default function PlaylistsPage() {
     try {
       setSubmitting(true);
       const response = await axios.patch(
-        `/api/users/${user.uid}/playlists/${dialog.playlist.id}`,
+        `/api/users/${authUser.uid}/playlists/${dialog.playlist.id}`,
         {
           name: form.name,
           description: form.description,
@@ -131,7 +136,7 @@ export default function PlaylistsPage() {
       );
 
       setPlaylists(
-        playlists.map((p) => (p.id === dialog.playlist.id ? response.data : p))
+        playlists?.map((p) => (p.id === dialog.playlist.id ? response.data : p))
       );
       setDialog({ open: false, type: "", playlist: null });
       setForm({ name: "", description: "", public: false });
@@ -149,7 +154,7 @@ export default function PlaylistsPage() {
     try {
       setSubmitting(true);
       await axios.delete(
-        `/api/users/${user.uid}/playlists/${dialog.playlist.id}`
+        `/api/users/${authUser.uid}/playlists/${dialog.playlist.id}`
       );
 
       setPlaylists(playlists.filter((p) => p.id !== dialog.playlist.id));
@@ -193,12 +198,13 @@ export default function PlaylistsPage() {
     setSnackbar({ open: true, message, severity });
   };
 
+  // This looks broken to me... don't think this page exists - Nick
   // Navigate to playlist detail page
   const handlePlaylistClick = (playlist) => {
-    router.push(`/user/${user.uid}/playlists/${playlist.id}`);
+    router.push(`/user/${authUser.uid}/playlists/${playlist.id}`);
   };
 
-  if (!user) {
+  if (!authUser) {
     return (
       <Container maxWidth="lg">
         <LoginPopup />

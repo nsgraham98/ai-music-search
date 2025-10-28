@@ -47,9 +47,20 @@ export async function GET(req) {
       // Return the user profile
       const user = userDoc.data();
       const result = { success: true, data: user };
+
+      if (!result.success) {
+        return new Response(JSON.stringify({ error: "User not found" }), {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
       console.log("👤 Current user profile retrieved");
+      console.log("👤 User data:", user);
+      console.log("👤 Response result:", result);
+      console.log("👤 timestamp:", new Date().toISOString());
       return new Response(JSON.stringify(result), {
-        status: user ? 200 : 404,
+        status: 200,
         headers: { "Content-Type": "application/json" },
       });
     }

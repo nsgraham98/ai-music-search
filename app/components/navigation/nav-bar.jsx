@@ -11,13 +11,13 @@ import { useUserAuth } from "@/context/auth-context";
 export default function Navigation() {
   const router = useRouter();
   const pathname = usePathname();
-  const { user } = useUserAuth();
+  const { authUser } = useUserAuth();
 
   const navItems = [
     { label: "Home", path: "/", icon: <HomeIcon /> },
     {
       label: "Profile",
-      path: user ? `/user/${user.uid}` : "/user",
+      path: authUser ? `/user/${authUser.uid}` : "/user",
       icon: <PersonIcon />,
     },
     { label: "Playlists", path: "/playlists", icon: <PlaylistPlayIcon /> },
@@ -30,7 +30,7 @@ export default function Navigation() {
 
   const handleNavigation = (path) => {
     console.log("Navigating to:", path);
-    console.log("Current user:", user);
+    console.log("Current user:", authUser);
     router.push(path);
   };
 

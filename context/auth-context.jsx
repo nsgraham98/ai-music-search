@@ -24,6 +24,7 @@ export const AuthContextProvider = ({ children }) => {
   const [authUser, setAuthUser] = useState(null); // active logged in user object
   const [loadingUser, setLoadingUser] = useState(true); // loading while checking auth state
   const [authFlowComplete, setAuthFlowComplete] = useState(false); // true after initial auth check is done
+  const [isReadyToLoadProfile, setIsReadyToLoadProfile] = useState(false); // true when user profile is ready to be loaded
 
   // Listener for auth state changes
   // Sets the user state (logged in user or null) and loading state (is mid login or not)
@@ -36,6 +37,15 @@ export const AuthContextProvider = ({ children }) => {
     });
     return () => unsubscribe(); // cleanup the listener on unmount
   }, [authFlowComplete]);
+
+  useEffect(() => {
+    console.log("authUser changed:", authUser);
+    if (authUser) {
+      setIsReadyToLoadProfile(true);
+    } else {
+      setIsReadyToLoadProfile(false);
+    }
+  }, [authUser]);
 
   // Sign in with popup for the given provider (github, google, facebook)
   // Called from login-form component
@@ -200,10 +210,12 @@ export const AuthContextProvider = ({ children }) => {
         authUser,
         setAuthUser,
         loadingUser,
+        setLoadingUser,
         firebaseSignOut,
         setAuthFlowComplete,
         signIn,
         getAuthUserFromSession,
+        isReadyToLoadProfile,
       }}
     >
       {children}

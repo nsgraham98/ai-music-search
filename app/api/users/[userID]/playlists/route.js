@@ -87,6 +87,8 @@ export async function POST(request) {
   try {
     const body = await request.json();
     const playlistName = body.name;
+    const description = body.description || "";
+    const isPublic = body.public || false;
     const decodedToken = await authenticateCookie(request);
 
     const uid = decodedToken.uid;
@@ -95,10 +97,11 @@ export async function POST(request) {
     const playlistCollectionRef = collection(db, "playlists");
     const newPlaylistRef = await addDoc(playlistCollectionRef, {
       name: playlistName,
+      description: description,
       userID: uid,
       timeCreated: serverTimestamp(),
       timeUpdated: serverTimestamp(),
-      public: false,
+      public: isPublic,
       tracks: [],
     });
 
@@ -125,11 +128,12 @@ export async function POST(request) {
       JSON.stringify({
         id: newPlaylistRef.id,
         name: playlistName,
+        description: description,
         userID: uid,
         tracks: [],
         created_at: serverTimestamp(),
         updated_at: serverTimestamp(),
-        public: false,
+        public: isPublic,
       }),
       {
         status: 200,
