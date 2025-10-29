@@ -64,7 +64,7 @@ async function getSpotifyTokensFromUser(uid) {
 }
 
 // ===== SERVER-ONLY FUNCTIONS =====
-// Client-side PKCE generation (code_verifier/code_challenge) happens in React components
+
 
 // Exchange authorization code for access token (used by callback route)
 export async function exchangeCodeForToken(code, authToken) {
