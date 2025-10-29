@@ -21,7 +21,6 @@ We can fetch the full track data from Jamendo API when needed, and store it clie
     check this using chrome devtools memory tab -> Total JS heap size
         mine is ~160MB, ~20 kB/sec  
 */
-import { db } from "@/lib/firebase.js";
 import { authenticateCookie } from "@/lib/authenticate-calls";
 import {
   collection,
