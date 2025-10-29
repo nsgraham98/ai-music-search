@@ -31,6 +31,7 @@ import {
   where,
   getDocs,
 } from "firebase/firestore";
+import { dbAdmin, admin } from "@/lib/firebase-admin.js";
 import axios from "axios";
 
 // This route is for getting all user playlists and creating a new playlist, not for operations on a specific playlist by ID
@@ -44,13 +45,21 @@ export async function GET(request) {
     const decodedToken = await authenticateCookie(request);
     const uid = decodedToken.uid;
 
-    const getQuery = query(
-      collection(db, "playlists"),
-      where("userID", "==", uid)
-    );
-    const snap = await getDocs(getQuery); // snap = read only collection of documents
-    // map through documents to load playlists into an array
+    const playlistsRef = dbAdmin
+      .collection("playlists")
+      .where("userID", "==", uid);
+    const snap = await playlistsRef.get();
+    if (snap.empty) {
+      return Response.json({ playlists: [] }, { status: 200 });
+    }
     const playlists = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    // const getQuery = query(
+    //   collection(db, "playlists"),
+    //   where("userID", "==", uid)
+    // );
+    // const snap = await getDocs(getQuery); // snap = read only collection of documents
+    // // map through documents to load playlists into an array
+    // const playlists = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     console.log("🎶 Playlists: ", playlists);
 
     // return successful response to client
@@ -94,13 +103,13 @@ export async function POST(request) {
     const uid = decodedToken.uid;
 
     // Create new playlist document in Firestore
-    const playlistCollectionRef = collection(db, "playlists");
-    const newPlaylistRef = await addDoc(playlistCollectionRef, {
+    const playlistCollectionRef = dbAdmin.collection("playlists");
+    const newPlaylistRef = await playlistCollectionRef.add({
       name: playlistName,
       description: description,
       userID: uid,
-      timeCreated: serverTimestamp(),
-      timeUpdated: serverTimestamp(),
+      timeCreated: admin.firestore.FieldValue.serverTimestamp(),
+      timeUpdated: admin.firestore.FieldValue.serverTimestamp(),
       public: isPublic,
       tracks: [],
     });
@@ -122,18 +131,14 @@ export async function POST(request) {
         },
       }
     );
+    const newPlaylistSnap = await newPlaylistRef.get();
+    const newPlaylistData = newPlaylistSnap.data();
 
     console.log("🎶 New playlist created:", newPlaylistRef.id);
     return new Response(
       JSON.stringify({
         id: newPlaylistRef.id,
-        name: playlistName,
-        description: description,
-        userID: uid,
-        tracks: [],
-        created_at: serverTimestamp(),
-        updated_at: serverTimestamp(),
-        public: isPublic,
+        ...newPlaylistData,
       }),
       {
         status: 200,

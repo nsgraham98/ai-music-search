@@ -4,15 +4,7 @@
 */
 
 import { authenticateCookie } from "@/lib/authenticate-calls";
-import { db } from "@/lib/firebase.js";
-import {
-  serverTimestamp,
-  arrayUnion,
-  arrayRemove,
-  setDoc,
-  doc,
-  getDoc,
-} from "firebase/firestore";
+import { dbAdmin, admin } from "@/lib/firebase-admin.js";
 
 // Add a track to a specific playlist by ID
 // Call using axios example:
@@ -29,39 +21,36 @@ export async function PATCH(request, { params }) {
     const decodedToken = await authenticateCookie(request);
     const uid = decodedToken.uid;
 
-    const playlistRef = doc(db, "playlists", playlistID); // ✅ modular doc() helper
-    const playlistSnap = await getDoc(playlistRef);
-    if (!playlistSnap.exists()) {
+    const playlistRef = dbAdmin.collection("playlists").doc(playlistID);
+    const playlistSnap = await playlistRef.get();
+    const playlistData = playlistSnap.data();
+    if (!playlistSnap.exists) {
       return new Response(JSON.stringify({ error: "Playlist not found" }), {
         status: 404,
       });
     }
-    if (playlistSnap.data().userID !== uid) {
+    if (playlistData.userID !== uid) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
       });
     }
-    // await playlistRef.set(
-    //   {
-    //     tracks: arrayUnion(trackID), // add the trackID to the tracks array (create array if it doesn't exist, adds if no duplicate)
-    //     updatedAt: serverTimestamp(),
-    //   },
-    //   { merge: true }
-    // );
-    await setDoc(
-      playlistRef,
+    await playlistRef.set(
       {
-        tracks: arrayUnion(trackID), // add the trackID to the tracks array (create array if it doesn't exist, adds if no duplicate)
-        updatedAt: serverTimestamp(),
+        tracks: admin.firestore.FieldValue.arrayUnion(trackID), // add the trackID to the tracks array (create array if it doesn't exist, adds if no duplicate)
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       },
       { merge: true }
     );
+
     // return successful response to client
     console.log("🎶 Track added to playlist:", trackID, "to", playlistID);
     return new Response(
       JSON.stringify({
         ok: true,
-        playlist: { id: playlistID, tracks: arrayUnion(trackID) },
+        playlist: {
+          id: playlistID,
+          tracks: admin.firestore.FieldValue.arrayUnion(trackID),
+        },
       }),
       {
         status: 200,
@@ -95,23 +84,25 @@ export async function DELETE(request, { params }) {
     const { playlistID, trackID } = await params;
     const decodedToken = await authenticateCookie(request);
     const uid = decodedToken.uid;
-    const playlistRef = doc(db, "playlists", playlistID);
-    const playlistSnap = await getDoc(playlistRef);
-    if (!playlistSnap.exists()) {
+
+    const playlistRef = dbAdmin.collection("playlists").doc(playlistID);
+    const playlistSnap = await playlistRef.get();
+    const playlistData = playlistSnap.data();
+
+    if (!playlistSnap.exists) {
       return new Response(JSON.stringify({ error: "Playlist not found" }), {
         status: 404,
       });
     }
-    if (playlistSnap.data().userID !== uid) {
+    if (playlistData.userID !== uid) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
       });
     }
-    await setDoc(
-      playlistRef,
+    await playlistRef.set(
       {
-        tracks: arrayRemove(trackID), // remove the trackID from the tracks array
-        updatedAt: serverTimestamp(),
+        tracks: admin.firestore.FieldValue.arrayRemove(trackID), // remove the trackID from the tracks array
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       },
       { merge: true }
     );
@@ -120,7 +111,10 @@ export async function DELETE(request, { params }) {
     return new Response(
       JSON.stringify({
         ok: true,
-        playlist: { id: playlistID, tracks: arrayRemove(trackID) },
+        playlist: {
+          id: playlistID,
+          tracks: admin.firestore.FieldValue.arrayRemove(trackID),
+        },
       }),
       {
         status: 200,

@@ -15,7 +15,6 @@ import { AuthContextProvider } from "@/context/auth-context.jsx";
 import { UserProfileContextProvider } from "@/context/user-profile-context.jsx";
 // import { AppInitializer } from "@/app/components/app-initializer.jsx";
 import ClientErrorBoundary from "@/app/components/error-boundary-client.jsx";
-import { TestingContextProvider } from "@/context/testing-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,27 +43,25 @@ export default function RootLayout({ children }) {
           <AudioPlayerProvider>
             <AuthContextProvider>
               <UserProfileContextProvider>
-                <TestingContextProvider>
-                  <div
-                    style={{
-                      backgroundColor: "#1e1e1e",
-                      color: "white",
-                      minHeight: "100vh",
-                    }}
-                  >
-                    {/* <AppInitializer /> */}
-                    {children}
-                    <nav style={{ marginBottom: "1rem" }}>
-                      <Link href="/spotify-test">
-                        <button
-                          style={{ padding: "0.5rem 1rem", fontSize: "1rem" }}
-                        >
-                          Test Spotify Connection
-                        </button>
-                      </Link>
-                    </nav>
-                  </div>
-                </TestingContextProvider>
+                <div
+                  style={{
+                    backgroundColor: "#1e1e1e",
+                    color: "white",
+                    minHeight: "100vh",
+                  }}
+                >
+                  {/* <AppInitializer /> */}
+                  {children}
+                  <nav style={{ marginBottom: "1rem" }}>
+                    <Link href="/spotify-test">
+                      <button
+                        style={{ padding: "0.5rem 1rem", fontSize: "1rem" }}
+                      >
+                        Test Spotify Connection
+                      </button>
+                    </Link>
+                  </nav>
+                </div>
               </UserProfileContextProvider>
             </AuthContextProvider>
           </AudioPlayerProvider>
