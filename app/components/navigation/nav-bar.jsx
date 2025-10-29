@@ -11,26 +11,31 @@ import { useUserAuth } from "@/context/auth-context";
 export default function Navigation() {
   const router = useRouter();
   const pathname = usePathname();
-  const { user } = useUserAuth();
+  const { authUser } = useUserAuth();
 
   const navItems = [
     { label: "Home", path: "/", icon: <HomeIcon /> },
     {
       label: "Profile",
-      path: user ? `/user/${user.uid}` : "/user",
+      path: authUser ? `/user/${authUser.uid}` : "/user",
       icon: <PersonIcon />,
     },
-    { label: "Playlists", path: "/playlists", icon: <PlaylistPlayIcon /> },
+    {
+      label: "Playlists",
+      path: authUser ? `/user/${authUser.uid}/playlists` : "/", // Redirect to home if not logged in
+      icon: <PlaylistPlayIcon />,
+    },
     { label: "Game Room", path: "/sound-room", icon: <SportsEsportsIcon /> },
     { label: "Settings", path: "/settings", icon: <SettingsIcon /> },
   ];
 
   // Check if current path matches profile with any ID
-  const isProfileActive = pathname?.startsWith("/user/");
+  const isProfileActive =
+    pathname?.startsWith("/user/") && pathname.split("/").length === 3; // length === 3 clause is to avoid matching /user/[id]/playlists etc.
 
   const handleNavigation = (path) => {
     console.log("Navigating to:", path);
-    console.log("Current user:", user);
+    console.log("Current user:", authUser);
     router.push(path);
   };
 

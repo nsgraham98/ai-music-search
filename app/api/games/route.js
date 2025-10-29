@@ -2,7 +2,8 @@
 // Handles creation and retrieval of games
 
 import { NextResponse } from "next/server";
-import { createGame, getGamesByUser } from "./game-handler/games";
+// import { createGame, getGamesByUser } from "./game-handler/games";
+import { createGame, getGamesByUser } from "@/app/api/games/game-handler/games";
 
 export async function POST(request) {
   try {

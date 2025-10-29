@@ -161,7 +161,7 @@ Below is the folder structure of the app. It is separated into a client/server (
 
 - Handles react context within the app (react hooks, state-based stuff, global values/functions). Client-side.
 - **_audio-player-context.jsx_**
-  - tracks, setTracks, currentTrack, setCurrentTrack, isPlaying, setIsPlaying, etc.
+  - tracks, setCurrentPlaylist, currentTrack, setCurrentTrack, isPlaying, setIsPlaying, etc.
 - **_auth-context.jsx_**
   - user, setUser, googleSignIn, etc.
 
