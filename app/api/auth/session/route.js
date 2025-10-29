@@ -1,8 +1,9 @@
 // This file is the API route that actually calls the database to save the session data
 
-import { db } from "@/lib/firebase-admin";
+import { dbAdmin } from "@/lib/firebase-admin.js";
 import { authenticateCookie } from "@/lib/authenticate-calls.js";
 import { cookies } from "next/headers";
+import { doc, getDoc } from "firebase/firestore";
 
 // saves the session data to the database
 export async function POST(request) {
@@ -14,30 +15,29 @@ export async function POST(request) {
     const cookie = await cookies();
     const maxAge = cookie.get("Max-Age") || 60 * 60 * 24 * 7; // default to one week
 
-    // Verify the ID token and get the user info
-    await db
-      .collection("sessions")
-      .doc(uid)
-      .set(
-        {
-          sessionData: {
-            uid: uid, // redundant but useful to have in the document
-            // sessionCookie: sessionCookie, // unsafe to store
-            email: email || null,
-            created_at: new Date(Date.now()),
-            expires_at: new Date(Date.now() + maxAge),
-            valid: true, // global shut down flag for all sessions
-            thirdPartyTokens: {}, // placeholder for third party tokens... we have none right now, but possibly for spotify in the future
-            // we can put whatever else we want to save here - current track, preferences, etc.
-          },
+    const sessionDocRef = dbAdmin.collection("sessions").doc(uid);
+    // Save session data to the database
+    await sessionDocRef.set(
+      {
+        sessionData: {
+          uid: uid, // redundant but useful to have in the document
+          // sessionCookie: sessionCookie, // unsafe to store
+          email: email || null,
+          created_at: new Date(Date.now()),
+          expires_at: new Date(Date.now() + maxAge),
+          valid: true, // global shut down flag for all sessions
+          thirdPartyTokens: {}, // placeholder for third party tokens... we have none right now, but possibly for spotify in the future
+          // we can put whatever else we want to save here - current track, preferences, etc.
         },
-        { merge: true }
-      );
+      },
+      { merge: true }
+    );
     console.log("🍪 Session data saved to database");
 
     // https://firebase.google.com/docs/auth/admin/manage-cookies
     // set the cookie in the response headers
-    return new Response(JSON.stringify({ ok: true }), {
+    return new Response(JSON.stringify({ uid: uid, ok: true }), {
+      // return uid for confirmation
       status: 200,
       headers: {
         "Content-Type": "application/json",
@@ -73,10 +73,10 @@ export async function GET(req) {
       });
     }
     // get session data from the database if needed
-    const sessionDoc = db.collection("sessions").doc(decoded.uid);
-    const docSnap = await sessionDoc.get();
+    const sessionDocRef = dbAdmin.collection("sessions").doc(decoded.uid);
+    const docSnap = await getDoc(sessionDocRef);
 
-    if (!docSnap.exists) {
+    if (!docSnap.exists()) {
       return new Response(JSON.stringify({ error: "No valid session" }), {
         status: 401,
         headers: { "Content-Type": "application/json" },

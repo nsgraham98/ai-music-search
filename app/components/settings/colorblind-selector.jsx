@@ -2,7 +2,7 @@
 
 import { Box, Typography, FormControl, Select, MenuItem } from "@mui/material";
 
-export default function ColorblindModeSelector({ mode, onChange }) {
+export default function ColourblindSelector({ mode, onChange }) {
   const handleChange = (event) => {
     onChange(event.target.value);
   };

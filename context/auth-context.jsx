@@ -16,6 +16,7 @@ import {
   FacebookAuthProvider,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase.js";
+import axios from "axios";
 
 const AuthContext = createContext();
 
@@ -23,23 +24,28 @@ export const AuthContextProvider = ({ children }) => {
   const [authUser, setAuthUser] = useState(null); // active logged in user object
   const [loadingUser, setLoadingUser] = useState(true); // loading while checking auth state
   const [authFlowComplete, setAuthFlowComplete] = useState(false); // true after initial auth check is done
-
-  // test UseEffect authUser listener
-  useEffect(() => {
-    console.log("AuthUser changed:", authUser);
-  }, [authUser]);
+  const [isReadyToLoadProfile, setIsReadyToLoadProfile] = useState(false); // true when user profile is ready to be loaded
 
   // Listener for auth state changes
   // Sets the user state (logged in user or null) and loading state (is mid login or not)
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (authFlowComplete) {
-        setAuthUser(currentUser);
-        setLoadingUser(false);
-      }
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setAuthUser(currentUser);
+      setLoadingUser(false);
+      // optional: mark the initial auth check as complete if you still use this flag
+      setAuthFlowComplete(true);
     });
-    return () => unsubscribe(); // cleanup the listener on unmount
-  }, [authFlowComplete]);
+    return () => unsubscribe();
+  }, []);
+
+  // useEffect(() => {
+  //   console.log("authUser changed:", authUser);
+  //   if (authUser) {
+  //     setIsReadyToLoadProfile(true);
+  //   } else {
+  //     setIsReadyToLoadProfile(false);
+  //   }
+  // }, [authUser]);
 
   // Sign in with popup for the given provider (github, google, facebook)
   // Called from login-form component
@@ -48,22 +54,27 @@ export const AuthContextProvider = ({ children }) => {
       //setAuthFlowComplete(false);
       const provider = getAuthProvider(providerName);
       const result = await signInWithPopup(auth, provider);
-      const user = result.user; // user object from firebase
-      const idToken = await user.getIdToken(true /* force refresh */);
+      const decodedAuthUser = result.user; // user object from firebase
+      const idToken = await decodedAuthUser.getIdToken(
+        true /* force refresh */
+      );
 
+      // Send the ID token to the backend to for authentication, create session cookie, create uid cookie
       const loginSuccess = await loginWithToken(idToken);
       if (!loginSuccess) {
         console.error("Login with token failed");
         return;
       }
 
+      // Save session data in the database
       const sessionResult = await saveUserSession(); // Save session data
       if (!sessionResult) {
         console.error("Saving user session failed");
         return;
       }
 
-      const getUserResponse = await fetch("/api/users", {
+      // get the user profile from the database (to check if it exists, not to set state)
+      const getUserResponse = await fetch(`/api/users/${decodedAuthUser.uid}`, {
         method: "GET",
         credentials: "include",
         headers: {
@@ -86,18 +97,19 @@ export const AuthContextProvider = ({ children }) => {
           return;
         }
         const data = await postUserResponse.json();
-        console.log("New User Profile Created:", data.userProfile);
-        setAuthUser(user);
-        setAuthFlowComplete(true);
+        const newUserProfile = data.userProfile;
+        console.log("New User Profile Created: ", newUserProfile);
+        setAuthUser(decodedAuthUser);
         return;
       }
 
-      console.log("setAuthUser called: ", user);
-      setAuthUser(user);
-      setAuthFlowComplete(true);
+      setAuthUser(decodedAuthUser);
     } catch (error) {
       console.error("Error during sign-in:", error);
-      throw error;
+      return;
+    } finally {
+      setLoadingUser(false);
+      setAuthFlowComplete(true);
     }
   };
 
@@ -180,15 +192,30 @@ export const AuthContextProvider = ({ children }) => {
     return signOut(auth);
   };
 
+  const getAuthUserFromSession = async () => {
+    try {
+      const response = await axios.get("/api/auth/auth-user", {
+        withCredentials: true,
+      });
+      return response.data.authUser;
+    } catch (error) {
+      console.error("Error fetching auth user:", error);
+      return null;
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
         authUser,
         setAuthUser,
         loadingUser,
+        setLoadingUser,
         firebaseSignOut,
         setAuthFlowComplete,
         signIn,
+        getAuthUserFromSession,
+        isReadyToLoadProfile,
       }}
     >
       {children}

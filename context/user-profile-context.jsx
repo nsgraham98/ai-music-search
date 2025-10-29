@@ -10,87 +10,101 @@ import { useUserAuth } from "@/context/auth-context";
 const UserProfileContext = createContext();
 
 export const UserProfileContextProvider = ({ children }) => {
-  const { authUser } = useUserAuth(); // Get the authenticated user
+  const { authUser } = useUserAuth(); // has authUser?.uid
   const [userProfile, setUserProfile] = useState(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [profileError, setProfileError] = useState(null);
 
   // When auth user changes, fetch the profile
   useEffect(() => {
-    const fetchProfileListener = async () => {
-      // do something when user is authenticated in auth context
-      console.log("in user-profile-context, authUser changed:", authUser);
-      if (authUser) {
+    const run = async () => {
+      console.log("UserProfileContext useEffect: authUser changed:", authUser);
+      if (authUser?.uid) {
+        console.log("in useEffect authUser.uid = true:", authUser.uid);
         setLoadingProfile(true);
-        const user = await fetchUserProfile();
-        console.log("Fetched user profile:", user);
-        setUserProfile(user);
-        setLoadingProfile(false);
-        setProfileError(null);
+
+        // I need a way to get the authentication token from auth context
+        const token = await authUser.getIdToken();
+        const user = await fetchCurrentUserProfile(token); // no uid -> current user
+        console.log("useEffect: Fetched user profile:", user);
+        setUserProfile(user ?? null);
+        setProfileError(user ? null : "Profile not found");
       } else {
+        console.log("in useEffect authUser.uid = false");
         setUserProfile(null);
-        setLoadingProfile(false);
         setProfileError(null);
+        setLoadingProfile(false);
       }
     };
-    fetchProfileListener();
-  }, [authUser]);
+    run();
+  }, [authUser?.uid]);
 
   // Fetch user profile from the backend for setting the userProfile state
-  // user argument is optional
-  // If provided, will fetch that user's profile
-  // If not provided, it will fetch the current user's profile
-  const fetchUserProfile = async (uid = null) => {
-    // No user, clear profile state
-    console.log("fetchUserProfile called with uid:", uid);
-    if (!authUser) {
-      setUserProfile(null);
-      setLoadingProfile(false);
-      setProfileError(null);
-      return;
-    }
+  // Works if uid is provided, or uid isn't provided (for when authUser hasn't updated yet)
+  const fetchCurrentUserProfile = async (token = null) => {
     try {
       setLoadingProfile(true);
       setProfileError(null);
 
-      // Fetch specific user's profile by UID
-      if (uid) {
-        console.log("Fetching profile for user by specified UID:", uid);
-        const response = await fetch(`/api/users?uid=${uid}`, {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        const result = await response.json();
-        if (result.success) {
-          return result.data;
-        } else {
-          setProfileError("Profile not found");
-        }
+      const response = await fetch("/api/users", {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+      });
+
+      // Handle 404 -> no profile yet (could have been just created in sign-in flow)
+      if (response.status === 404) return null;
+
+      const result = await response.json();
+      console.log("fetchCurrentUserProfile GET /api/users result:", result);
+
+      // Accept multiple shapes:
+      // 1) { success: true, data: {...} }
+      if (result?.success && result?.data) return result.data;
+      // 2) { userProfile: {...} }
+      if (result?.userProfile) return result.userProfile;
+
+      // 3) raw object (some APIs just return the document)
+      if (result && typeof result === "object") return result;
+
+      return null;
+    } catch (err) {
+      console.error("Error fetching user profile:", err);
+      setProfileError("Error fetching profile");
+      return null;
+    } finally {
+      setLoadingProfile(false);
+    }
+  };
+
+  const fetchOtherUserProfile = async (uid) => {
+    try {
+      setLoadingProfile(true);
+      setProfileError(null);
+      if (!uid) {
+        throw new Error("No UID provided for other user profile fetch");
+      }
+      const response = await fetch(`/api/users?uid=${uid}`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const result = await response.json();
+      if (result.success) {
+        const user = result.data;
+        return user;
       } else {
-        // Fetch current authenticated user's profile
-        console.log("Fetching profile for current user");
-        const response = await fetch("/api/users", {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        const result = await response.json();
-        console.log("fetchUserProfile result:", result);
-        if (result.success) {
-          const user = result.data;
-          return user;
-        } else {
-          setProfileError("Profile not found");
-        }
+        throw new Error("Profile not found");
       }
     } catch (error) {
       console.error("Error fetching user profile:", error);
       setProfileError("Error fetching profile");
+      return;
     } finally {
       setLoadingProfile(false);
     }
@@ -188,12 +202,14 @@ export const UserProfileContextProvider = ({ children }) => {
     <UserProfileContext.Provider
       value={{
         userProfile,
+        setUserProfile,
         loadingProfile,
         profileError,
         updateUserProfile,
         getUserProfileById,
         refreshProfile,
-        fetchUserProfile,
+        fetchCurrentUserProfile,
+        fetchOtherUserProfile,
       }}
     >
       {children}

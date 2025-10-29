@@ -1,3 +1,4 @@
+// user profile page
 "use client";
 
 import { LogoutButton } from "@/app/components/login/logout-button";
@@ -27,7 +28,8 @@ export default function UserProfilePage() {
     loadingProfile,
     updateUserProfile,
     getUserProfileById,
-    fetchUserProfile,
+    fetchCurrentUserProfile,
+    fetchOtherUserProfile,
   } = useUserProfile();
   const params = useParams();
   const userId = params.id;

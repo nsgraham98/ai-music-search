@@ -32,7 +32,7 @@ export const Controls = () => {
     progressBarRef,
     isPlaying,
     setIsPlaying,
-    tracks,
+    currentPlaylist,
   } = useAudioPlayerContext();
 
   const [isShuffle, setIsShuffle] = useState(false);
@@ -123,27 +123,27 @@ export const Controls = () => {
   const handlePrevious = useCallback(() => {
     setTrackIndex((prev) => {
       const newIndex = isShuffle
-        ? Math.floor(Math.random() * tracks.length)
+        ? Math.floor(Math.random() * currentPlaylist.length)
         : prev === 0
-          ? tracks.length - 1
+          ? currentPlaylist.length - 1
           : prev - 1;
-      setCurrentTrack(tracks[newIndex]);
+      setCurrentTrack(currentPlaylist[newIndex]);
       return newIndex;
     });
-  }, [isShuffle, setCurrentTrack, setTrackIndex, tracks]);
+  }, [isShuffle, setCurrentTrack, setTrackIndex, currentPlaylist]);
 
   // skip to next track (random if shuffle is on)
   const handleNext = useCallback(() => {
     setTrackIndex((prev) => {
       const newIndex = isShuffle
-        ? Math.floor(Math.random() * tracks.length)
-        : prev >= tracks.length - 1
+        ? Math.floor(Math.random() * currentPlaylist.length)
+        : prev >= currentPlaylist.length - 1
           ? 0
           : prev + 1;
-      setCurrentTrack(tracks[newIndex]);
+      setCurrentTrack(currentPlaylist[newIndex]);
       return newIndex;
     });
-  }, [isShuffle, setCurrentTrack, setTrackIndex, tracks]);
+  }, [isShuffle, setCurrentTrack, setTrackIndex, currentPlaylist]);
 
   // when track ends: repeat or skip to next
   useEffect(() => {

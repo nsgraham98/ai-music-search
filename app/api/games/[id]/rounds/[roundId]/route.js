@@ -2,7 +2,8 @@
 // Handles retrieving specific round information
 
 import { NextResponse } from "next/server";
-import { getRoundById } from "../../../game-handler/games";
+// import { getRoundById } from "../../../game-handler/games";
+import { getRoundById } from "@/app/api/games/game-handler/games";
 
 export async function GET(request, { params }) {
   try {
