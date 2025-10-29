@@ -4,8 +4,7 @@
 */
 
 import { authenticateCookie } from "@/lib/authenticate-calls";
-import { serverTimestamp } from "firebase/firestore";
-import { dbAdmin } from "@/lib/firebase-admin.js";
+import { dbAdmin, adminAuth, admin } from "@/lib/firebase-admin.js";
 // Get a specific playlist by ID
 // Call using axios example:
 // await axios.get(`/api/users/${userID}/playlists/${playlistID}`)
@@ -93,12 +92,14 @@ export async function PATCH(request, { params }) {
     const decodedToken = await authenticateCookie(request);
     const uid = decodedToken.uid;
 
+    console.log("PATCH payload:", body);
+
     // create a payload with only the fields that are defined, to avoid overwriting with undefined
     const payload = {};
     if (name !== undefined) payload.name = name;
     if (description !== undefined) payload.description = description;
     if (isPublic !== undefined) payload.public = isPublic;
-    payload.timeUpdated = serverTimestamp();
+    payload.timeUpdated = admin.firestore.FieldValue.serverTimestamp();
 
     const playlistRef = dbAdmin.collection("playlists").doc(playlistID);
     const playlistSnap = await playlistRef.get();

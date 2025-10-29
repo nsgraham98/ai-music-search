@@ -8,18 +8,7 @@ import { Box, Typography, Container, Paper, Button } from "@mui/material";
 import { PlayList } from "@/app/components/audio/playlist.jsx";
 import SignedInAs from "@/app/components/login/signed-in-as";
 import LoginPopup from "@/app/components/login/login-popup";
-import Link from "next/link";
 import Navigation from "@/app/components/navigation/nav-bar.jsx";
-import { Add } from "@mui/icons-material";
-
-import { AddToTrackPlaylistButton } from "@/app/components/playlist/add-track-to-playlist.jsx";
-import { CreatePlaylistButton } from "@/app/components/playlist/create-playlist.jsx";
-import { DeletePlaylistButton } from "@/app/components/playlist/delete-playlist.jsx";
-import { DeleteTrackFromPlaylistButton } from "@/app/components/playlist/delete-track-from-playlist";
-import { GetAllPlaylistsButton } from "@/app/components/playlist/get-all-playlists.jsx";
-import { GetPlaylistButton } from "@/app/components/playlist/get-playlist.jsx";
-import { UpdatePlaylistButton } from "@/app/components/playlist/update-playlist.jsx";
-import TestShowCurrentUser from "@/app/components/tests/test-show-current-user-profile.jsx";
 
 export default function HomePage() {
   return (
@@ -41,16 +30,6 @@ export default function HomePage() {
           <LogoutButton />
         </Box>
       </Box>
-
-      {/* Playlist Buttons for testing */}
-      <GetAllPlaylistsButton />
-      <CreatePlaylistButton />
-      <UpdatePlaylistButton />
-      <DeletePlaylistButton />
-      <GetPlaylistButton />
-      <AddToTrackPlaylistButton />
-      <DeleteTrackFromPlaylistButton />
-      <TestShowCurrentUser />
 
       {/* Navigation Bar */}
       <Navigation />
