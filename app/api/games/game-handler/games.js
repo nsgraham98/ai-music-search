@@ -40,7 +40,7 @@ async function generateUniqueGameCode() {
     const code = Math.floor(1000 + Math.random() * 9000).toString();
 
     // Check if code already exists
-    const existingGame = await db
+    const existingGame = await dbAdmin
       .collection("games")
       .where("join_code", "==", code)
       .where("status", "in", ["waiting_for_players", "active"])
