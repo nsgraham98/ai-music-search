@@ -178,7 +178,11 @@ export default function VotingInterface({
     return (
       <Paper sx={{ bgcolor: "#2e2d2d", color: "white", p: 3 }}>
         <Typography variant="h6" gutterBottom>
-          No Other Submissions Yet
+          Waiting for Other Players
+        </Typography>
+        <Typography variant="body2" color="#ccc" mb={2}>
+          You're the only player who has submitted a song so far. Voting will
+          open once other players submit their songs!
         </Typography>
         <Typography variant="body2" color="#ccc">
           Waiting for other players to submit their songs...

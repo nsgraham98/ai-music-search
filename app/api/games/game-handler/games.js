@@ -29,14 +29,41 @@ const GAME_THEMES = [
 ];
 
 /**
+ * Generates a unique 4-digit game code
+ * @returns {string} A 4-digit code
+ */
+async function generateUniqueGameCode() {
+  const maxAttempts = 10;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    // Generate random 4-digit code
+    const code = Math.floor(1000 + Math.random() * 9000).toString();
+
+    // Check if code already exists
+    const existingGame = await db
+      .collection("games")
+      .where("join_code", "==", code)
+      .where("status", "in", ["waiting_for_players", "active"])
+      .limit(1)
+      .get();
+
+    if (existingGame.empty) {
+      return code;
+    }
+  }
+
+  // Fallback: use timestamp-based code
+  return (Date.now() % 10000).toString().padStart(4, "0");
+}
+
+/**
  * Creates a new game in Firestore
  * @param {Object} gameData - The game data
  * @param {string} gameData.name - Name of the game
- * @param {Array} gameData.invitedEmails - Array of invited email addresses
  * @param {Request} gameData.request - Request object for authentication
  * @returns {Object} Result object with success status and game ID or error
  */
-export async function createGame({ name, invitedEmails, request }) {
+export async function createGame({ name, request }) {
   try {
     // Authenticate the user using session cookie
     const decodedToken = await authenticateCookie(request);
@@ -53,6 +80,9 @@ export async function createGame({ name, invitedEmails, request }) {
     const gameRef = dbAdmin.collection("games").doc();
     const gameId = gameRef.id;
 
+    // Generate unique 4-digit join code
+    const joinCode = await generateUniqueGameCode();
+
     // Create the game document
     const gameData = {
       id: gameId,
@@ -62,7 +92,8 @@ export async function createGame({ name, invitedEmails, request }) {
       status: "waiting_for_players",
       current_round: 0, // Will be 1 when first round starts
       players: [userId], // Start with just the creator
-      invited_emails: invitedEmails,
+      join_code: joinCode,
+      max_players: 10,
       settings: {
         round_duration_days: 7,
         submission_deadline: "friday_midnight",
@@ -73,13 +104,14 @@ export async function createGame({ name, invitedEmails, request }) {
     // Save to Firestore
     await gameRef.set(gameData);
 
-    // For now, automatically add the creator as confirmed player
-
-    console.log(`Game created successfully: ${gameId} by ${userEmail}`);
+    console.log(
+      `Game created successfully: ${gameId} by ${userEmail} with code ${joinCode}`
+    );
 
     return {
       success: true,
       gameId: gameId,
+      joinCode: joinCode,
       game: gameData,
     };
   } catch (error) {
@@ -87,6 +119,86 @@ export async function createGame({ name, invitedEmails, request }) {
     return {
       success: false,
       error: "Failed to create game",
+    };
+  }
+}
+
+/**
+ * Joins a game using a join code
+ * @param {string} joinCode - The 4-digit join code
+ * @param {Request} request - Request object for authentication
+ * @returns {Object} Result object with success status and game data or error
+ */
+export async function joinGame(joinCode, request) {
+  try {
+    // Authenticate the user using session cookie
+    const decodedToken = await authenticateCookie(request);
+
+    // Check if authentication failed
+    if (decodedToken instanceof Response) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const userId = decodedToken.uid;
+
+    // Find game by join code
+    const gamesSnapshot = await db
+      .collection("games")
+      .where("join_code", "==", joinCode)
+      .where("status", "in", ["waiting_for_players", "active"])
+      .limit(1)
+      .get();
+
+    if (gamesSnapshot.empty) {
+      return {
+        success: false,
+        error: "Game not found. Check your code and try again.",
+      };
+    }
+
+    const gameDoc = gamesSnapshot.docs[0];
+    const gameData = gameDoc.data();
+    const gameId = gameDoc.id;
+
+    // Check if user is already in the game
+    if (gameData.players.includes(userId)) {
+      return {
+        success: true,
+        gameId: gameId,
+        message: "You're already in this game!",
+        game: gameData,
+      };
+    }
+
+    // Check if game is full
+    if (gameData.players.length >= (gameData.max_players || 10)) {
+      return { success: false, error: "This game is full" };
+    }
+
+    // Add user to players array
+    await db
+      .collection("games")
+      .doc(gameId)
+      .update({
+        players: [...gameData.players, userId],
+      });
+
+    console.log(`User ${userId} joined game ${gameId} with code ${joinCode}`);
+
+    return {
+      success: true,
+      gameId: gameId,
+      message: "Successfully joined the game!",
+      game: {
+        ...gameData,
+        players: [...gameData.players, userId],
+      },
+    };
+  } catch (error) {
+    console.error("Error joining game:", error);
+    return {
+      success: false,
+      error: "Failed to join game",
     };
   }
 }
@@ -237,10 +349,9 @@ export async function startGame(gameId, request) {
     const roundData = {
       round_number: 1,
       theme: theme,
-      status: "submissions_open",
+      status: "voting_open", // Both submissions and voting are open simultaneously
       created_at: new Date(),
-      submissions_deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
-      voting_deadline: new Date(Date.now() + 9 * 24 * 60 * 60 * 1000), // 9 days from now
+      round_deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
       submissions: {}, // Will be populated as players submit songs
       votes: {}, // Will be populated during voting phase
     };
@@ -397,22 +508,13 @@ export async function submitSong(gameId, roundId, songData, request) {
 
     const roundData = roundDoc.data();
 
-    // Check if round is accepting submissions
-    if (roundData.status !== "submissions_open") {
+    // Check if user has already submitted (can't change submission)
+    if (roundData.submissions && roundData.submissions[userId]) {
       return {
         success: false,
-        error: "Submissions are not currently open for this round",
+        error:
+          "You have already submitted a song for this round and cannot change it",
       };
-    }
-
-    // Check if submission deadline has passed
-    const now = new Date();
-    const deadline = roundData.submissions_deadline.toDate
-      ? roundData.submissions_deadline.toDate()
-      : new Date(roundData.submissions_deadline);
-
-    if (now > deadline) {
-      return { success: false, error: "Submission deadline has passed" };
     }
 
     // Create the submission object
@@ -534,24 +636,8 @@ export async function submitVotes(gameId, roundId, votesData, request) {
 
     const roundData = roundDoc.data();
 
-    // Auto-transition from submissions_open to voting_open if submissions deadline passed
-    let currentStatus = roundData.status;
-    if (currentStatus === "submissions_open") {
-      const now = new Date();
-      const deadline = roundData.submissions_deadline?.toDate
-        ? roundData.submissions_deadline.toDate()
-        : new Date(roundData.submissions_deadline);
-
-      if (now > deadline) {
-        await roundRef.update({
-          status: "voting_open",
-        });
-        currentStatus = "voting_open";
-      }
-    }
-
     // Check if round is accepting votes
-    if (currentStatus !== "voting_open") {
+    if (roundData.status !== "voting_open") {
       return {
         success: false,
         error: "Voting is not currently open for this round",
@@ -701,6 +787,169 @@ export async function closeVoting(gameId, roundId, request) {
     return {
       success: false,
       error: "Failed to close voting",
+    };
+  }
+}
+
+/**
+ * Deletes a game and all its rounds
+ * @param {string} gameId - The game ID to delete
+ * @param {Request} request - Request object for authentication
+ * @returns {Object} Result object with success status or error
+ */
+export async function deleteGame(gameId, request) {
+  try {
+    // Authenticate the user using session cookie
+    const decodedToken = await authenticateCookie(request);
+
+    // Check if authentication failed
+    if (decodedToken instanceof Response) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const userId = decodedToken.uid;
+
+    // Get the game to verify it exists and user is creator
+    const gameRef = db.collection("games").doc(gameId);
+    const gameDoc = await gameRef.get();
+
+    if (!gameDoc.exists) {
+      return { success: false, error: "Game not found" };
+    }
+
+    const gameData = gameDoc.data();
+
+    // Check if user is the creator
+    if (gameData.creator !== userId) {
+      return {
+        success: false,
+        error: "Only the game creator can delete the game",
+      };
+    }
+
+    // Delete all rounds in the game
+    const roundsSnapshot = await gameRef.collection("rounds").get();
+    const batch = db.batch();
+
+    roundsSnapshot.forEach((roundDoc) => {
+      batch.delete(roundDoc.ref);
+    });
+
+    // Delete the game document
+    batch.delete(gameRef);
+
+    // Commit the batch delete
+    await batch.commit();
+
+    console.log(
+      `Game ${gameId} and ${roundsSnapshot.size} rounds deleted by user ${userId}`
+    );
+
+    return {
+      success: true,
+      message: "Game deleted successfully",
+    };
+  } catch (error) {
+    console.error("Error deleting game:", error);
+    return {
+      success: false,
+      error: "Failed to delete game",
+    };
+  }
+}
+
+/**
+ * Starts the next round in a game
+ * @param {string} gameId - The game ID
+ * @param {Request} request - Request object for authentication
+ * @returns {Object} Result object with success status and new round data or error
+ */
+export async function startNextRound(gameId, request) {
+  try {
+    // Authenticate the user using session cookie
+    const decodedToken = await authenticateCookie(request);
+
+    // Check if authentication failed
+    if (decodedToken instanceof Response) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const userId = decodedToken.uid;
+
+    // Get the game to verify it exists and user is creator
+    const gameRef = db.collection("games").doc(gameId);
+    const gameDoc = await gameRef.get();
+
+    if (!gameDoc.exists) {
+      return { success: false, error: "Game not found" };
+    }
+
+    const gameData = gameDoc.data();
+
+    // Check if user is the creator
+    if (gameData.creator !== userId) {
+      return {
+        success: false,
+        error: "Only the game creator can start the next round",
+      };
+    }
+
+    // Check if game is active
+    if (gameData.status !== "active") {
+      return {
+        success: false,
+        error: "Game must be active to start next round",
+      };
+    }
+
+    const currentRoundNumber = gameData.current_round || 0;
+    const nextRoundNumber = currentRoundNumber + 1;
+
+    // Get a random theme for the next round
+    const theme = await getRandomTheme(gameId);
+
+    // Create the next round
+    const nextRoundRef = gameRef
+      .collection("rounds")
+      .doc(nextRoundNumber.toString());
+    const nextRoundData = {
+      round_number: nextRoundNumber,
+      theme: theme,
+      status: "voting_open", // Both submissions and voting are open simultaneously
+      created_at: new Date(),
+      round_deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+      submissions: {}, // Will be populated as players submit songs
+      votes: {}, // Will be populated during voting phase
+    };
+
+    // Start a batch write to update game and create round
+    const batch = db.batch();
+
+    // Update game's current round
+    batch.update(gameRef, {
+      current_round: nextRoundNumber,
+    });
+
+    // Create the next round
+    batch.set(nextRoundRef, nextRoundData);
+
+    // Commit the batch
+    await batch.commit();
+
+    console.log(
+      `Round ${nextRoundNumber} started for game ${gameId} with theme: ${theme}`
+    );
+
+    return {
+      success: true,
+      round: nextRoundData,
+      roundNumber: nextRoundNumber,
+    };
+  } catch (error) {
+    console.error("Error starting next round:", error);
+    return {
+      success: false,
+      error: "Failed to start next round",
     };
   }
 }
