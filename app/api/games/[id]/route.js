@@ -2,7 +2,8 @@
 // Handles fetching specific game information
 
 import { NextResponse } from "next/server";
-import { getGameById } from "../game-handler/games";
+// import { getGameById } from "../game-handler/games";
+import { getGameById } from "@/app/api/games/game-handler/games";
 
 export async function GET(request, { params }) {
   try {
