@@ -20,13 +20,18 @@ export default function Navigation() {
       path: authUser ? `/user/${authUser.uid}` : "/user",
       icon: <PersonIcon />,
     },
-    { label: "Playlists", path: "/playlists", icon: <PlaylistPlayIcon /> },
+    {
+      label: "Playlists",
+      path: authUser ? `/user/${authUser.uid}/playlists` : "/", // Redirect to home if not logged in
+      icon: <PlaylistPlayIcon />,
+    },
     { label: "Game Room", path: "/sound-room", icon: <SportsEsportsIcon /> },
     { label: "Settings", path: "/settings", icon: <SettingsIcon /> },
   ];
 
   // Check if current path matches profile with any ID
-  const isProfileActive = pathname?.startsWith("/user/");
+  const isProfileActive =
+    pathname?.startsWith("/user/") && pathname.split("/").length === 3; // length === 3 clause is to avoid matching /user/[id]/playlists etc.
 
   const handleNavigation = (path) => {
     console.log("Navigating to:", path);

@@ -198,7 +198,6 @@ export default function PlaylistsPage() {
     setSnackbar({ open: true, message, severity });
   };
 
-  // This looks broken to me... don't think this page exists - Nick
   // Navigate to playlist detail page
   const handlePlaylistClick = (playlist) => {
     router.push(`/user/${authUser.uid}/playlists/${playlist.id}`);
