@@ -142,7 +142,7 @@ export async function joinGame(joinCode, request) {
     const userId = decodedToken.uid;
 
     // Find game by join code
-    const gamesSnapshot = await db
+    const gamesSnapshot = await dbAdmin
       .collection("games")
       .where("join_code", "==", joinCode)
       .where("status", "in", ["waiting_for_players", "active"])
@@ -176,7 +176,7 @@ export async function joinGame(joinCode, request) {
     }
 
     // Add user to players array
-    await db
+    await dbAdmin
       .collection("games")
       .doc(gameId)
       .update({
