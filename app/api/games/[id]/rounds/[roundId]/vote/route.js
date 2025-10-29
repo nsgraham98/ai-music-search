@@ -2,7 +2,7 @@
 // Handles submitting votes for a specific round
 
 import { NextResponse } from "next/server";
-import { submitVotes } from "../../../../../game-handler/games";
+import { submitVotes } from "../../../../game-handler/games";
 
 export async function POST(request, { params }) {
   try {

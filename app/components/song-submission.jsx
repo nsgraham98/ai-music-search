@@ -106,8 +106,8 @@ export default function SongSubmissionInterface({
           <Typography variant="h6">Song Submitted!</Typography>
         </Box>
         <Typography variant="body2" color="#ccc" mb={2}>
-          You've submitted your song for this round. You can change your
-          submission until the deadline.
+          Your song has been locked in for this round. You can now vote on other
+          submissions!
         </Typography>
         <Card sx={{ bgcolor: "#3e3d3d", color: "white" }}>
           <CardContent>
@@ -120,7 +120,7 @@ export default function SongSubmissionInterface({
             {currentSubmission.argument && (
               <Box mt={2} p={2} sx={{ bgcolor: "#2e2d2d", borderRadius: 1 }}>
                 <Typography variant="body2" color="#aaa" mb={1}>
-                  Your Explanation:
+                  Your Case:
                 </Typography>
                 <Typography variant="body2" color="#ddd">
                   {currentSubmission.argument}
@@ -129,16 +129,6 @@ export default function SongSubmissionInterface({
             )}
           </CardContent>
         </Card>
-        <Button
-          variant="outlined"
-          sx={{ mt: 2, borderColor: "white", color: "white" }}
-          onClick={() => {
-            // Reset to allow changing submission
-            // This will hide the "already submitted" view
-          }}
-        >
-          Change Submission
-        </Button>
       </Paper>
     );
   }
