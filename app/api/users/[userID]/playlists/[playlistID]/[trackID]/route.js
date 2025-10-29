@@ -29,8 +29,6 @@ export async function PATCH(request, { params }) {
     const decodedToken = await authenticateCookie(request);
     const uid = decodedToken.uid;
 
-    // const playlistRef = await db.collection("playlists").doc(playlistID);
-
     const playlistRef = doc(db, "playlists", playlistID); // ✅ modular doc() helper
     const playlistSnap = await getDoc(playlistRef);
     if (!playlistSnap.exists()) {

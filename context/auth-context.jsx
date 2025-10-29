@@ -29,23 +29,23 @@ export const AuthContextProvider = ({ children }) => {
   // Listener for auth state changes
   // Sets the user state (logged in user or null) and loading state (is mid login or not)
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (authFlowComplete) {
-        setAuthUser(currentUser);
-        setLoadingUser(false);
-      }
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setAuthUser(currentUser);
+      setLoadingUser(false);
+      // optional: mark the initial auth check as complete if you still use this flag
+      setAuthFlowComplete(true);
     });
-    return () => unsubscribe(); // cleanup the listener on unmount
-  }, [authFlowComplete]);
+    return () => unsubscribe();
+  }, []);
 
-  useEffect(() => {
-    console.log("authUser changed:", authUser);
-    if (authUser) {
-      setIsReadyToLoadProfile(true);
-    } else {
-      setIsReadyToLoadProfile(false);
-    }
-  }, [authUser]);
+  // useEffect(() => {
+  //   console.log("authUser changed:", authUser);
+  //   if (authUser) {
+  //     setIsReadyToLoadProfile(true);
+  //   } else {
+  //     setIsReadyToLoadProfile(false);
+  //   }
+  // }, [authUser]);
 
   // Sign in with popup for the given provider (github, google, facebook)
   // Called from login-form component
@@ -74,7 +74,7 @@ export const AuthContextProvider = ({ children }) => {
       }
 
       // get the user profile from the database (to check if it exists, not to set state)
-      const getUserResponse = await fetch("/api/users", {
+      const getUserResponse = await fetch(`/api/users/${decodedAuthUser.uid}`, {
         method: "GET",
         credentials: "include",
         headers: {

@@ -10,73 +10,71 @@ import { useUserAuth } from "@/context/auth-context";
 const UserProfileContext = createContext();
 
 export const UserProfileContextProvider = ({ children }) => {
-  const { authUser, isReadyToLoadProfile } = useUserAuth(); // Get the authenticated user
+  const { authUser } = useUserAuth(); // has authUser?.uid
   const [userProfile, setUserProfile] = useState(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [profileError, setProfileError] = useState(null);
 
   // When auth user changes, fetch the profile
   useEffect(() => {
-    const fetchProfileListener = async () => {
-      console.log("in user-profile-context, isReadyToLoadProfile useEffect");
-      // do something when user is authenticated in auth context
-      if (authUser) {
-        console.log(
-          "in user-profile-context, isReadyToLoadProfile useEffect: authUser exists, fetching profile. authUser: ",
-          authUser
-        );
+    const run = async () => {
+      console.log("UserProfileContext useEffect: authUser changed:", authUser);
+      if (authUser?.uid) {
+        console.log("in useEffect authUser.uid = true:", authUser.uid);
         setLoadingProfile(true);
-        const user = await fetchCurrentUserProfile();
-        console.log(
-          "in user-profile-context, isReadyToLoadProfile useEffect: fetched user profile",
-          user
-        );
-        setUserProfile(user);
-        setLoadingProfile(false);
-        setProfileError(null);
+
+        // I need a way to get the authentication token from auth context
+        const token = await authUser.getIdToken();
+        const user = await fetchCurrentUserProfile(token); // no uid -> current user
+        console.log("useEffect: Fetched user profile:", user);
+        setUserProfile(user ?? null);
+        setProfileError(user ? null : "Profile not found");
       } else {
-        console.log(
-          "in user-profile-context, isReadyToLoadProfile useEffect: no authUser, clearing profile"
-        );
+        console.log("in useEffect authUser.uid = false");
         setUserProfile(null);
-        setLoadingProfile(false);
         setProfileError(null);
+        setLoadingProfile(false);
       }
     };
-    fetchProfileListener();
-  }, [isReadyToLoadProfile]);
+    run();
+  }, [authUser?.uid]);
 
   // Fetch user profile from the backend for setting the userProfile state
   // Works if uid is provided, or uid isn't provided (for when authUser hasn't updated yet)
-  const fetchCurrentUserProfile = async (uid = null) => {
+  const fetchCurrentUserProfile = async (token = null) => {
     try {
       setLoadingProfile(true);
       setProfileError(null);
-      if (!uid && !authUser) {
-        console.log("in fetchCurrentUserProfile: no uid and no authUser");
-        setUserProfile(null);
-        return;
-      }
+
       const response = await fetch("/api/users", {
         method: "GET",
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
         },
       });
+
+      // Handle 404 -> no profile yet (could have been just created in sign-in flow)
+      if (response.status === 404) return null;
+
       const result = await response.json();
-      console.log("in fetchCurrentUserProfile: GET /api/users result:", result);
-      console.log("Timestamp:", new Date().toISOString());
-      if (result.success) {
-        const user = result.data;
-        return user;
-      } else {
-        throw new Error("Profile not found");
-      }
-    } catch (error) {
-      console.error("Error fetching user profile:", error);
+      console.log("fetchCurrentUserProfile GET /api/users result:", result);
+
+      // Accept multiple shapes:
+      // 1) { success: true, data: {...} }
+      if (result?.success && result?.data) return result.data;
+      // 2) { userProfile: {...} }
+      if (result?.userProfile) return result.userProfile;
+
+      // 3) raw object (some APIs just return the document)
+      if (result && typeof result === "object") return result;
+
+      return null;
+    } catch (err) {
+      console.error("Error fetching user profile:", err);
       setProfileError("Error fetching profile");
-      return;
+      return null;
     } finally {
       setLoadingProfile(false);
     }
