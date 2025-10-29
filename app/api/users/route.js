@@ -4,20 +4,17 @@
 import {
   authenticateCookie,
   authenticateIdToken,
-  // authenticateIdToken,
 } from "@/lib/authenticate-calls";
-import { cookies } from "next/headers";
-import { db } from "@/lib/firebase-admin.js";
+import { dbAdmin } from "@/lib/firebase-admin.js";
 
 // GET - Retrieve the current user's profile
 export async function GET(req) {
   try {
     let decodedUser = await authenticateCookie(req);
-    console.log("Decoded user following authenticateCookie:", decodedUser);
     if (!decodedUser.ok) {
       // if cookie auth fails, try ID token auth as backup
+      // sometimes the cookie is not set yet (immediately after login), because it's asynchronous
       decodedUser = await authenticateIdToken(req);
-      console.log("Decoded user following authenticateIdToken:", decodedUser);
     }
     const uid = decodedUser.uid;
     if (!uid) {
@@ -30,8 +27,9 @@ export async function GET(req) {
       );
     }
 
-    const userDocRef = db.collection("users").doc(uid);
+    const userDocRef = dbAdmin.collection("users").doc(uid);
     const userDoc = await userDocRef.get();
+
     if (!userDoc.exists) {
       return new Response(JSON.stringify({ error: "User profile not found" }), {
         status: 404,
@@ -77,10 +75,10 @@ export async function POST(req) {
     }
 
     // Check if user profile already exists
-    const existingUserDocRef = doc(db, "users", uid);
-    const existingProfile = await getDoc(existingUserDocRef);
+    const existingProfileRef = dbAdmin.collection("users").doc(uid);
+    const existingProfile = await existingProfileRef.get();
 
-    if (existingProfile.exists()) {
+    if (existingProfile.exists) {
       return new Response(
         JSON.stringify({ error: "User profile already exists" }),
         {
@@ -91,8 +89,8 @@ export async function POST(req) {
     }
 
     // Create a new user profile with default values
-    const userDocRef = doc(db, "users", uid);
-    await setDoc(userDocRef, {
+    const userDocRef = dbAdmin.collection("users").doc(uid);
+    await userDocRef.set({
       uid,
       provider,
       displayName: decodedUser.name || "New User",
@@ -103,11 +101,11 @@ export async function POST(req) {
 
     console.log("👤 User profile created for UID:", uid);
     // Return the created user profile
-    const newUserDocRef = doc(db, "users", uid);
-    const userProfileSnap = await getDoc(newUserDocRef);
+    const newUserDocRef = dbAdmin.collection("users").doc(uid);
+    const userProfileSnap = await newUserDocRef.get();
     const userProfile = userProfileSnap.data();
 
-    if (!userProfileSnap.exists()) {
+    if (!userProfileSnap.exists) {
       return new Response(
         JSON.stringify({ error: "Failed to retrieve created user profile" }),
         {
@@ -144,9 +142,8 @@ export async function PATCH(req) {
     const decodedToken = await authenticateCookie(req);
     const uid = decodedToken.uid;
 
-    const userDocRef = doc(db, "users", uid);
-    await setDoc(
-      userDocRef,
+    const userDocRef = dbAdmin.collection("users").doc(uid);
+    await userDocRef.set(
       { ...updatedProfileData, lastUpdated: Date.now() },
       { merge: true }
     );

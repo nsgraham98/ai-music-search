@@ -17,7 +17,7 @@ export async function POST(req) {
 
     // Verify the ID token and get the user info
     const decoded = await adminAuth.verifyIdToken(idToken);
-    console.log("🔒 IdToken successfully verified");
+    console.log("🔒 IdToken successfully verified for login");
 
     const expiresIn = 60 * 60 * 24 * 7 * 1000; // one week
     const sessionCookie = await adminAuth.createSessionCookie(idToken, {

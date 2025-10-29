@@ -1,6 +1,6 @@
 // Route for handling user operations by userID
 
-import { db } from "@/lib/firebase-admin.js";
+import { dbAdmin } from "@/lib/firebase-admin.js";
 
 // Get user by userID (other users' profiles)
 export async function GET(req, { params }) {

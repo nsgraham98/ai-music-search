@@ -1,6 +1,6 @@
 // This file is the API route that actually calls the database to save the session data
 
-import { db } from "@/lib/firebase-admin.js";
+import { dbAdmin } from "@/lib/firebase-admin.js";
 import { authenticateCookie } from "@/lib/authenticate-calls.js";
 import { cookies } from "next/headers";
 import { doc, getDoc } from "firebase/firestore";
@@ -15,7 +15,7 @@ export async function POST(request) {
     const cookie = await cookies();
     const maxAge = cookie.get("Max-Age") || 60 * 60 * 24 * 7; // default to one week
 
-    const sessionDocRef = db.collection("sessions").doc(uid);
+    const sessionDocRef = dbAdmin.collection("sessions").doc(uid);
     // Save session data to the database
     await sessionDocRef.set(
       {
@@ -73,7 +73,7 @@ export async function GET(req) {
       });
     }
     // get session data from the database if needed
-    const sessionDocRef = db.collection("sessions").doc(decoded.uid);
+    const sessionDocRef = dbAdmin.collection("sessions").doc(decoded.uid);
     const docSnap = await getDoc(sessionDocRef);
 
     if (!docSnap.exists()) {
