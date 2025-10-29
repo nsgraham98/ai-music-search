@@ -13,7 +13,7 @@ export async function GET(req, { params }) {
     });
   }
 
-  const userDocRef = db.collection("users").doc(userID);
+  const userDocRef = dbAdmin.collection("users").doc(userID);
   const userDoc = await userDocRef.get();
 
   if (!userDoc) {

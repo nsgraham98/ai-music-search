@@ -60,7 +60,7 @@ export async function GET(request) {
     // const snap = await getDocs(getQuery); // snap = read only collection of documents
     // // map through documents to load playlists into an array
     // const playlists = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-    console.log("🎶 Playlists: ", playlists);
+    console.log("🎶 ", playlists.length, "playlist(s) found");
 
     // return successful response to client
     return new Response(
