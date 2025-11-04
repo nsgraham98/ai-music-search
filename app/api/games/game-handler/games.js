@@ -94,6 +94,7 @@ export async function createGame({ name, request }) {
       players: [userId], // Start with just the creator
       join_code: joinCode,
       max_players: 10,
+      overall_scores: {}, // Track cumulative scores across all rounds
       settings: {
         round_duration_days: 7,
         submission_deadline: "friday_midnight",
@@ -770,10 +771,42 @@ export async function closeVoting(gameId, roundId, request) {
       };
     }
 
-    // Update round status to show results
+    // Calculate scores for this round
+    const roundScores = {};
+    const submissions = roundData.submissions || {};
+    const votes = roundData.votes || {};
+
+    // Initialize scores for all players who submitted
+    Object.keys(submissions).forEach((userId) => {
+      roundScores[userId] = 0;
+    });
+
+    // Tally votes
+    Object.values(votes).forEach((voteSubmission) => {
+      Object.entries(voteSubmission.votes || {}).forEach(
+        ([votedUserId, voteCount]) => {
+          if (roundScores.hasOwnProperty(votedUserId)) {
+            roundScores[votedUserId] += voteCount;
+          }
+        }
+      );
+    });
+
+    // Update round status and store scores
     await roundRef.update({
       status: "voting_closed",
       voting_closed_at: new Date(),
+      scores: roundScores, // Store the calculated scores for this round
+    });
+
+    // Update overall game scores
+    const currentScores = gameData.overall_scores || {};
+    Object.entries(roundScores).forEach(([userId, score]) => {
+      currentScores[userId] = (currentScores[userId] || 0) + score;
+    });
+
+    await dbAdmin.collection("games").doc(gameId).update({
+      overall_scores: currentScores,
     });
 
     console.log(`Voting closed for game ${gameId}, round ${roundId}`);
@@ -810,7 +843,7 @@ export async function deleteGame(gameId, request) {
     const userId = decodedToken.uid;
 
     // Get the game to verify it exists and user is creator
-    const gameRef = db.collection("games").doc(gameId);
+    const gameRef = dbAdmin.collection("games").doc(gameId);
     const gameDoc = await gameRef.get();
 
     if (!gameDoc.exists) {
@@ -829,7 +862,7 @@ export async function deleteGame(gameId, request) {
 
     // Delete all rounds in the game
     const roundsSnapshot = await gameRef.collection("rounds").get();
-    const batch = db.batch();
+    const batch = dbAdmin.batch();
 
     roundsSnapshot.forEach((roundDoc) => {
       batch.delete(roundDoc.ref);
@@ -877,7 +910,7 @@ export async function startNextRound(gameId, request) {
     const userId = decodedToken.uid;
 
     // Get the game to verify it exists and user is creator
-    const gameRef = db.collection("games").doc(gameId);
+    const gameRef = dbAdmin.collection("games").doc(gameId);
     const gameDoc = await gameRef.get();
 
     if (!gameDoc.exists) {
@@ -923,7 +956,7 @@ export async function startNextRound(gameId, request) {
     };
 
     // Start a batch write to update game and create round
-    const batch = db.batch();
+    const batch = dbAdmin.batch();
 
     // Update game's current round
     batch.update(gameRef, {
