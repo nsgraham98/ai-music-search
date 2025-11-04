@@ -24,7 +24,7 @@ import {
 } from "@/app/api/jamendo/jamendo-handler/go-to-jamendo";
 
 export const PlayList = () => {
-  const { currentTrack, setCurrentTrack, setIsPlaying, tracks } =
+  const { currentTrack, setCurrentTrack, setIsPlaying, currentPlaylist } =
     useAudioPlayerContext();
 
   // onClick handlers
@@ -43,7 +43,7 @@ export const PlayList = () => {
   };
 
   // if no tracks, show message
-  if (!tracks || tracks.length === 0) {
+  if (!currentPlaylist || currentPlaylist.length === 0) {
     return (
       <Paper
         elevation={3}
@@ -80,7 +80,7 @@ export const PlayList = () => {
       }}
     >
       <List disablePadding>
-        {tracks.map((track, index) => {
+        {currentPlaylist.map((track, index) => {
           const isActive = currentTrack?.name === track.name;
 
           return (

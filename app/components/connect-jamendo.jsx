@@ -5,7 +5,7 @@
 export function ConnectJamendoButton() {
   const redirectToJamendo = () => {
     const state = crypto.randomUUID(); // use CSRF-safe randomness
-    const clientId = process.env.NEXT_PUBLIC_JAMENDO_CLIENT_ID;
+    const clientId = process.env.JAMENDO_CLIENT_ID;
     const redirectUri = encodeURIComponent(
       process.env.NEXT_PUBLIC_JAMENDO_REDIRECT_URI
     );

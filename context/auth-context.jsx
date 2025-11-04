@@ -16,114 +16,206 @@ import {
   FacebookAuthProvider,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase.js";
-import { saveUserSession } from "@/app/api/session/session-handler/session.js";
-import { saveUserProfile } from "@/app/api/users/user-handler/save-user-profile.js";
+import axios from "axios";
 
 const AuthContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // active logged in user object
+  const [authUser, setAuthUser] = useState(null); // active logged in user object
   const [loadingUser, setLoadingUser] = useState(true); // loading while checking auth state
+  const [authFlowComplete, setAuthFlowComplete] = useState(false); // true after initial auth check is done
+  const [isReadyToLoadProfile, setIsReadyToLoadProfile] = useState(false); // true when user profile is ready to be loaded
 
-  // Not sure if this is a good way to handle OAuth sign-ins with Firebase, but it works. See recommended method below these 3 functions.
-  // In the future, look at cleaning this up and making it closer to the recommended way from the firebase docs
-  // session.js would also need to be updated if we change this
+  // Listener for auth state changes
+  // Sets the user state (logged in user or null) and loading state (is mid login or not)
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setAuthUser(currentUser);
+      setLoadingUser(false);
+      // optional: mark the initial auth check as complete if you still use this flag
+      setAuthFlowComplete(true);
+    });
+    return () => unsubscribe();
+  }, []);
 
-  // https://firebase.google.com/docs/auth/web/github-auth
-  const gitHubSignIn = async () => {
-    const provider = new GithubAuthProvider();
-    const result = await signInWithPopup(auth, provider);
-    const accessToken = result.user.accessToken;
+  // useEffect(() => {
+  //   console.log("authUser changed:", authUser);
+  //   if (authUser) {
+  //     setIsReadyToLoadProfile(true);
+  //   } else {
+  //     setIsReadyToLoadProfile(false);
+  //   }
+  // }, [authUser]);
 
-    // Save session data
-    await saveUserSession(result.user, accessToken);
-    
-    // Create or update user profile
-    await saveUserProfile(result.user, "github", accessToken);
+  // Sign in with popup for the given provider (github, google, facebook)
+  // Called from login-form component
+  const signIn = async (providerName) => {
+    try {
+      //setAuthFlowComplete(false);
+      const provider = getAuthProvider(providerName);
+      const result = await signInWithPopup(auth, provider);
+      const decodedAuthUser = result.user; // user object from firebase
+      const idToken = await decodedAuthUser.getIdToken(
+        true /* force refresh */
+      );
+
+      // Send the ID token to the backend to for authentication, create session cookie, create uid cookie
+      const loginSuccess = await loginWithToken(idToken);
+      if (!loginSuccess) {
+        console.error("Login with token failed");
+        return;
+      }
+
+      // Save session data in the database
+      const sessionResult = await saveUserSession(); // Save session data
+      if (!sessionResult) {
+        console.error("Saving user session failed");
+        return;
+      }
+
+      // get the user profile from the database (to check if it exists, not to set state)
+      const getUserResponse = await fetch(`/api/users/${decodedAuthUser.uid}`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      // create new user profile if not found
+      if (getUserResponse.status === 404) {
+        const postUserResponse = await fetch("/api/users", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ provider: providerName }),
+        });
+        if (!postUserResponse.ok) {
+          console.error("Failed to create user profile");
+          return;
+        }
+        const data = await postUserResponse.json();
+        const newUserProfile = data.userProfile;
+        console.log("New User Profile Created: ", newUserProfile);
+        setAuthUser(decodedAuthUser);
+        return;
+      }
+
+      setAuthUser(decodedAuthUser);
+    } catch (error) {
+      console.error("Error during sign-in:", error);
+      return;
+    } finally {
+      setLoadingUser(false);
+      setAuthFlowComplete(true);
+    }
   };
 
-  // https://firebase.google.com/docs/auth/web/google-signin
-  const googleSignIn = async () => {
-    const provider = new GoogleAuthProvider();
-    const result = await signInWithPopup(auth, provider);
-    const accessToken = result.user.accessToken;
+  /*
+    Send the Firebase ID token to the backend (/api/auth/login/route.js) to:
+      Verify the token
+      Create a cookie with a sessionID
+      returns true if successful
+    Runs only once on login
+  */
+  async function loginWithToken(idToken) {
+    if (!idToken) return;
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ idToken }),
+      });
+      if (!response.ok) {
+        throw new Error("Login failed");
+      }
+      console.log("Login successful");
+      return true;
+    } catch (error) {
+      console.error("Error during login:", error);
+    }
+  }
 
-    // Save session data
-    await saveUserSession(result.user, accessToken);
-    
-    // Create or update user profile
-    await saveUserProfile(result.user, "google", accessToken);
+  /* 
+    Send the token to the backend (/api/session/route.js) to:
+      Save the session data in the database
+      Set the session cookie (to be used for authenticating API calls)
+    returns true if successful
+  */
+  async function saveUserSession() {
+    try {
+      const response = await fetch("/api/auth/session", {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        console.log("Session and Cookie successfully set");
+        return true;
+      }
+    } catch (error) {
+      console.error("Error saving user session:", error);
+    }
+  }
+
+  // Get the appropriate auth provider based on the provider name
+  const getAuthProvider = (providerName) => {
+    switch (providerName) {
+      case "github":
+        // https://firebase.google.com/docs/auth/web/github-auth
+        return new GithubAuthProvider();
+      case "google":
+        // https://firebase.google.com/docs/auth/web/google-signin
+        return new GoogleAuthProvider();
+      case "facebook":
+        // https://firebase.google.com/docs/auth/web/facebook-login
+        return new FacebookAuthProvider();
+      default:
+        throw new Error("Unsupported provider");
+    }
   };
-  // https://firebase.google.com/docs/auth/web/facebook-login
-  const facebookSignIn = async () => {
-    const provider = new FacebookAuthProvider();
-    const result = await signInWithPopup(auth, provider);
-    const accessToken = result.user.accessToken;
-
-    // Save session data
-    await saveUserSession(result.user, accessToken);
-    
-    // Create or update user profile
-    await saveUserProfile(result.user, "facebook", accessToken);
-  };
-
-  // Recommended way to handle OAuth sign-in with Firebase, from the firebase docs
-  // https://firebase.google.com/docs/auth/web/github-auth
-
-  // const gitHubSignIn = async () => {
-  //   const provider = new GithubAuthProvider();
-  //   signInWithPopup(auth, provider)
-  //     .then((result) => {
-  //       // This gives you a GitHub Access Token. You can use it to access the GitHub API.
-  //       const credential = GithubAuthProvider.credentialFromResult(result);
-  //       const token = credential.accessToken;
-
-  //       // The signed-in user info.
-  //       const user = result.user;
-  //       // IdP data available using getAdditionalUserInfo(result)
-  //       // ...
-  //     })
-  //     .catch((error) => {
-  //       // Handle Errors here.
-  //       const errorCode = error.code;
-  //       const errorMessage = error.message;
-  //       // The email of the user's account used.
-  //       const email = error.customData.email;
-  //       // The AuthCredential type that was used.
-  //       const credential = GithubAuthProvider.credentialFromError(error);
-  //       // ...
-  //     });
-  // };
 
   // Sign out user
   // Also calls the logout API route to clear the session cookie
   const firebaseSignOut = async () => {
     await fetch("/api/auth/logout", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      credentials: "include",
     });
+    setAuthFlowComplete(false);
+    setAuthUser(null);
     return signOut(auth);
   };
 
-  // Listener for auth state changes
-  // Sets the user state (logged in user or null) and loading state (is mid login or not)
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoadingUser(false);
-    });
-    return () => unsubscribe();
-  }, []);
+  const getAuthUserFromSession = async () => {
+    try {
+      const response = await axios.get("/api/auth/auth-user", {
+        withCredentials: true,
+      });
+      return response.data.authUser;
+    } catch (error) {
+      console.error("Error fetching auth user:", error);
+      return null;
+    }
+  };
 
   return (
     <AuthContext.Provider
       value={{
-        user,
+        authUser,
+        setAuthUser,
         loadingUser,
-        gitHubSignIn,
-        googleSignIn,
-        facebookSignIn,
+        setLoadingUser,
         firebaseSignOut,
+        setAuthFlowComplete,
+        signIn,
+        getAuthUserFromSession,
+        isReadyToLoadProfile,
       }}
     >
       {children}

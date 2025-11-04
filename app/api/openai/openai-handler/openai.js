@@ -18,7 +18,7 @@ import { getTools } from "@/lib/ai-tools.js";
 
 // Initialize OpenAI client
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_SECRET_KEY,
 });
 
 // Main function to handle the OpenAI search workflow
@@ -37,6 +37,7 @@ export async function runOpenAISearch(userQuery) {
     ];
 
     // Send the prompt to OpenAI API
+    console.log("🧠 Sending prompt to OpenAI API");
     const response = await openai.responses.create({
       model: "gpt-4o",
       input,
@@ -49,6 +50,7 @@ export async function runOpenAISearch(userQuery) {
     // can make this more elaborate later if needed - eg. more than one tool call
     const toolCall = response.output[0];
     const args = JSON.parse(toolCall.arguments);
+    console.log("🧠 Response from OpenAI received. (Jamendo search args)");
     const result = await searchJamendo(args);
 
     // append model's function call message
@@ -60,12 +62,14 @@ export async function runOpenAISearch(userQuery) {
     });
 
     // Send the tool call result back to OpenAI API for final response
+    console.log("🧠 Sending Jamendo results back to OpenAI for final response");
     const newResponse = await openai.responses.create({
       model: "gpt-4o",
       input,
       tools,
       store: true,
     });
+    console.log("🧠 Final response from OpenAI received");
     return {
       aiResponse: newResponse,
       jamendoResponse: result.results,

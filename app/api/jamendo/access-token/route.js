@@ -2,10 +2,10 @@
 // Endpoint to handle Jamendo account token exchange and refresh
 // Used in conjunction with jamendo-callback.jsx
 
-import { authenticateAPICall } from "@/lib/authenticate-calls.js";
+import { authenticateIdToken } from "@/lib/authenticate-calls.js";
 
 export async function POST(req) {
-  const decodedToken = await authenticateAPICall(request);
+  const decodedToken = await authenticateIdToken(request);
   // const userId = decodedToken.uid; // you can log or use this if needed
   const { code, grant_type } = await req.json();
 
@@ -14,7 +14,7 @@ export async function POST(req) {
   if (grant_type === "authorization_code") {
     params = new URLSearchParams({
       grant_type: "authorization_code",
-      client_id: process.env.NEXT_PUBLIC_JAMENDO_CLIENT_ID,
+      client_id: process.env.JAMENDO_CLIENT_ID,
       client_secret: process.env.JAMENDO_CLIENT_SECRET,
       code,
       redirect_uri: process.env.NEXT_PUBLIC_JAMENDO_REDIRECT_URI,
@@ -22,7 +22,7 @@ export async function POST(req) {
   } else if (grant_type === "refresh_token") {
     params = new URLSearchParams({
       grant_type: "refresh_token",
-      client_id: process.env.NEXT_PUBLIC_JAMENDO_CLIENT_ID,
+      client_id: process.env.JAMENDO_CLIENT_ID,
       client_secret: process.env.JAMENDO_CLIENT_SECRET,
       refresh_token: code,
     });
