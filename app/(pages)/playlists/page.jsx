@@ -24,7 +24,6 @@ import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
-import { LogoutButton } from "@/app/components/login/logout-button";
 import SignedInAs from "@/app/components/login/signed-in-as";
 import LoginPopup from "@/app/components/login/login-popup";
 import Navigation from "@/app/navigation/nav-bar";
@@ -214,7 +213,6 @@ export default function PlaylistsPage() {
         </Typography>
         <Box display="flex" alignItems="center" gap={2}>
           <SignedInAs />
-          <LogoutButton />
         </Box>
       </Box>
 

@@ -6,7 +6,9 @@ import PersonIcon from "@mui/icons-material/Person";
 import SettingsIcon from "@mui/icons-material/Settings";
 import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
 import PlaylistPlayIcon from "@mui/icons-material/PlaylistPlay";
+import LogoutIcon from "@mui/icons-material/Logout";
 import { useUserAuth } from "@/context/auth-context";
+import { LogoutButton } from "@/app/components/login/logout-button";
 
 export default function Navigation() {
   const router = useRouter();
@@ -20,13 +22,26 @@ export default function Navigation() {
       path: user ? `/user/${user.uid}` : "/user",
       icon: <PersonIcon />,
     },
+<<<<<<< Updated upstream:app/navigation/nav-bar.jsx
     { label: "Playlists", path: "/playlists", icon: <PlaylistPlayIcon /> },
+=======
+    {
+      label: "Playlists",
+      path: authUser ? `/user/${authUser.uid}/playlists` : "/",
+      icon: <PlaylistPlayIcon />,
+    },
+>>>>>>> Stashed changes:app/components/navigation/nav-bar.jsx
     { label: "Game Room", path: "/sound-room", icon: <SportsEsportsIcon /> },
     { label: "Settings", path: "/settings", icon: <SettingsIcon /> },
   ];
 
   // Check if current path matches profile with any ID
+<<<<<<< Updated upstream:app/navigation/nav-bar.jsx
   const isProfileActive = pathname?.startsWith("/user/");
+=======
+  const isProfileActive =
+    pathname?.startsWith("/user/") && pathname.split("/").length === 3;
+>>>>>>> Stashed changes:app/components/navigation/nav-bar.jsx
 
   const handleNavigation = (path) => {
     console.log("Navigating to:", path);
@@ -42,9 +57,9 @@ export default function Navigation() {
         p: 1.5,
         mb: 3,
         display: "flex",
-        justifyContent: "center",
+        justifyContent: "space-between",
+        alignItems: "center",
         gap: 2,
-        flexWrap: "wrap",
         border: "1px solid #444",
         transition: "border-color 0.3s",
         "&:hover": {
@@ -52,10 +67,10 @@ export default function Navigation() {
         },
       }}
     >
+      {/* Nav Items  */}
       {navItems.map((item) => {
         const isActive =
           item.label === "Profile" ? isProfileActive : pathname === item.path;
-
         return (
           <Button
             key={item.path}
@@ -80,13 +95,29 @@ export default function Navigation() {
               px: 2.5,
               py: 1,
               transition: "all 0.2s",
-              minWidth: { xs: "100px", sm: "120px" },
+              flexGrow: 1,
+              flexShrink: 1,
+              flexBasis: 0,
             }}
           >
             {item.label}
           </Button>
         );
       })}
+
+      {/* Logout Button - fixed width, stays on the right */}
+      <Box sx={{ flexShrink: 0 }}>
+        <LogoutButton
+          sx={{
+            "&:hover": {
+              bgcolor: "#d32f2f",
+              borderColor: "#d32f2f",
+              transform: "translateY(-2px)",
+              boxShadow: "0 4px 12px rgba(211, 47, 47, 0.4)",
+            },
+          }}
+        />
+      </Box>
     </Box>
   );
 }

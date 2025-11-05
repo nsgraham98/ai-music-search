@@ -3,8 +3,7 @@
 // AudioPlayer component is located in the layout.jsx file so it's always visible to logged in users
 "use client";
 import SearchBar from "@/app/components/search-bar.jsx";
-import { LogoutButton } from "@/app/components/login/logout-button";
-import { Box, Typography, Container, Paper, Button } from "@mui/material";
+import { Box, Typography, Container, Paper } from "@mui/material";
 import { PlayList } from "@/app/components/audio/playlist.jsx";
 import SignedInAs from "@/app/components/login/signed-in-as";
 import LoginPopup from "@/app/components/login/login-popup";
@@ -15,13 +14,14 @@ export default function HomePage() {
   return (
     <Container maxWidth="lg">
       <LoginPopup />
-      {/* Header and Logout */}
+      {/* Header */}
       <Box
         display="flex"
         justifyContent="space-between"
         alignItems="center"
         mb={4}
       >
+<<<<<<< Updated upstream
         <Box display="flex" alignItems="center" gap={2}>
           <Typography variant="h4" fontWeight="bold">
             TUTTi.
@@ -47,15 +47,16 @@ export default function HomePage() {
             </Button>
           </Link>
         </Box>
+=======
+        <Typography variant="h4" fontWeight="bold">
+          TUTTi.
+        </Typography>
+>>>>>>> Stashed changes
         <Box display="flex" alignItems="center" gap={2}>
           <SignedInAs />
-          <LogoutButton />
         </Box>
       </Box>
-
-      {/* Navigation Bar */}
       <Navigation />
-
       {/* Search Bar */}
       <Box
         sx={{
@@ -85,9 +86,6 @@ export default function HomePage() {
           mx: "auto",
           p: { xs: 2, md: 4 },
           borderRadius: 2,
-          // flexGrow: 1,
-          // display: "flex",
-          // flexDirection: "column",
           gap: 3,
         }}
       >
