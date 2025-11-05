@@ -9,7 +9,11 @@ import { AudioPlayerProvider } from "@/context/audio-player-context.jsx";
 import { AuthContextProvider } from "@/context/auth-context.jsx";
 import { UserProfileContextProvider } from "@/context/user-profile-context.jsx";
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import { AppInitializer } from "@/app/components/app-initializer.jsx";
+=======
+import ColorblindFilters from "@/app/components/settings/colorblind-filters";
+>>>>>>> Stashed changes
 =======
 import ColorblindFilters from "@/app/components/settings/colorblind-filters";
 >>>>>>> Stashed changes
@@ -53,7 +57,10 @@ export default function RootLayout({ children }) {
                   }}
                 >
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                   <AppInitializer />
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
                   {children}

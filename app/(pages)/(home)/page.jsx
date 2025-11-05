@@ -51,6 +51,9 @@ export default function HomePage() {
         <Typography variant="h4" fontWeight="bold">
           TUTTi.
         </Typography>
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
         <Box display="flex" alignItems="center" gap={2}>
           <SignedInAs />

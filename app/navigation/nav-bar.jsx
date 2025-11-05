@@ -41,6 +41,9 @@ export default function Navigation() {
 =======
   const isProfileActive =
     pathname?.startsWith("/user/") && pathname.split("/").length === 3;
+<<<<<<< Updated upstream:app/navigation/nav-bar.jsx
+>>>>>>> Stashed changes:app/components/navigation/nav-bar.jsx
+=======
 >>>>>>> Stashed changes:app/components/navigation/nav-bar.jsx
 
   const handleNavigation = (path) => {
