@@ -240,7 +240,7 @@ export default function RoundResults({
       {/* Player Leaderboard */}
       <Paper sx={{ bgcolor: "#2e2d2d", color: "white", p: 4 }}>
         <Typography variant="h5" fontWeight="bold" mb={3}>
-          Player Leaderboard (This Round)
+          Scoreboard
         </Typography>
 
         <TableContainer>

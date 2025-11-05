@@ -1,6 +1,6 @@
 // Route for handling user operations by userID
 
-import { dbAdmin } from "@/lib/firebase-admin.js";
+import { dbAdmin, adminAuth } from "@/lib/firebase-admin.js";
 import { NextResponse } from "next/server";
 
 // Get user by userID (other users' profiles)
@@ -32,7 +32,7 @@ import { NextResponse } from "next/server";
 // }
 export async function GET(request, { params }) {
   try {
-    const { id: userId } = await params;
+    const { userID: userId } = await params;
 
     // Get user from Firebase Auth
     const userRecord = await adminAuth.getUser(userId);

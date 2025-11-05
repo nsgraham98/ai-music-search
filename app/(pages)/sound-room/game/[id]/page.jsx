@@ -14,6 +14,7 @@ import {
   CircularProgress,
   Alert,
 } from "@mui/material";
+import { EmojiEvents as TrophyIcon } from "@mui/icons-material";
 import { LogoutButton } from "@/app/components/login/logout-button";
 import SignedInAs from "@/app/components/login/signed-in-as";
 import LoginPopup from "@/app/components/login/login-popup";
@@ -40,6 +41,7 @@ export default function GamePage() {
   const [hasVoted, setHasVoted] = useState(false);
   const [closingVoting, setClosingVoting] = useState(false);
   const [startingNextRound, setStartingNextRound] = useState(false);
+  const [playerNames, setPlayerNames] = useState({});
 
   useEffect(() => {
     if (authUser && gameId) {
@@ -53,6 +55,13 @@ export default function GamePage() {
       fetchCurrentRound();
     }
   }, [game]);
+
+  useEffect(() => {
+    // Fetch player names when game loads
+    if (game && game.players) {
+      fetchPlayerNames(game.players);
+    }
+  }, [game?.players]);
 
   const fetchGameDetails = async () => {
     setLoading(true);
@@ -76,6 +85,34 @@ export default function GamePage() {
       setError("Failed to load game details");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchPlayerNames = async (playerIds) => {
+    try {
+      const names = {};
+
+      // Fetch display names for each player
+      for (const userId of playerIds) {
+        try {
+          const response = await fetch(`/api/users/${userId}`, {
+            credentials: "include",
+          });
+          const data = await response.json();
+          if (data.success) {
+            names[userId] = data.displayName || "Anonymous";
+          } else {
+            names[userId] = "Anonymous";
+          }
+        } catch (error) {
+          console.error(`Error fetching name for user ${userId}:`, error);
+          names[userId] = "Anonymous";
+        }
+      }
+
+      setPlayerNames(names);
+    } catch (error) {
+      console.error("Error fetching player names:", error);
     }
   };
 
@@ -329,10 +366,66 @@ export default function GamePage() {
                   <Typography variant="h3" fontWeight="bold" gutterBottom>
                     {game.name}
                   </Typography>
-                  <Typography variant="body1" color="#ccc">
+                  <Typography variant="body1" color="#ccc" mb={1}>
                     {game.players?.length || 1} player(s) • Created{" "}
                     {formatDate(game.created_at)}
                   </Typography>
+
+                  {/* Player Names List */}
+                  {game.players && game.players.length > 0 && (
+                    <Box display="flex" flexWrap="wrap" gap={1} mt={2}>
+                      {[...game.players]
+                        .sort((a, b) => {
+                          // Sort by score (highest first), then alphabetically
+                          const scoreA = game.overall_scores?.[a] || 0;
+                          const scoreB = game.overall_scores?.[b] || 0;
+                          if (scoreB !== scoreA) return scoreB - scoreA;
+                          return (playerNames[a] || "").localeCompare(
+                            playerNames[b] || ""
+                          );
+                        })
+                        .map((playerId, index) => {
+                          const score = game.overall_scores?.[playerId] || 0;
+                          const isCurrentUser = playerId === authUser?.uid;
+                          const isLeader = index === 0 && score > 0;
+
+                          return (
+                            <Chip
+                              key={playerId}
+                              icon={
+                                isLeader ? (
+                                  <TrophyIcon
+                                    sx={{
+                                      fontSize: "1.2rem",
+                                      color: isCurrentUser ? "white" : "#000",
+                                    }}
+                                  />
+                                ) : undefined
+                              }
+                              label={`${playerNames[playerId] || "Loading..."} ${score > 0 ? `• ${score}` : ""}`}
+                              size="medium"
+                              sx={{
+                                bgcolor: isCurrentUser
+                                  ? "#4caf50"
+                                  : isLeader
+                                    ? "#ffd700"
+                                    : "#555",
+                                color:
+                                  isLeader && !isCurrentUser ? "#000" : "white",
+                                fontWeight:
+                                  isCurrentUser || isLeader ? "bold" : "normal",
+                                fontSize: "0.9rem",
+                                px: 1.5,
+                                py: 2,
+                                "& .MuiChip-icon": {
+                                  marginLeft: "8px",
+                                },
+                              }}
+                            />
+                          );
+                        })}
+                    </Box>
+                  )}
                 </Box>
                 <Chip
                   label={getGameStatusText(game)}
