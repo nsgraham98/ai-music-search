@@ -19,7 +19,7 @@ import { DeleteTrackFromPlaylistButton } from "@/app/components/playlist/delete-
 import { GetAllPlaylistsButton } from "@/app/components/playlist/get-all-playlists.jsx";
 import { GetPlaylistButton } from "@/app/components/playlist/get-playlist.jsx";
 import { UpdatePlaylistButton } from "@/app/components/playlist/update-playlist.jsx";
-import { GetTracksButton } from "@/app/components/playlist/get-tracks.jsx";
+import { GetTracksButton } from "@/app/components/playlist/get-playlist-tracks.jsx";
 import TestShowCurrentUser from "@/app/components/tests/test-show-current-user-profile.jsx";
 
 export default function HomePage() {
