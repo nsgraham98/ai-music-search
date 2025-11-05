@@ -30,26 +30,6 @@ export default function HomePage() {
           <Typography variant="h4" fontWeight="bold">
             TUTTi.
           </Typography>
-          <Link href="/sound-room" passHref>
-            <Button
-              variant="outlined"
-              color="primary"
-              sx={{
-                borderColor: "white",
-                color: "white",
-                textTransform: "uppercase",
-                fontWeight: "bold",
-                fontSize: "0.875rem",
-                padding: "4px 12px",
-                borderWidth: 2,
-                "&:hover": {
-                  backgroundColor: "rgba(255, 255, 255, 0.1)",
-                },
-              }}
-            >
-              The Sound Room
-            </Button>
-          </Link>
         </Box>
 
         <Box display="flex" alignItems="center" gap={2}>
