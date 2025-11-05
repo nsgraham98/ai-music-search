@@ -14,34 +14,26 @@ import {
   IconButton,
   CircularProgress,
   Alert,
-  Paper,
   Grid,
   Card,
   CardContent,
-  CardActions,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 import { Add as AddIcon, Delete as DeleteIcon } from "@mui/icons-material";
 import { LogoutButton } from "@/app/components/login/logout-button";
-=======
-import { Delete as DeleteIcon } from "@mui/icons-material";
->>>>>>> Stashed changes
-=======
-import { Delete as DeleteIcon } from "@mui/icons-material";
->>>>>>> Stashed changes
-=======
-import { Delete as DeleteIcon } from "@mui/icons-material";
->>>>>>> Stashed changes
 import SignedInAs from "@/app/components/login/signed-in-as";
 import LoginPopup from "@/app/components/login/login-popup";
-import Navigation from "@/app/components/navigation/nav-bar";
+import Navigation from "@/app/navigation/nav-bar";
 import { useUserAuth } from "@/context/auth-context";
 import Link from "next/link";
 
 export default function SoundRoomPage() {
   const { user } = useUserAuth();
+
+  // Create game state
   const [gameName, setGameName] = useState("");
   const [friendEmail, setFriendEmail] = useState("");
   const [invitedFriends, setInvitedFriends] = useState([]);
@@ -49,54 +41,54 @@ export default function SoundRoomPage() {
   const [friendError, setFriendError] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [createdGameCode, setCreatedGameCode] = useState("");
 
   // Dashboard state
   const [userGames, setUserGames] = useState([]);
   const [loadingGames, setLoadingGames] = useState(false);
   const [gamesError, setGamesError] = useState("");
 
+  // Join game state
+  const [joinCode, setJoinCode] = useState("");
+  const [joinError, setJoinError] = useState("");
+  const [isJoining, setIsJoining] = useState(false);
+
+  // Delete dialog state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [gameToDelete, setGameToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   // Fetch user's games when component mounts or user changes
   useEffect(() => {
     if (user) {
       fetchUserGames();
+    } else {
+      setUserGames([]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const fetchUserGames = async () => {
     setLoadingGames(true);
     setGamesError("");
-
     try {
-      const token = await user.getIdToken();
+      const token = user ? await user.getIdToken() : null;
 
       const response = await fetch("/api/games", {
         method: "GET",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-=======
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
         credentials: "include",
->>>>>>> Stashed changes
-=======
-        credentials: "include",
->>>>>>> Stashed changes
-=======
-        credentials: "include",
->>>>>>> Stashed changes
       });
 
       const data = await response.json();
 
       if (data.success) {
-        setUserGames(data.games);
+        setUserGames(data.games || []);
       } else {
         setGamesError(data.error || "Failed to load games");
       }
-    } catch (error) {
-      console.error("Error fetching games:", error);
+    } catch (err) {
+      console.error("Error fetching games:", err);
       setGamesError("Failed to load games");
     } finally {
       setLoadingGames(false);
@@ -107,16 +99,34 @@ export default function SoundRoomPage() {
     window.location.href = `/sound-room/game/${gameId}`;
   };
 
+  const formatDate = (value) => {
+    if (!value) return "Unknown";
+    // support both Firestore Timestamp-like {seconds} or ISO string / epoch
+    try {
+      let date;
+      if (value.seconds) {
+        date = new Date(value.seconds * 1000);
+      } else if (typeof value === "number") {
+        date = new Date(value);
+      } else {
+        date = new Date(value);
+      }
+      return date.toLocaleDateString();
+    } catch {
+      return String(value);
+    }
+  };
+
   const getGameStatusText = (game) => {
     switch (game.status) {
       case "waiting_for_players":
         return "Waiting for players";
       case "active":
-        return `Round ${game.current_round}`;
+        return `Round ${game.current_round || 1}`;
       case "completed":
         return "Completed";
       default:
-        return game.status;
+        return game.status || "Unknown";
     }
   };
 
@@ -133,13 +143,34 @@ export default function SoundRoomPage() {
     }
   };
 
-<<<<<<< Updated upstream
+  // Add friend to invite list
   const handleAddFriend = () => {
-    if (!friendEmail.trim()) {
+    setFriendError("");
+    const email = friendEmail.trim();
+    if (!email) {
       setFriendError("Email is required.");
-=======
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setFriendError("Please enter a valid email address.");
+      return;
+    }
+    if (invitedFriends.includes(email)) {
+      setFriendError("This friend has already been invited.");
+      return;
+    }
+    setInvitedFriends((prev) => [...prev, email]);
+    setFriendEmail("");
+  };
+
+  const handleRemoveFriend = (emailToRemove) => {
+    setInvitedFriends((prev) => prev.filter((e) => e !== emailToRemove));
+  };
+
+  // Open delete dialog (stop event propagation so card onClick doesn't fire)
   const handleOpenDeleteDialog = (game, event) => {
-    event.stopPropagation();
+    if (event && event.stopPropagation) event.stopPropagation();
     setGameToDelete(game);
     setDeleteDialogOpen(true);
   };
@@ -153,141 +184,113 @@ export default function SoundRoomPage() {
 
   const handleConfirmDelete = async () => {
     if (!gameToDelete) return;
-
     setIsDeleting(true);
-
+    setGamesError("");
     try {
+      const token = user ? await user.getIdToken() : null;
       const response = await fetch(`/api/games/${gameToDelete.id}`, {
         method: "DELETE",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
         credentials: "include",
       });
-
       const data = await response.json();
-
       if (data.success) {
-        setUserGames(userGames.filter((g) => g.id !== gameToDelete.id));
+        setUserGames((prev) => prev.filter((g) => g.id !== gameToDelete.id));
         setDeleteDialogOpen(false);
         setGameToDelete(null);
       } else {
         setGamesError(data.error || "Failed to delete game");
-        setDeleteDialogOpen(false);
       }
-    } catch (error) {
-      console.error("Error deleting game:", error);
+    } catch (err) {
+      console.error("Error deleting game:", err);
       setGamesError("Failed to delete game");
-      setDeleteDialogOpen(false);
     } finally {
       setIsDeleting(false);
     }
   };
 
   const handleJoinGame = async () => {
+    setJoinError("");
     if (!joinCode.trim()) {
       setJoinError("Join code is required.");
->>>>>>> Stashed changes
       return;
     }
-
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(friendEmail)) {
-      setFriendError("Please enter a valid email address.");
-      return;
-    }
-
-    // Check if friend is already added
-    if (invitedFriends.includes(friendEmail)) {
-      setFriendError("This friend has already been invited.");
-      return;
-    }
-
-    setInvitedFriends([...invitedFriends, friendEmail]);
-    setFriendEmail("");
-    setFriendError("");
-  };
-
-<<<<<<< Updated upstream
-  const handleRemoveFriend = (emailToRemove) => {
-    setInvitedFriends(
-      invitedFriends.filter((email) => email !== emailToRemove)
-    );
-=======
+    setIsJoining(true);
     try {
+      const token = user ? await user.getIdToken() : null;
       const response = await fetch("/api/games/join", {
         method: "POST",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({
-          joinCode: joinCode.trim(),
-        }),
+        credentials: "include",
+        body: JSON.stringify({ joinCode: joinCode.trim() }),
       });
 
       const data = await response.json();
-
       if (data.success) {
+        // redirect to game
         window.location.href = `/sound-room/game/${data.gameId}`;
       } else {
         setJoinError(data.error || "Failed to join game");
       }
-    } catch (error) {
-      console.error("Error joining game:", error);
+    } catch (err) {
+      console.error("Error joining game:", err);
       setJoinError(
         "An error occurred while joining the game. Please try again."
       );
     } finally {
       setIsJoining(false);
     }
->>>>>>> Stashed changes
   };
 
   const handleCreateGame = async () => {
+    setError("");
+    setSuccessMessage("");
+    setCreatedGameCode("");
+
     if (!gameName.trim()) {
       setError("Game name is required.");
       return;
     }
-
     if (!user) {
       setError("You must be logged in to create a game.");
       return;
     }
 
     setIsCreating(true);
-    setError("");
-    setSuccessMessage("");
-
     try {
-      // Get the user's ID token for authentication
       const token = await user.getIdToken();
-
       const response = await fetch("/api/games", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
+        credentials: "include",
         body: JSON.stringify({
-          gameName: gameName,
+          gameName: gameName.trim(),
           invitedEmails: invitedFriends,
         }),
       });
 
       const data = await response.json();
-
       if (data.success) {
-        setSuccessMessage(
-          `Game '${gameName}' created successfully! Game ID: ${data.gameId}`
-        );
+        setSuccessMessage(`Game '${gameName}' created successfully!`);
+        if (data.gameCode) setCreatedGameCode(data.gameCode);
+        if (data.gameId) {
+          // optional: navigate to created game
+          // window.location.href = `/sound-room/game/${data.gameId}`;
+        }
         setGameName("");
         setInvitedFriends([]);
-        setError("");
         fetchUserGames();
       } else {
         setError(data.error || "Failed to create game");
       }
-    } catch (error) {
-      console.error("Error creating game:", error);
+    } catch (err) {
+      console.error("Error creating game:", err);
       setError("An error occurred while creating the game. Please try again.");
     } finally {
       setIsCreating(false);
@@ -305,7 +308,7 @@ export default function SoundRoomPage() {
         alignItems="center"
         mb={4}
       >
-        <Link href="/" passHref style={{ textDecoration: "none" }}>
+        <Link href="/" style={{ textDecoration: "none" }}>
           <Typography
             variant="h4"
             fontWeight="bold"
@@ -316,13 +319,14 @@ export default function SoundRoomPage() {
         </Link>
         <Box display="flex" alignItems="center" gap={2}>
           <SignedInAs />
+          <LogoutButton />
         </Box>
       </Box>
 
       {/* Navigation Bar */}
       <Navigation />
 
-      {/* Sound Room Content - Two Column Layout */}
+      {/* Main Content */}
       <Grid container spacing={4}>
         {/* Left Column - Games Dashboard */}
         <Grid item xs={12} md={6}>
@@ -374,9 +378,7 @@ export default function SoundRoomPage() {
                       bgcolor: "#444",
                       color: "white",
                       cursor: "pointer",
-                      "&:hover": {
-                        bgcolor: "#555",
-                      },
+                      "&:hover": { bgcolor: "#555" },
                     }}
                     onClick={() => handleGameClick(game.id)}
                   >
@@ -397,6 +399,7 @@ export default function SoundRoomPage() {
                             Created: {formatDate(game.created_at)}
                           </Typography>
                         </Box>
+
                         <Box display="flex" alignItems="center" gap={1}>
                           <Chip
                             label={getGameStatusText(game)}
@@ -407,7 +410,7 @@ export default function SoundRoomPage() {
                               fontWeight: "bold",
                             }}
                           />
-                          {authUser && game.creator === authUser.uid && (
+                          {user && game.creator === user.uid && (
                             <IconButton
                               onClick={(e) => handleOpenDeleteDialog(game, e)}
                               sx={{
@@ -443,321 +446,15 @@ export default function SoundRoomPage() {
                   fontSize: "0.75rem",
                   padding: "6px 12px",
                   borderWidth: 1,
-                  "&:hover": {
-                    backgroundColor: "rgba(255, 255, 255, 0.1)",
-                  },
-                  "&:disabled": {
-                    borderColor: "#666",
-                    color: "#666",
-                  },
+                  "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" },
+                  "&:disabled": { borderColor: "#666", color: "#666" },
                 }}
               >
                 {loadingGames ? "Refreshing..." : "Refresh Games"}
               </Button>
             </Box>
           </Box>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-          <Box display="flex" alignItems="center" gap={2}>
-            <SignedInAs />
-            <LogoutButton />
-          </Box>
-        </Box>
-
-        {/* Sound Room Content - Two Column Layout */}
-        <Grid container spacing={4}>
-          {/* Left Column - Games Dashboard */}
-          <Grid item xs={12} md={6}>
-            <Box
-              sx={{
-                bgcolor: "#2e2d2d",
-                padding: 4,
-                borderRadius: 2,
-                height: "fit-content",
-              }}
-            >
-              <Typography
-                variant="h4"
-                fontWeight="bold"
-                gutterBottom
-                color="white"
-              >
-                My Games
-              </Typography>
-              <Typography variant="body1" gutterBottom color="white" mb={3}>
-                Your active and past games
-              </Typography>
-
-              {/* Games List */}
-              {loadingGames ? (
-                <Box display="flex" justifyContent="center" py={4}>
-                  <CircularProgress sx={{ color: "white" }} />
-                </Box>
-              ) : gamesError ? (
-                <Alert severity="error" sx={{ mb: 2 }}>
-                  {gamesError}
-                </Alert>
-              ) : userGames.length === 0 ? (
-                <Box textAlign="center" py={4}>
-                  <Typography variant="body1" color="#ccc">
-                    You haven't joined any games yet.
-                  </Typography>
-                  <Typography variant="body2" color="#888" mt={1}>
-                    Create your first game to get started!
-                  </Typography>
-                </Box>
-              ) : (
-                <Box>
-                  {userGames.map((game) => (
-                    <Card
-                      key={game.id}
-                      sx={{
-                        mb: 2,
-                        bgcolor: "#444",
-                        color: "white",
-                        cursor: "pointer",
-                        "&:hover": {
-                          bgcolor: "#555",
-                        },
-                      }}
-                      onClick={() => handleGameClick(game.id)}
-                    >
-                      <CardContent>
-                        <Box
-                          display="flex"
-                          justifyContent="space-between"
-                          alignItems="flex-start"
-                        >
-                          <Box>
-                            <Typography variant="h6" fontWeight="bold">
-                              {game.name}
-                            </Typography>
-                            <Typography variant="body2" color="#ccc" mt={1}>
-                              {game.players?.length || 1} player(s)
-                            </Typography>
-                            <Typography variant="body2" color="#ccc">
-                              Created:{" "}
-                              {new Date(
-                                game.created_at?.seconds * 1000 ||
-                                  game.created_at
-                              ).toLocaleDateString()}
-                            </Typography>
-                          </Box>
-                          <Chip
-                            label={getGameStatusText(game)}
-                            size="small"
-                            sx={{
-                              backgroundColor: getGameStatusColor(game.status),
-                              color: "white",
-                              fontWeight: "bold",
-                            }}
-                          />
-                        </Box>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </Box>
-              )}
-
-              {/* Refresh Button */}
-              <Box mt={3}>
-                <Button
-                  variant="outlined"
-                  onClick={fetchUserGames}
-                  disabled={loadingGames}
-                  sx={{
-                    borderColor: "white",
-                    color: "white",
-                    textTransform: "uppercase",
-                    fontWeight: "bold",
-                    fontSize: "0.75rem",
-                    padding: "6px 12px",
-                    borderWidth: 1,
-                    "&:hover": {
-                      backgroundColor: "rgba(255, 255, 255, 0.1)",
-                    },
-                    "&:disabled": {
-                      borderColor: "#666",
-                      color: "#666",
-                    },
-                  }}
-                >
-                  {loadingGames ? "Refreshing..." : "Refresh Games"}
-                </Button>
-              </Box>
-            </Box>
-          </Grid>
-
-          {/* Right Column - Create New Game */}
-          <Grid item xs={12} md={6}>
-            <Box sx={{ bgcolor: "#2e2d2d", padding: 4, borderRadius: 2 }}>
-              <Typography
-                variant="h4"
-                fontWeight="bold"
-                gutterBottom
-                color="white"
-              >
-                Create New Game
-              </Typography>
-              <Typography variant="body1" gutterBottom color="white">
-                Start a new Sound Room game and invite your friends!
-              </Typography>
-
-              {/* Game Name Input */}
-              <Box mt={3}>
-                <TextField
-                  fullWidth
-                  label="Game Name"
-                  variant="outlined"
-                  value={gameName}
-                  onChange={(e) => setGameName(e.target.value)}
-                  error={!!error}
-                  helperText={error}
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      color: "white",
-                      "& fieldset": { borderColor: "#555" },
-                      "&:hover fieldset": { borderColor: "#888" },
-                      "&.Mui-focused fieldset": { borderColor: "white" },
-                    },
-                    "& .MuiInputLabel-root": { color: "#ccc" },
-                    "& .MuiFormHelperText-root": { color: "#ff6b6b" },
-                  }}
-                />
-              </Box>
-
-              {/* Friend Invitation Section */}
-              <Box mt={3}>
-                <Typography variant="h6" color="white" mb={2}>
-                  Invite Friends
-                </Typography>
-                <Box display="flex" gap={1} mb={2}>
-                  <TextField
-                    fullWidth
-                    label="Friend's Email"
-                    variant="outlined"
-                    value={friendEmail}
-                    onChange={(e) => setFriendEmail(e.target.value)}
-                    error={!!friendError}
-                    helperText={friendError}
-                    onKeyPress={(e) => e.key === "Enter" && handleAddFriend()}
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        color: "white",
-                        "& fieldset": { borderColor: "#555" },
-                        "&:hover fieldset": { borderColor: "#888" },
-                        "&.Mui-focused fieldset": { borderColor: "white" },
-                      },
-                      "& .MuiInputLabel-root": { color: "#ccc" },
-                      "& .MuiFormHelperText-root": { color: "#ff6b6b" },
-                    }}
-                  />
-                  <Button
-                    variant="outlined"
-                    onClick={handleAddFriend}
-                    sx={{
-                      borderColor: "white",
-                      color: "white",
-                      minWidth: "auto",
-                      px: 2,
-                      "&:hover": {
-                        backgroundColor: "rgba(255, 255, 255, 0.1)",
-                      },
-                    }}
-                  >
-                    <AddIcon />
-                  </Button>
-                </Box>
-
-                {/* Invited Friends List */}
-                {invitedFriends.length > 0 && (
-                  <Box>
-                    <Typography variant="body2" color="#ccc" mb={1}>
-                      Invited Friends ({invitedFriends.length}):
-                    </Typography>
-                    <Box display="flex" flexWrap="wrap" gap={1}>
-                      {invitedFriends.map((email, index) => (
-                        <Chip
-                          key={index}
-                          label={email}
-                          onDelete={() => handleRemoveFriend(email)}
-                          deleteIcon={<DeleteIcon />}
-                          sx={{
-                            backgroundColor: "#444",
-                            color: "white",
-                            "& .MuiChip-deleteIcon": {
-                              color: "#ccc",
-                              "&:hover": { color: "#ff6b6b" },
-                            },
-                          }}
-                        />
-                      ))}
-                    </Box>
-                  </Box>
-                )}
-              </Box>
-
-              {/* Create Game Button */}
-              <Box mt={4}>
-                {/* Success/Error Messages */}
-                {successMessage && (
-                  <Alert severity="success" sx={{ mb: 2 }}>
-                    {successMessage}
-                  </Alert>
-                )}
-                {error && (
-                  <Alert severity="error" sx={{ mb: 2 }}>
-                    {error}
-                  </Alert>
-                )}
-
-                <Button
-                  variant="outlined"
-                  sx={{
-                    borderColor: "white",
-                    color: "white",
-                    textTransform: "uppercase",
-                    fontWeight: "bold",
-                    fontSize: "0.875rem",
-                    padding: "8px 16px",
-                    borderWidth: 2,
-                    "&:hover": {
-                      backgroundColor: "rgba(255, 255, 255, 0.1)",
-                    },
-                    "&:disabled": {
-                      borderColor: "#666",
-                      color: "#666",
-                    },
-                  }}
-                  onClick={handleCreateGame}
-                  disabled={isCreating}
-                >
-                  {isCreating ? (
-                    <CircularProgress size={20} sx={{ color: "white" }} />
-                  ) : (
-                    "Create Game"
-                  )}
-                </Button>
-                {invitedFriends.length > 0 && (
-                  <Typography variant="body2" color="#ccc" mt={1}>
-                    Total players: {invitedFriends.length + 1} (including you)
-                  </Typography>
-                )}
-              </Box>
-            </Box>
-          </Grid>
         </Grid>
-      </Container>
-    </Box>
-=======
-        </Grid>
-=======
-        </Grid>
->>>>>>> Stashed changes
-=======
-        </Grid>
->>>>>>> Stashed changes
 
         {/* Right Column - Create and Join Game */}
         <Grid item xs={12} md={6}>
@@ -772,7 +469,7 @@ export default function SoundRoomPage() {
               Create New Game
             </Typography>
             <Typography variant="body1" gutterBottom color="white">
-              Start a new Sound Room game!
+              Start a new Sound Room game and invite your friends!
             </Typography>
 
             {/* Game Name Input */}
@@ -796,6 +493,75 @@ export default function SoundRoomPage() {
                   "& .MuiFormHelperText-root": { color: "#ff6b6b" },
                 }}
               />
+            </Box>
+
+            {/* Friend Invitation Section */}
+            <Box mt={3}>
+              <Typography variant="h6" color="white" mb={2}>
+                Invite Friends
+              </Typography>
+              <Box display="flex" gap={1} mb={2}>
+                <TextField
+                  fullWidth
+                  label="Friend's Email"
+                  variant="outlined"
+                  value={friendEmail}
+                  onChange={(e) => setFriendEmail(e.target.value)}
+                  error={!!friendError}
+                  helperText={friendError}
+                  onKeyPress={(e) => e.key === "Enter" && handleAddFriend()}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      color: "white",
+                      "& fieldset": { borderColor: "#555" },
+                      "&:hover fieldset": { borderColor: "#888" },
+                      "&.Mui-focused fieldset": { borderColor: "white" },
+                    },
+                    "& .MuiInputLabel-root": { color: "#ccc" },
+                    "& .MuiFormHelperText-root": { color: "#ff6b6b" },
+                  }}
+                />
+                <Button
+                  variant="outlined"
+                  onClick={handleAddFriend}
+                  sx={{
+                    borderColor: "white",
+                    color: "white",
+                    minWidth: "auto",
+                    px: 2,
+                    "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" },
+                  }}
+                >
+                  <AddIcon />
+                </Button>
+              </Box>
+
+              {/* Invited Friends List */}
+              {invitedFriends.length > 0 && (
+                <Box>
+                  <Typography variant="body2" color="#ccc" mb={1}>
+                    Invited Friends ({invitedFriends.length}):
+                  </Typography>
+                  <Box display="flex" flexWrap="wrap" gap={1}>
+                    {invitedFriends.map((email, index) => (
+                      <Chip
+                        key={index}
+                        label={email}
+                        onDelete={() => handleRemoveFriend(email)}
+                        deleteIcon={<DeleteIcon />}
+                        sx={{
+                          backgroundColor: "#444",
+                          color: "white",
+                          "& .MuiChip-deleteIcon": {
+                            color: "#ccc",
+                            "&:hover": { color: "#ff6b6b" },
+                          },
+                        }}
+                      />
+                    ))}
+                  </Box>
+                </Box>
+              )}
             </Box>
 
             {/* Create Game Button */}
@@ -828,10 +594,7 @@ export default function SoundRoomPage() {
                     variant="h3"
                     fontWeight="bold"
                     color="white"
-                    sx={{
-                      letterSpacing: "0.2em",
-                      fontFamily: "monospace",
-                    }}
+                    sx={{ letterSpacing: "0.2em", fontFamily: "monospace" }}
                   >
                     {createdGameCode}
                   </Typography>
@@ -848,13 +611,8 @@ export default function SoundRoomPage() {
                   fontSize: "0.875rem",
                   padding: "8px 16px",
                   borderWidth: 2,
-                  "&:hover": {
-                    backgroundColor: "rgba(255, 255, 255, 0.1)",
-                  },
-                  "&:disabled": {
-                    borderColor: "#666",
-                    color: "#666",
-                  },
+                  "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" },
+                  "&:disabled": { borderColor: "#666", color: "#666" },
                 }}
                 onClick={handleCreateGame}
                 disabled={isCreating}
@@ -865,6 +623,12 @@ export default function SoundRoomPage() {
                   "Create Game"
                 )}
               </Button>
+
+              {invitedFriends.length > 0 && (
+                <Typography variant="body2" color="#ccc" mt={1}>
+                  Total players: {invitedFriends.length + 1} (including you)
+                </Typography>
+              )}
             </Box>
           </Box>
 
@@ -882,7 +646,6 @@ export default function SoundRoomPage() {
               Enter a 4-digit code to join a game
             </Typography>
 
-            {/* Join Code Input */}
             <Box mt={3}>
               <TextField
                 fullWidth
@@ -892,7 +655,7 @@ export default function SoundRoomPage() {
                 onChange={(e) => setJoinCode(e.target.value)}
                 error={!!joinError}
                 helperText={joinError}
-                inputProps={{ maxLength: 4 }}
+                inputProps={{ maxLength: 8 }}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     color: "white",
@@ -906,7 +669,6 @@ export default function SoundRoomPage() {
               />
             </Box>
 
-            {/* Join Game Button */}
             <Box mt={4}>
               {joinError && (
                 <Alert severity="error" sx={{ mb: 2 }}>
@@ -924,13 +686,8 @@ export default function SoundRoomPage() {
                   fontSize: "0.875rem",
                   padding: "8px 16px",
                   borderWidth: 2,
-                  "&:hover": {
-                    backgroundColor: "rgba(255, 255, 255, 0.1)",
-                  },
-                  "&:disabled": {
-                    borderColor: "#666",
-                    color: "#666",
-                  },
+                  "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" },
+                  "&:disabled": { borderColor: "#666", color: "#666" },
                 }}
                 onClick={handleJoinGame}
                 disabled={isJoining}
@@ -950,12 +707,7 @@ export default function SoundRoomPage() {
       <Dialog
         open={deleteDialogOpen}
         onClose={handleCloseDeleteDialog}
-        PaperProps={{
-          sx: {
-            bgcolor: "#2e2d2d",
-            color: "white",
-          },
-        }}
+        PaperProps={{ sx: { bgcolor: "#2e2d2d", color: "white" } }}
       >
         <DialogTitle>Delete Game?</DialogTitle>
         <DialogContent>
@@ -993,12 +745,5 @@ export default function SoundRoomPage() {
         </DialogActions>
       </Dialog>
     </Container>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
   );
 }
