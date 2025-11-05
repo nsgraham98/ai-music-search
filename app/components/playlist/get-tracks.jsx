@@ -1,0 +1,29 @@
+"use client";
+import axios from "axios";
+import { useTestingContext } from "@/context/testing-context";
+import { Button } from "@mui/material";
+
+export const GetTracksButton = () => {
+  const { testTrack, testTrack2, testTrack3 } = useTestingContext();
+  //   const tracks = [testTrack.id, testTrack2.id, testTrack3.id];
+  const tracks = [testTrack.id];
+
+  async function getTracks() {
+    try {
+      const url = `/api/jamendo/${tracks.join("/")}`;
+      const response = await axios.get(url);
+      console.log("Component: Fetched tracks:", response.data);
+    } catch (error) {
+      console.error("Error fetching tracks:", error);
+    }
+  }
+  return (
+    <Button
+      onClick={async () => {
+        await getTracks();
+      }}
+    >
+      Get Tracks
+    </Button>
+  );
+};
