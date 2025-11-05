@@ -4,19 +4,13 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import "/styles/globals.css";
 import "/styles/customize-progress-bar.css";
-import "/styles/accessibility.css"; // Add this line
+import "/styles/accessibility.css";
+
 import { AudioPlayerProvider } from "@/context/audio-player-context.jsx";
 import { AuthContextProvider } from "@/context/auth-context.jsx";
 import { UserProfileContextProvider } from "@/context/user-profile-context.jsx";
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 import { AppInitializer } from "@/app/components/app-initializer.jsx";
-=======
 import ColorblindFilters from "@/app/components/settings/colorblind-filters";
->>>>>>> Stashed changes
-=======
-import ColorblindFilters from "@/app/components/settings/colorblind-filters";
->>>>>>> Stashed changes
 import ClientErrorBoundary from "@/app/components/error-boundary-client.jsx";
 
 const geistSans = Geist({
@@ -56,14 +50,9 @@ export default function RootLayout({ children }) {
                     minHeight: "100vh",
                   }}
                 >
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
                   <AppInitializer />
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
                   {children}
+
                   <nav style={{ marginBottom: "1rem" }}>
                     <Link href="/spotify-test">
                       <button

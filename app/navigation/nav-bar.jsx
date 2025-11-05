@@ -6,7 +6,6 @@ import PersonIcon from "@mui/icons-material/Person";
 import SettingsIcon from "@mui/icons-material/Settings";
 import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
 import PlaylistPlayIcon from "@mui/icons-material/PlaylistPlay";
-import LogoutIcon from "@mui/icons-material/Logout";
 import { useUserAuth } from "@/context/auth-context";
 import { LogoutButton } from "@/app/components/login/logout-button";
 
@@ -22,29 +21,13 @@ export default function Navigation() {
       path: user ? `/user/${user.uid}` : "/user",
       icon: <PersonIcon />,
     },
-<<<<<<< Updated upstream:app/navigation/nav-bar.jsx
     { label: "Playlists", path: "/playlists", icon: <PlaylistPlayIcon /> },
-=======
-    {
-      label: "Playlists",
-      path: authUser ? `/user/${authUser.uid}/playlists` : "/",
-      icon: <PlaylistPlayIcon />,
-    },
->>>>>>> Stashed changes:app/components/navigation/nav-bar.jsx
     { label: "Game Room", path: "/sound-room", icon: <SportsEsportsIcon /> },
     { label: "Settings", path: "/settings", icon: <SettingsIcon /> },
   ];
 
-  // Check if current path matches profile with any ID
-<<<<<<< Updated upstream:app/navigation/nav-bar.jsx
+  // Check if current path is any user profile path
   const isProfileActive = pathname?.startsWith("/user/");
-=======
-  const isProfileActive =
-    pathname?.startsWith("/user/") && pathname.split("/").length === 3;
-<<<<<<< Updated upstream:app/navigation/nav-bar.jsx
->>>>>>> Stashed changes:app/components/navigation/nav-bar.jsx
-=======
->>>>>>> Stashed changes:app/components/navigation/nav-bar.jsx
 
   const handleNavigation = (path) => {
     console.log("Navigating to:", path);
@@ -70,10 +53,11 @@ export default function Navigation() {
         },
       }}
     >
-      {/* Nav Items  */}
+      {/* Navigation Buttons */}
       {navItems.map((item) => {
         const isActive =
           item.label === "Profile" ? isProfileActive : pathname === item.path;
+
         return (
           <Button
             key={item.path}
@@ -108,7 +92,7 @@ export default function Navigation() {
         );
       })}
 
-      {/* Logout Button - fixed width, stays on the right */}
+      {/* Logout Button */}
       <Box sx={{ flexShrink: 0 }}>
         <LogoutButton
           sx={{

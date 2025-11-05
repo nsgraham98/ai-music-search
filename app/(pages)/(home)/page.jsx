@@ -1,19 +1,24 @@
-// HOME PAGE (DASHBOARD)
-// Only shown to logged in users, otherwise login popup is shown
-// AudioPlayer component is located in the layout.jsx file so it's always visible to logged in users
 "use client";
+
+// HOME PAGE (DASHBOARD)
+// Only shown to logged-in users; otherwise, the login popup is shown
+// AudioPlayer component is located in layout.jsx so it's always visible to logged-in users
+
+import { Box, Typography, Container, Paper, Button } from "@mui/material";
+import Link from "next/link";
+
 import SearchBar from "@/app/components/search-bar.jsx";
-import { Box, Typography, Container, Paper } from "@mui/material";
 import { PlayList } from "@/app/components/audio/playlist.jsx";
 import SignedInAs from "@/app/components/login/signed-in-as";
 import LoginPopup from "@/app/components/login/login-popup";
 import Navigation from "@/app/navigation/nav-bar";
-import Link from "next/link";
 
 export default function HomePage() {
   return (
     <Container maxWidth="lg">
+      {/* Show login popup if user not authenticated */}
       <LoginPopup />
+
       {/* Header */}
       <Box
         display="flex"
@@ -21,7 +26,6 @@ export default function HomePage() {
         alignItems="center"
         mb={4}
       >
-<<<<<<< Updated upstream
         <Box display="flex" alignItems="center" gap={2}>
           <Typography variant="h4" fontWeight="bold">
             TUTTi.
@@ -47,19 +51,15 @@ export default function HomePage() {
             </Button>
           </Link>
         </Box>
-=======
-        <Typography variant="h4" fontWeight="bold">
-          TUTTi.
-        </Typography>
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+
         <Box display="flex" alignItems="center" gap={2}>
           <SignedInAs />
         </Box>
       </Box>
+
+      {/* Navigation Bar */}
       <Navigation />
+
       {/* Search Bar */}
       <Box
         sx={{
@@ -74,8 +74,8 @@ export default function HomePage() {
           <SearchBar />
         </Box>
       </Box>
-      {/* Playlist (aka search results) */}
-      {/* Outer playlist box */}
+
+      {/* Playlist (search results) */}
       <Box
         component={Paper}
         elevation={4}
@@ -92,7 +92,6 @@ export default function HomePage() {
           gap: 3,
         }}
       >
-        {/* Inner playlist box */}
         <Box
           sx={{
             width: "100%",

@@ -22,8 +22,12 @@ import {
 } from "@mui/material";
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import { Add as AddIcon, Delete as DeleteIcon } from "@mui/icons-material";
 import { LogoutButton } from "@/app/components/login/logout-button";
+=======
+import { Delete as DeleteIcon } from "@mui/icons-material";
+>>>>>>> Stashed changes
 =======
 import { Delete as DeleteIcon } from "@mui/icons-material";
 >>>>>>> Stashed changes
@@ -69,9 +73,13 @@ export default function SoundRoomPage() {
         method: "GET",
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         headers: {
           Authorization: `Bearer ${token}`,
         },
+=======
+        credentials: "include",
+>>>>>>> Stashed changes
 =======
         credentials: "include",
 >>>>>>> Stashed changes
@@ -450,6 +458,7 @@ export default function SoundRoomPage() {
           </Box>
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
           <Box display="flex" alignItems="center" gap={2}>
             <SignedInAs />
             <LogoutButton />
@@ -746,6 +755,9 @@ export default function SoundRoomPage() {
 =======
         </Grid>
 >>>>>>> Stashed changes
+=======
+        </Grid>
+>>>>>>> Stashed changes
 
         {/* Right Column - Create and Join Game */}
         <Grid item xs={12} md={6}>
@@ -982,6 +994,9 @@ export default function SoundRoomPage() {
       </Dialog>
     </Container>
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
