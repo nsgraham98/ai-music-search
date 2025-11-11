@@ -1,7 +1,7 @@
 // Game handler functions for interacting with Firestore
 // Manages game creation, retrieval, and updates
 
-import { db } from "@/lib/firebase-admin";
+import { dbAdmin } from "@/lib/firebase-admin";
 import { authenticateCookie } from "@/lib/authenticate-calls";
 
 // List of hardcoded themes for rounds
@@ -50,7 +50,7 @@ export async function createGame({ name, invitedEmails, request }) {
     const userEmail = decodedToken.email;
 
     // Generate a unique game ID
-    const gameRef = db.collection("games").doc();
+    const gameRef = dbAdmin.collection("games").doc();
     const gameId = gameRef.id;
 
     // Create the game document
@@ -109,7 +109,7 @@ export async function getGamesByUser(request) {
     const userId = decodedToken.uid;
 
     // Query games where user is a player or creator
-    const gamesSnapshot = await db
+    const gamesSnapshot = await dbAdmin
       .collection("games")
       .where("players", "array-contains", userId)
       .orderBy("created_at", "desc")
@@ -155,7 +155,7 @@ export async function getGameById(gameId, request) {
     const userId = decodedToken.uid;
 
     // Get the game
-    const gameDoc = await db.collection("games").doc(gameId).get();
+    const gameDoc = await dbAdmin.collection("games").doc(gameId).get();
 
     if (!gameDoc.exists) {
       return { success: false, error: "Game not found" };
@@ -204,7 +204,7 @@ export async function startGame(gameId, request) {
     const userId = decodedToken.uid;
 
     // Get the game to verify it exists and user is creator
-    const gameRef = db.collection("games").doc(gameId);
+    const gameRef = dbAdmin.collection("games").doc(gameId);
     const gameDoc = await gameRef.get();
 
     if (!gameDoc.exists) {
@@ -246,7 +246,7 @@ export async function startGame(gameId, request) {
     };
 
     // Start a batch write to update both game and create round
-    const batch = db.batch();
+    const batch = dbAdmin.batch();
 
     // Update game status and current round
     batch.update(gameRef, {
@@ -302,7 +302,7 @@ export async function getRoundById(gameId, roundId, request) {
     const userId = decodedToken.uid;
 
     // First check if user has access to the game
-    const gameDoc = await db.collection("games").doc(gameId).get();
+    const gameDoc = await dbAdmin.collection("games").doc(gameId).get();
 
     if (!gameDoc.exists) {
       return { success: false, error: "Game not found" };
@@ -316,7 +316,7 @@ export async function getRoundById(gameId, roundId, request) {
     }
 
     // Get the round
-    const roundDoc = await db
+    const roundDoc = await dbAdmin
       .collection("games")
       .doc(gameId)
       .collection("rounds")
@@ -364,7 +364,7 @@ export async function submitSong(gameId, roundId, songData, request) {
     const userId = decodedToken.uid;
 
     // First check if user has access to the game
-    const gameDoc = await db.collection("games").doc(gameId).get();
+    const gameDoc = await dbAdmin.collection("games").doc(gameId).get();
 
     if (!gameDoc.exists) {
       return { success: false, error: "Game not found" };
@@ -383,7 +383,7 @@ export async function submitSong(gameId, roundId, songData, request) {
     }
 
     // Get the round
-    const roundRef = db
+    const roundRef = dbAdmin
       .collection("games")
       .doc(gameId)
       .collection("rounds")
@@ -452,7 +452,7 @@ export async function submitSong(gameId, roundId, songData, request) {
 export async function getRandomTheme(gameId) {
   try {
     // Get all rounds for this game to see which themes have been used
-    const roundsSnapshot = await db
+    const roundsSnapshot = await dbAdmin
       .collection("games")
       .doc(gameId)
       .collection("rounds")
@@ -506,7 +506,7 @@ export async function submitVotes(gameId, roundId, votesData, request) {
     const userId = decodedToken.uid;
 
     // First check if user has access to the game
-    const gameDoc = await db.collection("games").doc(gameId).get();
+    const gameDoc = await dbAdmin.collection("games").doc(gameId).get();
 
     if (!gameDoc.exists) {
       return { success: false, error: "Game not found" };
@@ -520,7 +520,7 @@ export async function submitVotes(gameId, roundId, votesData, request) {
     }
 
     // Get the round
-    const roundRef = db
+    const roundRef = dbAdmin
       .collection("games")
       .doc(gameId)
       .collection("rounds")
@@ -645,7 +645,7 @@ export async function closeVoting(gameId, roundId, request) {
     const userId = decodedToken.uid;
 
     // Get the game to verify user is creator
-    const gameDoc = await db.collection("games").doc(gameId).get();
+    const gameDoc = await dbAdmin.collection("games").doc(gameId).get();
 
     if (!gameDoc.exists) {
       return { success: false, error: "Game not found" };
@@ -662,7 +662,7 @@ export async function closeVoting(gameId, roundId, request) {
     }
 
     // Get the round
-    const roundRef = db
+    const roundRef = dbAdmin
       .collection("games")
       .doc(gameId)
       .collection("rounds")

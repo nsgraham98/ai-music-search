@@ -35,7 +35,7 @@ export default function Navigation() {
 
   const handleNavigation = (path) => {
     console.log("Navigating to:", path);
-    console.log("Current user:", authUser);
+    // console.log("Current user:", authUser);
     router.push(path);
   };
 

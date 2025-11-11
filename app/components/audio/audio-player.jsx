@@ -18,6 +18,7 @@ import { ProgressBar } from "./progress-bar";
 import { VolumeControl } from "./volume-control";
 import { DownloadButton } from "./download-button.jsx";
 import { useAudioPlayerContext } from "@/context/audio-player-context";
+import { AddTrackToPlaylistButton } from "../playlist/add-track-to-playlist";
 
 export const AudioPlayer = () => {
   const { currentTrack } = useAudioPlayerContext();
@@ -92,6 +93,7 @@ export const AudioPlayer = () => {
           downloadAllowed={currentTrack?.audiodownload_allowed}
           filename={`${currentTrack?.name}.mp3`}
         />
+        <AddTrackToPlaylistButton trackId={currentTrack?.id} />
       </Box>
     </Box>
   );

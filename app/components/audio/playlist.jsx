@@ -22,6 +22,8 @@ import {
   goToArtist,
   goToAlbum,
 } from "@/app/api/jamendo/jamendo-handler/go-to-jamendo";
+import { Add } from "@mui/icons-material";
+import { AddTrackToPlaylistButton } from "../playlist/add-track-to-playlist";
 
 export const PlayList = () => {
   const { currentTrack, setCurrentTrack, setIsPlaying, currentPlaylist } =
@@ -176,6 +178,7 @@ export const PlayList = () => {
                   downloadAllowed={track.audiodownload_allowed}
                   filename={`${track.name}.mp3`}
                 />
+                <AddTrackToPlaylistButton trackId={track.id} />
               </Box>
             </ListItemButton>
           );

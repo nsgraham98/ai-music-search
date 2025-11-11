@@ -9,6 +9,8 @@ const AudioPlayerContext = createContext(undefined);
 
 export const AudioPlayerProvider = ({ children }) => {
   const [currentPlaylist, setCurrentPlaylist] = useState([]); // array of track objects (for the playlist)
+  const [playlists, setPlaylists] = useState([]); // array of playlist objects
+
   const [trackIndex, setTrackIndex] = useState(0);
   const [currentTrack, setCurrentTrack] = useState(null);
   const [timeProgress, setTimeProgress] = useState(0);

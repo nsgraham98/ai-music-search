@@ -37,7 +37,6 @@ export const AppInitializer = () => {
     // If no cookie, check for session in DB -> set user if found
     const checkSessionDB = async () => {
       try {
-        console.log("AppInitializer: Checking for existing session...");
         // 2. If session exists, authenticate user (authenticates in session route)
         const response = await axios.get("/api/auth/session", {
           withCredentials: true,
@@ -47,7 +46,6 @@ export const AppInitializer = () => {
           setAuthUser(null);
           return null;
         }
-        console.log("AppInitializer: Session found");
         // 3. If authenticated, set user
         const data = response.data; // { ok, authUser, session }
         if (data?.authUser) {

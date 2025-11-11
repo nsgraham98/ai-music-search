@@ -15,7 +15,6 @@ export const GetPlaylistButton = () => {
       const response = await axios.get(
         `/api/users/${userID}/playlists/${playlistID}`
       );
-      console.log("Playlist fetched:", response.data);
       return response.data;
     } catch (error) {
       console.error("Error fetching playlist:", error);

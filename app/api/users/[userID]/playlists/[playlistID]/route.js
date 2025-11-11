@@ -4,7 +4,6 @@
 */
 
 import { authenticateCookie } from "@/lib/authenticate-calls";
-import { serverTimestamp } from "firebase/firestore";
 import { dbAdmin } from "@/lib/firebase-admin.js";
 // Get a specific playlist by ID
 // Call using axios example:
@@ -18,13 +17,17 @@ export async function GET(request, { params }) {
 
     const docRef = dbAdmin.collection("playlists").doc(playlistID);
     const snap = await docRef.get();
-    if (snap.empty) {
-      return Response.json({ error: "Not found" }, { status: 404 });
+    if (!snap.exists) {
+      return new Response(JSON.stringify({ error: "Not found" }), {
+        status: 404,
+      });
     }
 
     // ownership / access check
     if (snap.get("userID") !== uid) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+      });
     }
 
     const playlist = { id: snap.id, ...snap.data() };
@@ -98,11 +101,15 @@ export async function PATCH(request, { params }) {
     if (name !== undefined) payload.name = name;
     if (description !== undefined) payload.description = description;
     if (isPublic !== undefined) payload.public = isPublic;
-    payload.timeUpdated = serverTimestamp();
+    payload.timeUpdated = new Date();
 
     const playlistRef = dbAdmin.collection("playlists").doc(playlistID);
     const playlistSnap = await playlistRef.get();
-    if (!playlistSnap.exists) {
+
+    const userProfileRef = dbAdmin.collection("users").doc(uid);
+    const userProfileSnap = await userProfileRef.get();
+
+    if (!playlistSnap.exists || !userProfileSnap.exists) {
       return new Response(JSON.stringify({ error: "Playlist not found" }), {
         status: 404,
       });
@@ -113,6 +120,12 @@ export async function PATCH(request, { params }) {
       });
     }
     await playlistRef.set(payload, { merge: true });
+    await userProfileRef.set(
+      {
+        [`playlists.${playlistID}`]: payload.name,
+      },
+      { merge: true }
+    );
     // const playlistRef = doc(db, "playlists", playlistID); // ✅ modular doc() helper
     // const playlistSnap = await getDoc(playlistRef);
     // if (!playlistSnap.exists()) {
@@ -174,9 +187,15 @@ export async function DELETE(request, { params }) {
     const decodedToken = await authenticateCookie(request);
     const uid = decodedToken.uid;
 
+    // 1. get the playlist document
     const playlistRef = dbAdmin.collection("playlists").doc(playlistID);
     const playlistSnap = await playlistRef.get();
-    if (!playlistSnap.exists) {
+    // 2. get the user profile's reference to this playlist too
+    const userProfileRef = dbAdmin.collection("users").doc(uid);
+    const userProfileSnap = await userProfileRef.get();
+
+    // 3. check if they exist
+    if (!playlistSnap.exists || !userProfileSnap.exists) {
       return new Response(JSON.stringify({ error: "Playlist not found" }), {
         status: 404,
       });
@@ -186,22 +205,16 @@ export async function DELETE(request, { params }) {
         status: 401,
       });
     }
+
+    // 4. delete both references
+    await userProfileRef.update({
+      [`playlists.${playlistID}`]: dbAdmin.firestore.FieldValue.delete(),
+    });
     await playlistRef.delete();
-    // return successful response to client
-    // const playlistRef = doc(db, "playlists", playlistID); // ✅ modular doc() helper
-    // const playlistSnap = await getDoc(playlistRef);
-    // if (!playlistSnap.exists()) {
-    //   return new Response(JSON.stringify({ error: "Playlist not found" }), {
-    //     status: 404,
-    //   });
-    // }
-    // if (playlistSnap.data().userID !== uid) {
-    //   return new Response(JSON.stringify({ error: "Unauthorized" }), {
-    //     status: 401,
-    //   });
-    // }
-    // await deleteDoc(playlistRef);
     console.log("🎶 Playlist deleted:", playlistID);
+
+    // TODO: add handling if one of the deletions fail?
+
     // return successful response to client
     return new Response(
       JSON.stringify({

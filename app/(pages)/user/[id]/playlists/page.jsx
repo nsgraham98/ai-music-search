@@ -57,7 +57,6 @@ export default function PlaylistsPage() {
   useEffect(() => {
     async function callFetchPlaylists() {
       try {
-        console.log("useEffect fetching playlists for user:", authUser.uid);
         setLoading(true);
         await fetchPlaylists();
       } catch (error) {
@@ -76,7 +75,6 @@ export default function PlaylistsPage() {
     try {
       setLoading(true);
       const response = await axios.get(`/api/users/${authUser.uid}/playlists`);
-      console.log("Playlists fetched:", response.data.playlists);
       setPlaylists(response.data.playlists || []);
     } catch (error) {
       console.error("Error fetching playlists:", error);
