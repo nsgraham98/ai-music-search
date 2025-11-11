@@ -5,12 +5,14 @@
 import SearchBar from "@/app/components/search-bar.jsx";
 import { LogoutButton } from "@/app/components/login/logout-button";
 import { Box, Typography, Container, Paper, Button } from "@mui/material";
-import { PlayList } from "@/app/components/audio/playlist.jsx";
+// import { PlayList } from "@/app/components/audio/playlist.jsx";
+import { TrackList } from "@/app/components/audio/track-list.jsx";
 import SignedInAs from "@/app/components/login/signed-in-as";
 import LoginPopup from "@/app/components/login/login-popup";
-import Link from "next/link";
+// import Link from "next/link";
 import Navigation from "@/app/components/navigation/nav-bar.jsx";
-import { Add } from "@mui/icons-material";
+import { useAudioPlayerContext } from "@/context/audio-player-context";
+// import { Add } from "@mui/icons-material";
 
 // import { AddTrackToPlaylistButton } from "@/app/components/playlist/add-track-to-playlist.jsx";
 // import { CreatePlaylistButton } from "@/app/components/playlist/create-playlist.jsx";
@@ -23,6 +25,7 @@ import { Add } from "@mui/icons-material";
 // import TestShowCurrentUser from "@/app/components/tests/test-show-current-user-profile.jsx";
 
 export default function HomePage() {
+  const { currentPlaylist } = useAudioPlayerContext();
   return (
     <Container maxWidth="lg">
       <LoginPopup />
@@ -99,7 +102,32 @@ export default function HomePage() {
             maxWidth: "100%",
           }}
         >
-          <PlayList />
+          {!currentPlaylist || currentPlaylist.length === 0 ? (
+            <Paper
+              elevation={3}
+              sx={{
+                bgcolor: "#4c4848",
+                color: "white",
+                // maxHeight: "18rem",
+                overflowY: "auto",
+                borderRadius: 2,
+                width: "100%", // add this
+                maxWidth: 900, // adjust this width to make it wider
+                mx: "auto", // optional: centers it horizontally
+              }}
+            >
+              <Typography
+                variant="body1"
+                color="white"
+                textAlign="center"
+                p={2}
+              >
+                Please search again.
+              </Typography>
+            </Paper>
+          ) : (
+            <TrackList />
+          )}
         </Box>
       </Box>
     </Container>
