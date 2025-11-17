@@ -328,7 +328,7 @@ export default function PlaylistsPage() {
                   alignItems="center"
                 >
                   <Typography variant="caption" color="#666">
-                    {playlist.trackCount || 0} tracks
+                    {playlist.tracks.length || 0} tracks
                   </Typography>
                   <Box
                     display="flex"

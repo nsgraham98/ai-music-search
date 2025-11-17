@@ -4,16 +4,18 @@
 "use client";
 
 import { Button } from "@mui/material";
-import { useTestingContext } from "@/context/testing-context";
 import axios from "axios"; // library for making API requests easily -> https://axios-http.com/docs/intro
+import { useUserProfile } from "@/context/user-profile-context";
+import { useState } from "react";
 
-export const DeleteTrackFromPlaylistButton = () => {
-  const { testTrack, testPlaylistID, userID } = useTestingContext();
+export const DeleteTrackFromPlaylistButton = ({ trackId }) => {
+  const { userProfile } = useUserProfile();
+  const [showPlaylistsPopup, setShowPlaylistsPopup] = useState(false);
 
   async function handleDeleteTrackFromPlaylist(trackID, playlistID) {
     try {
       const response = await axios.delete(
-        `/api/users/${userID}/playlists/${playlistID}/${trackID}/`
+        `/api/users/${userProfile.uid}/playlists/${playlistID}/${trackID}/`
       );
 
       if (response.status !== 200) {
@@ -27,14 +29,33 @@ export const DeleteTrackFromPlaylistButton = () => {
     }
   }
   return (
-    <Button
-      onClick={async () => {
-        const trackID = testTrack.id; // Get the track ID from your state or props
-        const playlistID = testPlaylistID; // Get the playlist ID from your state or props
-        await handleDeleteTrackFromPlaylist(trackID, playlistID);
-      }}
-    >
-      Delete Track From Playlist
-    </Button>
+    <>
+      <Button
+        onClick={async () => {
+          setShowPlaylistsPopup(!showPlaylistsPopup);
+        }}
+      >
+        Delete from Playlist
+      </Button>
+      {/* Show popup list of playlists to add to */}
+      {showPlaylistsPopup && (
+        <div
+          style={{ position: "absolute", background: "white", zIndex: 1000 }}
+        >
+          {Object.entries(userProfile.playlists).map(([id, name]) => (
+            <div key={id}>
+              <Button
+                onClick={async () => {
+                  await handleDeleteTrackFromPlaylist(trackId, id);
+                  setShowPlaylistsPopup(!showPlaylistsPopup);
+                }}
+              >
+                {name}
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+    </>
   );
 };

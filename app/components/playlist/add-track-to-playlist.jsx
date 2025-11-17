@@ -4,7 +4,6 @@
 "use client";
 
 import { Button } from "@mui/material";
-import { useTestingContext } from "@/context/testing-context";
 import axios from "axios"; // library for making API requests easily -> https://axios-http.com/docs/intro
 import { useUserProfile } from "@/context/user-profile-context";
 import { useState } from "react";

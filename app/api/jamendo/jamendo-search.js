@@ -51,7 +51,7 @@ function createSearchString(searchArgsObj) {
     limit: "all", // how many results to return - "all" returns all results, max 200
     type: "single albumtrack",
     audioformat: "mp32",
-    boost: "popularity_month",
+    // boost: "popularity_month",
   };
 
   // "Fuzzy" tags are considered as an OR operation in search logic

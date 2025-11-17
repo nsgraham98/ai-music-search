@@ -24,6 +24,7 @@ import {
 } from "@/app/api/jamendo/jamendo-handler/go-to-jamendo";
 import { Add } from "@mui/icons-material";
 import { AddTrackToPlaylistButton } from "../playlist/add-track-to-playlist";
+import { DeleteTrackFromPlaylistButton } from "../playlist/delete-track-from-playlist";
 
 export const PlayList = () => {
   const { currentTrack, setCurrentTrack, setIsPlaying, currentPlaylist } =
@@ -179,6 +180,7 @@ export const PlayList = () => {
                   filename={`${track.name}.mp3`}
                 />
                 <AddTrackToPlaylistButton trackId={track.id} />
+                <DeleteTrackFromPlaylistButton trackId={track.id} />
               </Box>
             </ListItemButton>
           );
