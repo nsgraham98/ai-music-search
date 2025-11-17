@@ -76,12 +76,20 @@ const SearchBar = () => {
       }
 
       const data = await response.json();
-      setCurrentPlaylist(data.jamendoResponse || []);
+      setCurrentPlaylist({
+        id: "searchResults",
+        name: "Search Results",
+        public: false,
+        userID: "searchUserID",
+        description: "Playlist generated from search",
+        timeCreated: new Date().toISOString(),
+        timeUpdated: new Date().toISOString(),
+        tracks: data.jamendoResponse || [],
+      });
       setAiResponse(data.aiResponse?.output_text || "Search completed");
     } catch (err) {
       console.error("Search error:", err);
       setError(err.message || "Failed to search. Please try again.");
-      setCurrentPlaylist([]);
     } finally {
       setIsLoading(false);
     }

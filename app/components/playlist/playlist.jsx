@@ -45,7 +45,7 @@ export const PlayList = () => {
   };
 
   // if no tracks, show message
-  if (!currentPlaylist || currentPlaylist.length === 0) {
+  if (!currentPlaylist.id || currentPlaylist.tracks.length === 0) {
     return (
       <Paper
         elevation={3}
@@ -82,7 +82,7 @@ export const PlayList = () => {
       }}
     >
       <List disablePadding>
-        {currentPlaylist.map((track, index) => {
+        {currentPlaylist.tracks.map((track, index) => {
           const isActive = currentTrack?.name === track.name;
 
           return (

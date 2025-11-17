@@ -82,7 +82,7 @@ export const TrackList = () => {
       }}
     >
       <List disablePadding>
-        {currentPlaylist.map((track, index) => {
+        {currentPlaylist.tracks.map((track, index) => {
           const isActive = currentTrack?.name === track.name;
 
           return (

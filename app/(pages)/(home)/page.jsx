@@ -102,7 +102,7 @@ export default function HomePage() {
             maxWidth: "100%",
           }}
         >
-          {!currentPlaylist || currentPlaylist.length === 0 ? (
+          {!currentPlaylist.id || currentPlaylist.tracks.length === 0 ? (
             <Paper
               elevation={3}
               sx={{

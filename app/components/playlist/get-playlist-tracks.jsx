@@ -17,7 +17,16 @@ export const GetTracksButton = () => {
       console.log("Component: Fetched tracks:", response.data);
       const fetchedTracks = response.data.results;
       console.log("Component: Fetched tracks array:", fetchedTracks);
-      setCurrentPlaylist(fetchedTracks);
+      setCurrentPlaylist({
+        id: "testPlaylist",
+        userID: "testUserID",
+        name: "Test Playlist",
+        public: false,
+        description: "This is a test playlist",
+        timeCreated: new Date().toISOString(),
+        timeUpdated: new Date().toISOString(),
+        tracks: fetchedTracks,
+      });
     } catch (error) {
       console.error("Error fetching tracks:", error);
     }

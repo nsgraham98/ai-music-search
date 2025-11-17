@@ -17,16 +17,27 @@ export default function PlaylistPage({ params }) {
     // Fetch playlist data using playlistID
     async function fetchPlaylistRich() {
       try {
-        const response = await axios.get(
+        const firebaseResponse = await axios.get(
           `/api/users/${authUser.uid}/playlists/${playlistID}`
         );
-        console.log("Fetched playlist:", response.data);
-        const trackIds = response.data.playlist.tracks;
+        console.log("Fetched playlist:", firebaseResponse.data);
+        const trackIds = firebaseResponse.data.playlist.tracks;
         const jamendoResponse = await axios.get(
           `/api/jamendo/${trackIds.join("/")}`
         );
         console.log("Fetched tracks from Jamendo:", jamendoResponse.data);
-        setCurrentPlaylist(jamendoResponse.data.results);
+
+        // consider waiting to set the playlist, until the user has actually clicked a track to play
+        setCurrentPlaylist({
+          id: firebaseResponse.data.playlist.id,
+          userID: firebaseResponse.data.playlist.userID,
+          name: firebaseResponse.data.playlist.name,
+          public: firebaseResponse.data.playlist.public,
+          description: firebaseResponse.data.playlist.description,
+          timeCreated: firebaseResponse.data.playlist.timeCreated,
+          timeUpdated: firebaseResponse.data.playlist.timeUpdated,
+          tracks: jamendoResponse.data.results,
+        });
       } catch (error) {
         console.error("Error fetching playlist:", error);
       }
@@ -60,7 +71,7 @@ export default function PlaylistPage({ params }) {
           maxWidth: "100%",
         }}
       >
-        {!currentPlaylist || currentPlaylist.length === 0 ? (
+        {!currentPlaylist.id || currentPlaylist.tracks.length === 0 ? (
           <Paper
             elevation={3}
             sx={{
