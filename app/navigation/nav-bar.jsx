@@ -26,12 +26,9 @@ export default function Navigation() {
     { label: "Settings", path: "/settings", icon: <SettingsIcon /> },
   ];
 
-  // Check if current path is any user profile path
   const isProfileActive = pathname?.startsWith("/user/");
 
   const handleNavigation = (path) => {
-    console.log("Navigating to:", path);
-    console.log("Current user:", user);
     router.push(path);
   };
 
@@ -47,13 +44,9 @@ export default function Navigation() {
         alignItems: "center",
         gap: 2,
         border: "1px solid #444",
-        transition: "border-color 0.3s",
-        "&:hover": {
-          borderColor: "#888",
-        },
+        "&:hover": { borderColor: "#888" },
       }}
     >
-      {/* Navigation Buttons */}
       {navItems.map((item) => {
         const isActive =
           item.label === "Profile" ? isProfileActive : pathname === item.path;
@@ -71,20 +64,9 @@ export default function Navigation() {
               "&:hover": {
                 bgcolor: isActive ? "#c133b9" : "#3a3a3a",
                 borderColor: isActive ? "#c133b9" : "#888",
-                transform: "translateY(-2px)",
-                boxShadow: isActive
-                  ? "0 4px 12px rgba(224, 63, 216, 0.4)"
-                  : "0 2px 8px rgba(0, 0, 0, 0.3)",
               },
               textTransform: "none",
               fontSize: "0.95rem",
-              fontWeight: isActive ? "bold" : "normal",
-              px: 2.5,
-              py: 1,
-              transition: "all 0.2s",
-              flexGrow: 1,
-              flexShrink: 1,
-              flexBasis: 0,
             }}
           >
             {item.label}
@@ -92,19 +74,7 @@ export default function Navigation() {
         );
       })}
 
-      {/* Logout Button */}
-      <Box sx={{ flexShrink: 0 }}>
-        <LogoutButton
-          sx={{
-            "&:hover": {
-              bgcolor: "#d32f2f",
-              borderColor: "#d32f2f",
-              transform: "translateY(-2px)",
-              boxShadow: "0 4px 12px rgba(211, 47, 47, 0.4)",
-            },
-          }}
-        />
-      </Box>
+      <LogoutButton />
     </Box>
   );
 }

@@ -9,10 +9,12 @@ import {
   Alert,
   CircularProgress,
   Divider,
+  Avatar,
+  Button,
 } from "@mui/material";
 import SignedInAs from "@/app/components/login/signed-in-as";
 import LoginPopup from "@/app/components/login/login-popup";
-import Navigation from "@/app/navigation/nav-bar";
+import Navigation from "@/app/components/navigation/nav-bar";
 import { useUserAuth } from "@/context/auth-context";
 import { useUserProfile } from "@/context/user-profile-context";
 import { useState, useEffect } from "react";
@@ -20,6 +22,7 @@ import { useRouter } from "next/navigation";
 import PersonIcon from "@mui/icons-material/Person";
 import PaletteIcon from "@mui/icons-material/Palette";
 import AccessibilityNewIcon from "@mui/icons-material/AccessibilityNew";
+import MusicNoteIcon from "@mui/icons-material/MusicNote";
 import UsernameEditor from "@/app/components/settings/username-editor";
 import Logout from "@/app/components/settings/logout";
 import DarkLightMode from "@/app/components/settings/dark-lightmode";
@@ -28,17 +31,18 @@ import HighContrast from "@/app/components/settings/high-contrast-toggle";
 import ReducedMotionToggle from "@/app/components/settings/reduced-motion-toggle";
 import ColorblindFilters from "@/app/components/settings/colorblind-filters";
 import SettingsSection from "@/app/components/settings/settings-section";
-
-// Import CSS
+import ProfilePictureSelector from "@/app/components/profile/profile-picture-selector";
+import SpotifyConnectButton from "@/app/components/spotify/spotify-connect-button";
 import "@/styles/accessibility.css";
 
 export default function SettingsPage() {
-  const { user, logout } = useUserAuth();
-  const { userProfile, loadingProfile, updateDisplayName } = useUserProfile();
+  const { authUser, firebaseSignOut } = useUserAuth();
+  const { userProfile, loadingProfile, updateUserProfile } = useUserProfile();
   const router = useRouter();
 
   // Success message state
   const [usernameSuccess, setUsernameSuccess] = useState("");
+  const [avatarSuccess, setAvatarSuccess] = useState("");
 
   // Theme state
   const [darkMode, setDarkMode] = useState(true);
@@ -47,6 +51,13 @@ export default function SettingsPage() {
   const [colorblindMode, setColorblindMode] = useState("none");
   const [highContrast, setHighContrast] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
+
+  // Profile picture state
+  const [avatarDialogOpen, setAvatarDialogOpen] = useState(false);
+
+  // Spotify state
+  const [spotifyConnected, setSpotifyConnected] = useState(false);
+  const [checkingSpotify, setCheckingSpotify] = useState(true);
 
   // Load saved preferences from localStorage on mount
   useEffect(() => {
@@ -76,6 +87,30 @@ export default function SettingsPage() {
       }
     }
   }, []);
+
+  // Check Spotify connection status
+  useEffect(() => {
+    const checkSpotifyConnection = async () => {
+      if (!authUser) return;
+
+      try {
+        setCheckingSpotify(true);
+        const response = await fetch("/api/spotify/status", {
+          credentials: "include",
+        });
+        const data = await response.json();
+        setSpotifyConnected(data.connected);
+      } catch (error) {
+        console.error("Error checking Spotify connection:", error);
+      } finally {
+        setCheckingSpotify(false);
+      }
+    };
+
+    if (authUser) {
+      checkSpotifyConnection();
+    }
+  }, [authUser]);
 
   // Apply dark mode to DOM
   const applyDarkMode = (isDark) => {
@@ -131,7 +166,7 @@ export default function SettingsPage() {
 
   // Handle username update
   const handleUsernameUpdate = async (newUsername) => {
-    const result = await updateDisplayName(newUsername);
+    const result = await updateUserProfile({ displayName: newUsername });
 
     if (result.success) {
       setUsernameSuccess("Username updated successfully!");
@@ -141,17 +176,31 @@ export default function SettingsPage() {
     return result;
   };
 
+  // Handle profile picture selection
+  const handleAvatarSelect = async (avatar) => {
+    try {
+      const result = await updateUserProfile({ avatar: avatar });
+
+      if (result.success) {
+        setAvatarSuccess("Profile picture updated successfully!");
+        setTimeout(() => setAvatarSuccess(""), 3000);
+      }
+    } catch (error) {
+      console.error("Error updating avatar:", error);
+    }
+  };
+
   // Handle logout with actual functionality
   const handleLogout = async () => {
     try {
-      await logout();
+      await firebaseSignOut();
       // Clear all settings from localStorage
       localStorage.removeItem("darkMode");
       localStorage.removeItem("colorblindMode");
       localStorage.removeItem("highContrast");
       localStorage.removeItem("reducedMotion");
       // Redirect to login or home page
-      router.push("/login");
+      router.push("/");
     } catch (error) {
       console.error("Logout error:", error);
     }
@@ -183,6 +232,34 @@ export default function SettingsPage() {
     setReducedMotion(enabled);
     localStorage.setItem("reducedMotion", enabled.toString());
     applyReducedMotion(enabled);
+  };
+
+  // Get avatar display
+  const getAvatarDisplay = () => {
+    if (!userProfile?.avatar) {
+      return {
+        sx: { width: 80, height: 80, bgcolor: "#E03FD8", fontSize: "2rem" },
+        children: userProfile?.displayName?.[0]?.toUpperCase() || "?",
+      };
+    }
+
+    if (userProfile.avatar.type === "default") {
+      return {
+        sx: {
+          width: 80,
+          height: 80,
+          bgcolor: userProfile.avatar.data.color,
+          fontSize: "2.5rem",
+        },
+        children: userProfile.avatar.data.emoji,
+      };
+    }
+
+    // Custom uploaded image
+    return {
+      src: userProfile.avatar.data,
+      sx: { width: 80, height: 80 },
+    };
   };
 
   if (loadingProfile) {
@@ -250,11 +327,71 @@ export default function SettingsPage() {
           icon={<PersonIcon sx={{ color: "#E03FD8" }} />}
           title="Account Settings"
         >
+          {/* Profile Picture */}
+          <Box
+            sx={{
+              bgcolor: "#3a3a3a",
+              p: 3,
+              borderRadius: 2,
+              border: "1px solid #444",
+              mb: 2,
+            }}
+          >
+            <Typography variant="subtitle1" fontWeight="bold" mb={2}>
+              Profile Picture
+            </Typography>
+            <Box display="flex" alignItems="center" gap={2}>
+              <Avatar {...getAvatarDisplay()} />
+              <Button
+                variant="outlined"
+                onClick={() => setAvatarDialogOpen(true)}
+                sx={{
+                  color: "white",
+                  borderColor: "#444",
+                  "&:hover": {
+                    borderColor: "#E03FD8",
+                    color: "#E03FD8",
+                    transform: "translateY(-2px)",
+                  },
+                  transition: "all 0.2s",
+                }}
+              >
+                Change Picture
+              </Button>
+            </Box>
+          </Box>
+
           <UsernameEditor
             currentUsername={userProfile?.displayName || ""}
             onUpdate={handleUsernameUpdate}
           />
           <Logout onLogout={handleLogout} />
+        </SettingsSection>
+
+        <Divider sx={{ borderColor: "#444", my: 4 }} />
+
+        {/* Music Services Section */}
+        <SettingsSection
+          icon={<MusicNoteIcon sx={{ color: "#E03FD8" }} />}
+          title="Music Services"
+        >
+          <Box
+            sx={{
+              bgcolor: "#3a3a3a",
+              p: 3,
+              borderRadius: 2,
+              border: "1px solid #444",
+            }}
+          >
+            <Typography variant="subtitle1" fontWeight="bold" mb={1}>
+              Spotify Integration
+            </Typography>
+            {checkingSpotify ? (
+              <CircularProgress size={24} sx={{ color: "#E03FD8" }} />
+            ) : (
+              <SpotifyConnectButton isConnected={spotifyConnected} />
+            )}
+          </Box>
         </SettingsSection>
 
         <Divider sx={{ borderColor: "#444", my: 4 }} />
@@ -288,7 +425,7 @@ export default function SettingsPage() {
           />
         </SettingsSection>
 
-        {/* Success Message */}
+        {/* Success Messages */}
         {usernameSuccess && (
           <Alert
             severity="success"
@@ -297,7 +434,23 @@ export default function SettingsPage() {
             {usernameSuccess}
           </Alert>
         )}
+        {avatarSuccess && (
+          <Alert
+            severity="success"
+            sx={{ mt: 3, bgcolor: "#1a3d1a", color: "#69ff6b" }}
+          >
+            {avatarSuccess}
+          </Alert>
+        )}
       </Box>
+
+      {/* Profile Picture Selector Dialog */}
+      <ProfilePictureSelector
+        open={avatarDialogOpen}
+        onClose={() => setAvatarDialogOpen(false)}
+        onSelect={handleAvatarSelect}
+        currentAvatar={userProfile?.avatar}
+      />
     </Container>
   );
 }
