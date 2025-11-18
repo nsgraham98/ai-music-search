@@ -23,10 +23,8 @@ import { DeleteTrackFromPlaylistButton } from "../playlist/delete-track-from-pla
 import { useState, useEffect } from "react";
 
 export const TrackList = ({
-  // optional explicit list of tracks; falls back to currentPlaylist.tracks
   tracks,
-  // "search" | "playlist" | "default"
-  variant = "default",
+  variant = "default", // "search" | "playlist" | "default"
   // UI controls
   showDownload = true,
   showAddButton = false,
@@ -132,6 +130,13 @@ export const TrackList = ({
                 "&:hover": {
                   bgcolor: isActive ? "#a66646" : "#5a5555",
                 },
+                border: isActive
+                  ? "1px solid #E03FD8"
+                  : "1px solid transparent",
+                borderRadius: 2.5,
+                boxShadow: isActive
+                  ? "0 0 10px 2px rgba(224, 63, 216, 0.5)"
+                  : "none",
                 px: 2,
                 py: 1,
               }}

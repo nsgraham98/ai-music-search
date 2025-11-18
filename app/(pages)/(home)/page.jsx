@@ -7,9 +7,17 @@ import { Box, Typography, Paper } from "@mui/material";
 import { TrackList } from "@/app/components/audio/track-list.jsx";
 import { useAudioPlayerContext } from "@/context/audio-player-context";
 import { useSearchContext } from "@/context/search-context.jsx";
+import { useMemo } from "react";
 
 export default function HomePage() {
   const { searchResults } = useSearchContext();
+
+  // Build a stable key based on current results, so that the TrackList remounts when results change
+  const trackListKey = useMemo(
+    () => searchResults.map((track) => track.id ?? "").join(","),
+    [searchResults]
+  );
+
   return (
     <>
       {/* Search Bar */}
@@ -79,6 +87,7 @@ export default function HomePage() {
             </Paper>
           ) : (
             <TrackList
+              key={trackListKey}
               variant="search"
               showDownload={true}
               showAddButton={true}

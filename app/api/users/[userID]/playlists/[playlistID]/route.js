@@ -210,7 +210,7 @@ export async function DELETE(request, { params }) {
 
     // 4. delete both references
     await userProfileRef.update({
-      [`playlists.${playlistID}`]: dbAdmin.firestore.FieldValue.delete(),
+      [`playlists.${playlistID}`]: admin.firestore.FieldValue.delete(),
     });
     await playlistRef.delete();
     console.log("🎶 Playlist deleted:", playlistID);

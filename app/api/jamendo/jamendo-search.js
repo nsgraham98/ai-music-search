@@ -34,7 +34,7 @@ export async function getSongsJamendo(searchParams) {
   }
   const data = await response.json(); // Parse the response as JSON
   console.log("🎵 Jamendo results received:", data.results.length, "tracks");
-  console.log(data.results[0]);
+  // console.log(data.results[0]);
   return data;
 }
 

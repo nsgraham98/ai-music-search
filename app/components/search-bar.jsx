@@ -20,6 +20,7 @@ import {
 } from "@mui/material";
 import { Search } from "lucide-react";
 import { useSearchContext } from "@/context/search-context";
+import axios from "axios";
 
 const SearchBar = () => {
   const [userQuery, setUserQuery] = useState("");
@@ -30,38 +31,6 @@ const SearchBar = () => {
   const { setSearchResults } = useSearchContext();
 
   async function handleSearch() {
-    console.log(
-      "Starting search with query:",
-      userQuery,
-      "Royalty-Free:",
-      royaltyFree
-    );
-    if (!userQuery.trim()) {
-      setError("Please enter a search query");
-      setTimeout(() => setError(null), 3000);
-      return;
-    }
-    // base case - no query
-    setIsLoading(true);
-    // const idToken = await user.getIdToken();
-    const response = await fetch("/api/openai", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        // Authorization: `Bearer ${idToken}`,
-      },
-      body: JSON.stringify({ userQuery, royaltyFree }),
-    });
-    if (!response.ok) {
-      console.error("Error fetching data:", response.statusText);
-      setIsLoading(false);
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-    setAiResponse(null);
-
     try {
       const response = await fetch("/api/openai", {
         method: "POST",
@@ -76,6 +45,7 @@ const SearchBar = () => {
       }
 
       const data = await response.json();
+      console.log("Search results received -> DATA:", data);
       setSearchResults(data.jamendoResponse || []);
       // setCurrentPlaylist({
       //   id: "searchResults",
