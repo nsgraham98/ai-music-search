@@ -166,17 +166,6 @@ const SearchBar = () => {
             m: 0,
           }}
         />
-        <FormControlLabel
-          control={
-            <Switch
-              checked={royaltyFree}
-              onChange={(e) => setRoyaltyFree(e.target.checked)}
-              color="primary"
-            />
-          }
-          label="Royalty-Free"
-          sx={{ color: "white" }}
-        />
 
         <Button
           onClick={handleSearch}

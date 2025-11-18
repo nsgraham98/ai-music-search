@@ -14,6 +14,7 @@ import {
   CircularProgress,
   Alert,
 } from "@mui/material";
+import { EmojiEvents as TrophyIcon } from "@mui/icons-material";
 import { LogoutButton } from "@/app/components/login/logout-button";
 import SignedInAs from "@/app/components/login/signed-in-as";
 import LoginPopup from "@/app/components/login/login-popup";
@@ -23,6 +24,7 @@ import Link from "next/link";
 import { formatDate } from "@/utils/date-utils";
 import SongSubmissionInterface from "@/app/components/song-submission";
 import VotingInterface from "@/app/components/voting-interface";
+import RoundResults from "@/app/components/round-results";
 
 export default function GamePage() {
   const { authUser } = useUserAuth();
@@ -38,6 +40,8 @@ export default function GamePage() {
   const [userSubmission, setUserSubmission] = useState(null);
   const [hasVoted, setHasVoted] = useState(false);
   const [closingVoting, setClosingVoting] = useState(false);
+  const [startingNextRound, setStartingNextRound] = useState(false);
+  const [playerNames, setPlayerNames] = useState({});
 
   useEffect(() => {
     if (authUser && gameId) {
@@ -51,6 +55,13 @@ export default function GamePage() {
       fetchCurrentRound();
     }
   }, [game]);
+
+  useEffect(() => {
+    // Fetch player names when game loads
+    if (game && game.players) {
+      fetchPlayerNames(game.players);
+    }
+  }, [game?.players]);
 
   const fetchGameDetails = async () => {
     setLoading(true);
@@ -74,6 +85,34 @@ export default function GamePage() {
       setError("Failed to load game details");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchPlayerNames = async (playerIds) => {
+    try {
+      const names = {};
+
+      // Fetch display names for each player
+      for (const userId of playerIds) {
+        try {
+          const response = await fetch(`/api/users/${userId}`, {
+            credentials: "include",
+          });
+          const data = await response.json();
+          if (data.success) {
+            names[userId] = data.displayName || "Anonymous";
+          } else {
+            names[userId] = "Anonymous";
+          }
+        } catch (error) {
+          console.error(`Error fetching name for user ${userId}:`, error);
+          names[userId] = "Anonymous";
+        }
+      }
+
+      setPlayerNames(names);
+    } catch (error) {
+      console.error("Error fetching player names:", error);
     }
   };
 
@@ -189,6 +228,32 @@ export default function GamePage() {
     }
   };
 
+  const handleStartNextRound = async () => {
+    setStartingNextRound(true);
+    setError("");
+
+    try {
+      const response = await fetch(`/api/games/${gameId}/start-next-round`, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Refresh the game and round data
+        await fetchGameDetails();
+      } else {
+        setError(data.error || "Failed to start next round");
+      }
+    } catch (error) {
+      console.error("Error starting next round:", error);
+      setError("Failed to start next round");
+    } finally {
+      setStartingNextRound(false);
+    }
+  };
+
   const getGameStatusText = (game) => {
     switch (game?.status) {
       case "waiting_for_players":
@@ -254,10 +319,66 @@ export default function GamePage() {
                 <Typography variant="h3" fontWeight="bold" gutterBottom>
                   {game.name}
                 </Typography>
-                <Typography variant="body1" color="#ccc">
+                <Typography variant="body1" color="#ccc" mb={1}>
                   {game.players?.length || 1} player(s) • Created{" "}
                   {formatDate(game.created_at)}
                 </Typography>
+
+                {/* Player Names List */}
+                {game.players && game.players.length > 0 && (
+                  <Box display="flex" flexWrap="wrap" gap={1} mt={2}>
+                    {[...game.players]
+                      .sort((a, b) => {
+                        // Sort by score (highest first), then alphabetically
+                        const scoreA = game.overall_scores?.[a] || 0;
+                        const scoreB = game.overall_scores?.[b] || 0;
+                        if (scoreB !== scoreA) return scoreB - scoreA;
+                        return (playerNames[a] || "").localeCompare(
+                          playerNames[b] || ""
+                        );
+                      })
+                      .map((playerId, index) => {
+                        const score = game.overall_scores?.[playerId] || 0;
+                        const isCurrentUser = playerId === authUser?.uid;
+                        const isLeader = index === 0 && score > 0;
+
+                        return (
+                          <Chip
+                            key={playerId}
+                            icon={
+                              isLeader ? (
+                                <TrophyIcon
+                                  sx={{
+                                    fontSize: "1.2rem",
+                                    color: isCurrentUser ? "white" : "#000",
+                                  }}
+                                />
+                              ) : undefined
+                            }
+                            label={`${playerNames[playerId] || "Loading..."} ${score > 0 ? `• ${score}` : ""}`}
+                            size="medium"
+                            sx={{
+                              bgcolor: isCurrentUser
+                                ? "#4caf50"
+                                : isLeader
+                                  ? "#ffd700"
+                                  : "#555",
+                              color:
+                                isLeader && !isCurrentUser ? "#000" : "white",
+                              fontWeight:
+                                isCurrentUser || isLeader ? "bold" : "normal",
+                              fontSize: "0.9rem",
+                              px: 1.5,
+                              py: 2,
+                              "& .MuiChip-icon": {
+                                marginLeft: "8px",
+                              },
+                            }}
+                          />
+                        );
+                      })}
+                  </Box>
+                )}
               </Box>
               <Chip
                 label={getGameStatusText(game)}
@@ -271,25 +392,31 @@ export default function GamePage() {
               />
             </Box>
 
-            {/* Invited Emails */}
-            {game.invited_emails && game.invited_emails.length > 0 && (
-              <Box mt={2}>
-                <Typography variant="h6" color="white" mb={1}>
-                  Invited Players:
+            {/* Join Code Display */}
+            {game.join_code && game.status === "waiting_for_players" && (
+              <Box
+                mt={3}
+                sx={{
+                  bgcolor: "#444",
+                  padding: 3,
+                  borderRadius: 2,
+                  textAlign: "center",
+                }}
+              >
+                <Typography variant="body1" color="#ccc" mb={1}>
+                  Share this code with friends to join:
                 </Typography>
-                <Box display="flex" flexWrap="wrap" gap={1}>
-                  {game.invited_emails.map((email, index) => (
-                    <Chip
-                      key={index}
-                      label={email}
-                      size="small"
-                      sx={{
-                        backgroundColor: "#555",
-                        color: "white",
-                      }}
-                    />
-                  ))}
-                </Box>
+                <Typography
+                  variant="h2"
+                  fontWeight="bold"
+                  color="white"
+                  sx={{
+                    letterSpacing: "0.2em",
+                    fontFamily: "monospace",
+                  }}
+                >
+                  {game.join_code}
+                </Typography>
               </Box>
             )}
           </Paper>
@@ -302,8 +429,7 @@ export default function GamePage() {
                   Waiting for Players
                 </Typography>
                 <Typography variant="body1" color="#ccc" mb={3}>
-                  The game will start once all invited players join, or you can
-                  start now.
+                  Everyone's here? Click below to start the game.
                 </Typography>
                 <Button
                   variant="outlined"
@@ -341,13 +467,16 @@ export default function GamePage() {
                     <Typography variant="h6" color="#4caf50" gutterBottom>
                       Theme: {currentRound.theme}
                     </Typography>
-                    <Typography variant="body2" color="#ccc" mb={2}>
-                      Status:{" "}
-                      {currentRound.status?.replace(/_/g, " ").toUpperCase()}
-                    </Typography>
                     <Typography variant="body2" color="#ccc">
-                      Submissions due:{" "}
-                      {formatDate(currentRound.submissions_deadline)}
+                      Round ends: {formatDate(currentRound.round_deadline)}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      color="#999"
+                      display="block"
+                      mt={1}
+                    >
+                      Submit your song and vote anytime before the deadline
                     </Typography>
                   </Box>
                 ) : (
@@ -356,68 +485,128 @@ export default function GamePage() {
                   </Typography>
                 )}
 
-                {/* Song Submission or Voting Interface */}
-                {currentRound && currentRound.status === "submissions_open" && (
-                  <SongSubmissionInterface
-                    gameId={gameId}
-                    roundId={game.current_round.toString()}
-                    theme={currentRound.theme}
-                    onSubmissionSuccess={handleSubmissionSuccess}
-                    disabled={loadingRound}
-                    currentSubmission={userSubmission}
-                  />
-                )}
+                {/* Show Results if voting is closed */}
+                {currentRound && currentRound.status === "voting_closed" ? (
+                  <Box>
+                    <RoundResults
+                      roundData={currentRound}
+                      gameId={gameId}
+                      roundNumber={game.current_round}
+                      allPlayers={game.players}
+                    />
 
-                {/* Voting Interface - Show after user has submitted */}
-                {currentRound &&
-                  (currentRound.status === "voting_open" ||
-                    (currentRound.status === "submissions_open" &&
-                      userSubmission)) && (
-                    <Box mt={userSubmission ? 3 : 0}>
-                      <VotingInterface
+                    {/* Start Next Round Button (only for game creator) */}
+                    {game.creator === authUser.uid && (
+                      <Box mt={3}>
+                        <Button
+                          variant="contained"
+                          onClick={handleStartNextRound}
+                          disabled={startingNextRound}
+                          fullWidth
+                          sx={{
+                            bgcolor: "#4caf50",
+                            color: "white",
+                            textTransform: "uppercase",
+                            fontWeight: "bold",
+                            py: 1.5,
+                            "&:hover": {
+                              bgcolor: "#45a049",
+                            },
+                            "&:disabled": {
+                              bgcolor: "#666",
+                              color: "#999",
+                            },
+                          }}
+                        >
+                          {startingNextRound ? (
+                            <CircularProgress
+                              size={24}
+                              sx={{ color: "white" }}
+                            />
+                          ) : (
+                            "Start Next Round"
+                          )}
+                        </Button>
+                      </Box>
+                    )}
+                  </Box>
+                ) : (
+                  <>
+                    {/* Song Submission Interface - Always show unless user has submitted */}
+                    {currentRound && !userSubmission && (
+                      <SongSubmissionInterface
                         gameId={gameId}
                         roundId={game.current_round.toString()}
                         theme={currentRound.theme}
-                        submissions={currentRound.submissions}
-                        currentUserId={authUser.uid}
-                        hasVoted={hasVoted}
-                        onVoteSuccess={handleVoteSuccess}
+                        onSubmissionSuccess={handleSubmissionSuccess}
+                        disabled={loadingRound}
+                        currentSubmission={userSubmission}
                       />
+                    )}
 
-                      {/* Close Voting Button (only for game creator after voting) */}
-                      {hasVoted && game.creator === authUser.uid && (
-                        <Box mt={3}>
-                          <Button
-                            variant="outlined"
-                            onClick={handleCloseVoting}
-                            disabled={closingVoting}
-                            fullWidth
-                            sx={{
-                              borderColor: "#ff9800",
-                              color: "#ff9800",
-                              textTransform: "uppercase",
-                              fontWeight: "bold",
-                              py: 1.5,
-                              "&:hover": {
-                                borderColor: "#f57c00",
-                                backgroundColor: "rgba(255, 152, 0, 0.1)",
-                              },
-                              "&:disabled": {
-                                borderColor: "#666",
-                                color: "#666",
-                              },
-                            }}
-                          >
-                            {closingVoting ? (
-                              <CircularProgress size={24} />
-                            ) : (
-                              "Close Voting & Show Results (Creator Only)"
-                            )}
-                          </Button>
-                        </Box>
-                      )}
-                    </Box>
-                  )}
+                    {/* Show user's submission if they've submitted */}
+                    {currentRound && userSubmission && (
+                      <SongSubmissionInterface
+                        gameId={gameId}
+                        roundId={game.current_round.toString()}
+                        theme={currentRound.theme}
+                        onSubmissionSuccess={handleSubmissionSuccess}
+                        disabled={loadingRound}
+                        currentSubmission={userSubmission}
+                      />
+                    )}
+
+                    {/* Voting Interface - Show after user has submitted */}
+                    {currentRound && userSubmission && (
+                      <Box mt={3}>
+                        <VotingInterface
+                          gameId={gameId}
+                          roundId={game.current_round.toString()}
+                          theme={currentRound.theme}
+                          submissions={currentRound.submissions}
+                          currentUserId={authUser.uid}
+                          hasVoted={hasVoted}
+                          onVoteSuccess={handleVoteSuccess}
+                        />
+
+                        {/* Close Voting Button (only for game creator after voting) */}
+                        {hasVoted &&
+                          game.creator === authUser.uid &&
+                          currentRound.status === "voting_open" && (
+                            <Box mt={3}>
+                              <Button
+                                variant="outlined"
+                                onClick={handleCloseVoting}
+                                disabled={closingVoting}
+                                fullWidth
+                                sx={{
+                                  borderColor: "#ff9800",
+                                  color: "#ff9800",
+                                  textTransform: "uppercase",
+                                  fontWeight: "bold",
+                                  py: 1.5,
+                                  "&:hover": {
+                                    borderColor: "#f57c00",
+                                    backgroundColor: "rgba(255, 152, 0, 0.1)",
+                                  },
+                                  "&:disabled": {
+                                    borderColor: "#666",
+                                    color: "#666",
+                                  },
+                                }}
+                              >
+                                {closingVoting ? (
+                                  <CircularProgress size={24} />
+                                ) : (
+                                  "Close Voting & Show Results (Game Admin Only)"
+                                )}
+                              </Button>
+                            </Box>
+                          )}
+                      </Box>
+                    )}
+                  </>
+                )}
               </Box>
             ) : game.status === "completed" ? (
               <Box textAlign="center" py={4}>

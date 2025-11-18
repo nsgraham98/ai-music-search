@@ -2,7 +2,8 @@
 // Transitions game from waiting_for_players to active and creates first round
 
 import { NextResponse } from "next/server";
-import { startGame } from "../../game-handler/games";
+// import { startGame } from "../../game-handler/games";
+import { startGame } from "@/app/api/games/game-handler/games";
 
 export async function POST(request, { params }) {
   try {
