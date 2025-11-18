@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios, { Axios } from "axios";
 import { useUserAuth } from "@/context/auth-context";
 import { Typography, Paper, Box } from "@mui/material";
 import { useAudioPlayerContext } from "@/context/audio-player-context";
@@ -13,6 +13,7 @@ export default function PlaylistPage() {
   const playlistID = params.playlistID;
   const { authUser } = useUserAuth();
   const [playlistInfo, setPlaylistInfo] = useState({});
+  const [loadingMessage, setLoadingMessage] = useState("Loading playlist...");
 
   useEffect(() => {
     // Fetch playlist data using playlistID
@@ -23,6 +24,19 @@ export default function PlaylistPage() {
         );
         console.log("Fetched playlist:", firebaseResponse.data);
         const trackIds = firebaseResponse.data.playlist.tracks;
+        if (!trackIds || trackIds.length === 0) {
+          setPlaylistInfo({
+            id: firebaseResponse.data.playlist.id,
+            userID: firebaseResponse.data.playlist.userID,
+            name: firebaseResponse.data.playlist.name,
+            public: firebaseResponse.data.playlist.public,
+            description: firebaseResponse.data.playlist.description,
+            timeCreated: firebaseResponse.data.playlist.timeCreated,
+            tracks: [],
+          });
+          setLoadingMessage("No tracks found in this playlist.");
+          return; // Exit early if no tracks
+        }
         const jamendoResponse = await axios.get(
           `/api/jamendo/${trackIds.join("/")}`
         );
@@ -48,7 +62,7 @@ export default function PlaylistPage() {
     <>
       <Box>
         <Typography variant="h4" component="h1" align="center" gutterBottom>
-          {playlistInfo.name || "Playlist"}
+          {playlistInfo.name || "Loading playlist..."}
         </Typography>
         <Typography
           variant="subtitle1"
@@ -56,7 +70,7 @@ export default function PlaylistPage() {
           gutterBottom
           sx={{ mb: 4, color: "white" }}
         >
-          {playlistInfo.description || "No description available."}
+          {playlistInfo.description || ""}
         </Typography>
       </Box>
       <Box
@@ -72,9 +86,6 @@ export default function PlaylistPage() {
           mx: "auto",
           p: { xs: 2, md: 4 },
           borderRadius: 2,
-          // flexGrow: 1,
-          // display: "flex",
-          // flexDirection: "column",
           gap: 3,
         }}
       >
@@ -90,7 +101,6 @@ export default function PlaylistPage() {
               sx={{
                 bgcolor: "#4c4848",
                 color: "white",
-                // maxHeight: "18rem",
                 overflowY: "auto",
                 borderRadius: 2,
                 width: "100%", // add this
@@ -104,7 +114,7 @@ export default function PlaylistPage() {
                 textAlign="center"
                 p={2}
               >
-                Loading...
+                {loadingMessage}
               </Typography>
             </Paper>
           ) : (

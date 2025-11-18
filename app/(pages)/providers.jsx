@@ -9,7 +9,6 @@ import { UserProfileContextProvider } from "@/context/user-profile-context.jsx";
 import ClientErrorBoundary from "@/app/components/error-boundary-client.jsx";
 import { TestingContextProvider } from "@/context/testing-context";
 import { AudioPlayer } from "@/app/components/audio/audio-player.jsx";
-import { Search } from "@mui/icons-material";
 import { SearchContextProvider } from "@/context/search-context";
 
 export function Providers({ children }) {

@@ -1,19 +1,16 @@
-// Component for adding a track to a playlist
-// rough for now, to be improved later
-
+// add-track-to-playlist.jsx
 "use client";
 
 import { Button } from "@mui/material";
-import axios from "axios"; // library for making API requests easily -> https://axios-http.com/docs/intro
+import axios from "axios";
 import { useUserProfile } from "@/context/user-profile-context";
 import { useState } from "react";
+import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
+import { PlaylistsPopup } from "./playlists-popup";
 
-// Button that adds a track to a playlist
-// takes the Track ID as prop
-// includes popup to select which playlist to add to
 export const AddTrackToPlaylistButton = ({ trackId }) => {
   const { userProfile } = useUserProfile();
-  const [showPlaylistsPopup, setShowPlaylistsPopup] = useState(false);
+  const [open, setOpen] = useState(false);
 
   async function handleAddTrackToPlaylist(trackID, playlistID) {
     try {
@@ -31,35 +28,26 @@ export const AddTrackToPlaylistButton = ({ trackId }) => {
       throw error;
     }
   }
+
+  const handleSelectPlaylist = async (playlistId) => {
+    await handleAddTrackToPlaylist(trackId, playlistId);
+    setOpen(false);
+  };
+
   return (
     <>
-      <Button
-        onClick={async () => {
-          setShowPlaylistsPopup(!showPlaylistsPopup);
-        }}
-      >
-        Add to Playlist
+      <Button onClick={() => setOpen((prev) => !prev)}>
+        <PlaylistAddIcon sx={{ color: "white" }} />
       </Button>
 
-      {/* Show popup list of playlists to add to */}
-      {showPlaylistsPopup && (
-        <div
-          style={{ position: "absolute", background: "white", zIndex: 1000 }}
-        >
-          {Object.entries(userProfile.playlists).map(([id, name]) => (
-            <div key={id}>
-              <Button
-                onClick={async () => {
-                  await handleAddTrackToPlaylist(trackId, id);
-                  setShowPlaylistsPopup(!showPlaylistsPopup);
-                }}
-              >
-                {name}
-              </Button>
-            </div>
-          ))}
-        </div>
-      )}
+      <PlaylistsPopup
+        open={open}
+        playlists={userProfile?.playlists || {}}
+        onSelectPlaylist={handleSelectPlaylist}
+        onClose={() => setOpen(false)}
+        // optional: control placement
+        style={{ top: "2.5rem", right: 0 }}
+      />
     </>
   );
 };

@@ -278,7 +278,12 @@ export default function PlaylistsPage() {
               >
                 <Box display="flex" alignItems="center" gap={1} mb={1}>
                   <MusicNoteIcon sx={{ color: "#E03FD8", fontSize: 20 }} />
-                  <Typography variant="subtitle1" fontWeight="bold" noWrap>
+                  <Typography
+                    variant="subtitle1"
+                    fontWeight="600"
+                    noWrap
+                    color="white"
+                  >
                     {playlist.name}
                   </Typography>
                 </Box>

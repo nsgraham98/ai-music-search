@@ -3,8 +3,8 @@
 // call using:
 //    axios.get(`/api/jamendo/${tracks.join("/")}`)
 export async function GET(request, { params }) {
-  const { trackId } = await params;
-  if (!trackId) {
+  const { trackId } = params;
+  if (!trackId || trackId.length === 0) {
     return new Response(JSON.stringify({ error: "No track ID(s) provided" }), {
       status: 400,
     });

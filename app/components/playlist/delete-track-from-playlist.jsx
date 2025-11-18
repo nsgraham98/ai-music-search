@@ -7,10 +7,12 @@ import { Button } from "@mui/material";
 import axios from "axios"; // library for making API requests easily -> https://axios-http.com/docs/intro
 import { useUserProfile } from "@/context/user-profile-context";
 import { useState } from "react";
+import PlaylistRemoveIcon from "@mui/icons-material/PlaylistRemove";
+import { PlaylistsPopup } from "./playlists-popup";
 
 export const DeleteTrackFromPlaylistButton = ({ trackId }) => {
   const { userProfile } = useUserProfile();
-  const [showPlaylistsPopup, setShowPlaylistsPopup] = useState(false);
+  const [open, setOpen] = useState(false);
 
   async function handleDeleteTrackFromPlaylist(trackID, playlistID) {
     try {
@@ -28,34 +30,24 @@ export const DeleteTrackFromPlaylistButton = ({ trackId }) => {
       throw error;
     }
   }
+  const handleSelectPlaylist = async (playlistId) => {
+    await handleDeleteTrackFromPlaylist(trackId, playlistId);
+    setOpen(false);
+  };
   return (
     <>
-      <Button
-        onClick={async () => {
-          setShowPlaylistsPopup(!showPlaylistsPopup);
-        }}
-      >
-        Delete from Playlist
+      <Button onClick={() => setOpen(true)}>
+        <PlaylistRemoveIcon sx={{ color: "white" }} />
       </Button>
-      {/* Show popup list of playlists to add to */}
-      {showPlaylistsPopup && (
-        <div
-          style={{ position: "absolute", background: "white", zIndex: 1000 }}
-        >
-          {Object.entries(userProfile.playlists).map(([id, name]) => (
-            <div key={id}>
-              <Button
-                onClick={async () => {
-                  await handleDeleteTrackFromPlaylist(trackId, id);
-                  setShowPlaylistsPopup(!showPlaylistsPopup);
-                }}
-              >
-                {name}
-              </Button>
-            </div>
-          ))}
-        </div>
-      )}
+
+      <PlaylistsPopup
+        open={open}
+        playlists={userProfile?.playlists || {}}
+        onSelectPlaylist={handleSelectPlaylist}
+        onClose={() => setOpen(false)}
+        // optional: control placement
+        style={{ top: "2.5rem", right: 0 }}
+      />
     </>
   );
 };
