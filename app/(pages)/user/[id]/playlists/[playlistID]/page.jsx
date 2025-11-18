@@ -1,21 +1,18 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useUserAuth } from "@/context/auth-context";
-import { Typography, Paper, Box, Container } from "@mui/material";
+import { Typography, Paper, Box } from "@mui/material";
 import { useAudioPlayerContext } from "@/context/audio-player-context";
-import SignedInAs from "@/app/components/login/signed-in-as";
-import { LogoutButton } from "@/app/components/login/logout-button";
-import Navigation from "@/app/components/navigation/nav-bar.jsx";
-import ColorblindFilters from "@/app/components/settings/colorblind-filters";
-
 import { TrackList } from "@/app/components/audio/track-list.jsx";
+import { useParams } from "next/navigation";
 
-export default function PlaylistPage({ params }) {
-  const { playlistID } = React.use(params);
+export default function PlaylistPage() {
+  const params = useParams();
+  const playlistID = params.playlistID;
   const { authUser } = useUserAuth();
-  const { setCurrentPlaylist, currentPlaylist } = useAudioPlayerContext();
+  const [playlistInfo, setPlaylistInfo] = useState({});
 
   useEffect(() => {
     // Fetch playlist data using playlistID
@@ -30,9 +27,7 @@ export default function PlaylistPage({ params }) {
           `/api/jamendo/${trackIds.join("/")}`
         );
         console.log("Fetched tracks from Jamendo:", jamendoResponse.data);
-
-        // consider waiting to set the playlist, until the user has actually clicked a track to play
-        setCurrentPlaylist({
+        setPlaylistInfo({
           id: firebaseResponse.data.playlist.id,
           userID: firebaseResponse.data.playlist.userID,
           name: firebaseResponse.data.playlist.name,
@@ -47,33 +42,13 @@ export default function PlaylistPage({ params }) {
       }
     }
     fetchPlaylistRich();
-  }, []);
+  }, [authUser?.uid, playlistID]);
 
   return (
-    <Container maxWidth="lg">
-      <ColorblindFilters />
-
-      {/* Header */}
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={4}
-      >
-        <Typography variant="h4" fontWeight="bold">
-          TUTTi.
-        </Typography>
-        <Box display="flex" alignItems="center" gap={2}>
-          <SignedInAs />
-          <LogoutButton />
-        </Box>
-      </Box>
-
-      {/* Navigation */}
-      <Navigation />
+    <>
       <Box>
         <Typography variant="h4" component="h1" align="center" gutterBottom>
-          {currentPlaylist.name || "Playlist"}
+          {playlistInfo.name || "Playlist"}
         </Typography>
         <Typography
           variant="subtitle1"
@@ -81,7 +56,7 @@ export default function PlaylistPage({ params }) {
           gutterBottom
           sx={{ mb: 4, color: "white" }}
         >
-          {currentPlaylist.description || "No description available."}
+          {playlistInfo.description || "No description available."}
         </Typography>
       </Box>
       <Box
@@ -109,7 +84,7 @@ export default function PlaylistPage({ params }) {
             maxWidth: "100%",
           }}
         >
-          {!currentPlaylist.id || currentPlaylist.tracks.length === 0 ? (
+          {!playlistInfo.id || playlistInfo.tracks.length === 0 ? (
             <Paper
               elevation={3}
               sx={{
@@ -133,10 +108,17 @@ export default function PlaylistPage({ params }) {
               </Typography>
             </Paper>
           ) : (
-            <TrackList />
+            <TrackList
+              variant="playlist"
+              tracks={playlistInfo.tracks}
+              showDownload={true}
+              showAddButton={false}
+              showDeleteButton={true}
+              clearOnUnmount={true}
+            />
           )}
         </Box>
       </Box>
-    </Container>
+    </>
   );
 }

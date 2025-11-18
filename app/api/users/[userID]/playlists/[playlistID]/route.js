@@ -11,9 +11,9 @@ import { dbAdmin } from "@/lib/firebase-admin.js";
 // currently only the owner can get their playlist by ID
 export async function GET(request, { params }) {
   try {
-    const { playlistID } = await params;
-    const decodedToken = await authenticateCookie(request);
-    const uid = decodedToken.uid;
+    const { playlistID, userID } = await params;
+    // const decodedToken = await authenticateCookie(request);
+    // const uid = decodedToken.uid;
 
     const docRef = dbAdmin.collection("playlists").doc(playlistID);
     const snap = await docRef.get();
@@ -24,7 +24,7 @@ export async function GET(request, { params }) {
     }
 
     // ownership / access check
-    if (snap.get("userID") !== uid) {
+    if (snap.get("userID") !== userID) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
       });

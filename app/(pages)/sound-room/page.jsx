@@ -187,182 +187,180 @@ export default function SoundRoomPage() {
   };
 
   return (
-    <Box sx={{ bgcolor: "#1e1e1e", minHeight: "100vh", py: 4 }}>
-      <Container maxWidth="lg">
-        <LoginPopup />
-        {/* Header with TUTTi logo and user info */}
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-          mb={4}
-        >
-          <Box display="flex" alignItems="center" gap={2}>
-            <Link href="/" passHref>
-              <Typography
-                variant="h4"
-                fontWeight="bold"
+    <>
+      {/* Sound Room Content - Two Column Layout */}
+      <Grid container spacing={4}>
+        {/* Left Column - Games Dashboard */}
+        <Grid item xs={12} md={6}>
+          <Box
+            sx={{
+              bgcolor: "#2e2d2d",
+              padding: 4,
+              borderRadius: 2,
+              height: "fit-content",
+            }}
+          >
+            <Typography
+              variant="h4"
+              fontWeight="bold"
+              gutterBottom
+              color="white"
+            >
+              My Games
+            </Typography>
+            <Typography variant="body1" gutterBottom color="white" mb={3}>
+              Your active and past games
+            </Typography>
+
+            {/* Games List */}
+            {loadingGames ? (
+              <Box display="flex" justifyContent="center" py={4}>
+                <CircularProgress sx={{ color: "white" }} />
+              </Box>
+            ) : gamesError ? (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {gamesError}
+              </Alert>
+            ) : userGames.length === 0 ? (
+              <Box textAlign="center" py={4}>
+                <Typography variant="body1" color="#ccc">
+                  You haven't joined any games yet.
+                </Typography>
+                <Typography variant="body2" color="#888" mt={1}>
+                  Create your first game to get started!
+                </Typography>
+              </Box>
+            ) : (
+              <Box>
+                {userGames.map((game) => (
+                  <Card
+                    key={game.id}
+                    sx={{
+                      mb: 2,
+                      bgcolor: "#444",
+                      color: "white",
+                      cursor: "pointer",
+                      "&:hover": {
+                        bgcolor: "#555",
+                      },
+                    }}
+                    onClick={() => handleGameClick(game.id)}
+                  >
+                    <CardContent>
+                      <Box
+                        display="flex"
+                        justifyContent="space-between"
+                        alignItems="flex-start"
+                      >
+                        <Box>
+                          <Typography variant="h6" fontWeight="bold">
+                            {game.name}
+                          </Typography>
+                          <Typography variant="body2" color="#ccc" mt={1}>
+                            {game.players?.length || 1} player(s)
+                          </Typography>
+                          <Typography variant="body2" color="#ccc">
+                            Created: {formatDate(game.created_at)}
+                          </Typography>
+                        </Box>
+                        <Chip
+                          label={getGameStatusText(game)}
+                          size="small"
+                          sx={{
+                            backgroundColor: getGameStatusColor(game.status),
+                            color: "white",
+                            fontWeight: "bold",
+                          }}
+                        />
+                      </Box>
+                    </CardContent>
+                  </Card>
+                ))}
+              </Box>
+            )}
+
+            {/* Refresh Button */}
+            <Box mt={3}>
+              <Button
+                variant="outlined"
+                onClick={fetchUserGames}
+                disabled={loadingGames}
                 sx={{
-                  cursor: "pointer",
-                  textDecoration: "none",
+                  borderColor: "white",
                   color: "white",
+                  textTransform: "uppercase",
+                  fontWeight: "bold",
+                  fontSize: "0.75rem",
+                  padding: "6px 12px",
+                  borderWidth: 1,
+                  "&:hover": {
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  },
+                  "&:disabled": {
+                    borderColor: "#666",
+                    color: "#666",
+                  },
                 }}
               >
-                TUTTi.
-              </Typography>
-            </Link>
-          </Box>
-          <Box display="flex" alignItems="center" gap={2}>
-            <SignedInAs />
-            <LogoutButton />
-          </Box>
-        </Box>
-
-        {/* Sound Room Content - Two Column Layout */}
-        <Grid container spacing={4}>
-          {/* Left Column - Games Dashboard */}
-          <Grid item xs={12} md={6}>
-            <Box
-              sx={{
-                bgcolor: "#2e2d2d",
-                padding: 4,
-                borderRadius: 2,
-                height: "fit-content",
-              }}
-            >
-              <Typography
-                variant="h4"
-                fontWeight="bold"
-                gutterBottom
-                color="white"
-              >
-                My Games
-              </Typography>
-              <Typography variant="body1" gutterBottom color="white" mb={3}>
-                Your active and past games
-              </Typography>
-
-              {/* Games List */}
-              {loadingGames ? (
-                <Box display="flex" justifyContent="center" py={4}>
-                  <CircularProgress sx={{ color: "white" }} />
-                </Box>
-              ) : gamesError ? (
-                <Alert severity="error" sx={{ mb: 2 }}>
-                  {gamesError}
-                </Alert>
-              ) : userGames.length === 0 ? (
-                <Box textAlign="center" py={4}>
-                  <Typography variant="body1" color="#ccc">
-                    You haven't joined any games yet.
-                  </Typography>
-                  <Typography variant="body2" color="#888" mt={1}>
-                    Create your first game to get started!
-                  </Typography>
-                </Box>
-              ) : (
-                <Box>
-                  {userGames.map((game) => (
-                    <Card
-                      key={game.id}
-                      sx={{
-                        mb: 2,
-                        bgcolor: "#444",
-                        color: "white",
-                        cursor: "pointer",
-                        "&:hover": {
-                          bgcolor: "#555",
-                        },
-                      }}
-                      onClick={() => handleGameClick(game.id)}
-                    >
-                      <CardContent>
-                        <Box
-                          display="flex"
-                          justifyContent="space-between"
-                          alignItems="flex-start"
-                        >
-                          <Box>
-                            <Typography variant="h6" fontWeight="bold">
-                              {game.name}
-                            </Typography>
-                            <Typography variant="body2" color="#ccc" mt={1}>
-                              {game.players?.length || 1} player(s)
-                            </Typography>
-                            <Typography variant="body2" color="#ccc">
-                              Created: {formatDate(game.created_at)}
-                            </Typography>
-                          </Box>
-                          <Chip
-                            label={getGameStatusText(game)}
-                            size="small"
-                            sx={{
-                              backgroundColor: getGameStatusColor(game.status),
-                              color: "white",
-                              fontWeight: "bold",
-                            }}
-                          />
-                        </Box>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </Box>
-              )}
-
-              {/* Refresh Button */}
-              <Box mt={3}>
-                <Button
-                  variant="outlined"
-                  onClick={fetchUserGames}
-                  disabled={loadingGames}
-                  sx={{
-                    borderColor: "white",
-                    color: "white",
-                    textTransform: "uppercase",
-                    fontWeight: "bold",
-                    fontSize: "0.75rem",
-                    padding: "6px 12px",
-                    borderWidth: 1,
-                    "&:hover": {
-                      backgroundColor: "rgba(255, 255, 255, 0.1)",
-                    },
-                    "&:disabled": {
-                      borderColor: "#666",
-                      color: "#666",
-                    },
-                  }}
-                >
-                  {loadingGames ? "Refreshing..." : "Refresh Games"}
-                </Button>
-              </Box>
+                {loadingGames ? "Refreshing..." : "Refresh Games"}
+              </Button>
             </Box>
-          </Grid>
+          </Box>
+        </Grid>
 
-          {/* Right Column - Create New Game */}
-          <Grid item xs={12} md={6}>
-            <Box sx={{ bgcolor: "#2e2d2d", padding: 4, borderRadius: 2 }}>
-              <Typography
-                variant="h4"
-                fontWeight="bold"
-                gutterBottom
-                color="white"
-              >
-                Create New Game
-              </Typography>
-              <Typography variant="body1" gutterBottom color="white">
-                Start a new Sound Room game and invite your friends!
-              </Typography>
+        {/* Right Column - Create New Game */}
+        <Grid item xs={12} md={6}>
+          <Box sx={{ bgcolor: "#2e2d2d", padding: 4, borderRadius: 2 }}>
+            <Typography
+              variant="h4"
+              fontWeight="bold"
+              gutterBottom
+              color="white"
+            >
+              Create New Game
+            </Typography>
+            <Typography variant="body1" gutterBottom color="white">
+              Start a new Sound Room game and invite your friends!
+            </Typography>
 
-              {/* Game Name Input */}
-              <Box mt={3}>
+            {/* Game Name Input */}
+            <Box mt={3}>
+              <TextField
+                fullWidth
+                label="Game Name"
+                variant="outlined"
+                value={gameName}
+                onChange={(e) => setGameName(e.target.value)}
+                error={!!error}
+                helperText={error}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    color: "white",
+                    "& fieldset": { borderColor: "#555" },
+                    "&:hover fieldset": { borderColor: "#888" },
+                    "&.Mui-focused fieldset": { borderColor: "white" },
+                  },
+                  "& .MuiInputLabel-root": { color: "#ccc" },
+                  "& .MuiFormHelperText-root": { color: "#ff6b6b" },
+                }}
+              />
+            </Box>
+
+            {/* Friend Invitation Section */}
+            <Box mt={3}>
+              <Typography variant="h6" color="white" mb={2}>
+                Invite Friends
+              </Typography>
+              <Box display="flex" gap={1} mb={2}>
                 <TextField
                   fullWidth
-                  label="Game Name"
+                  label="Friend's Email"
                   variant="outlined"
-                  value={gameName}
-                  onChange={(e) => setGameName(e.target.value)}
-                  error={!!error}
-                  helperText={error}
+                  value={friendEmail}
+                  onChange={(e) => setFriendEmail(e.target.value)}
+                  error={!!friendError}
+                  helperText={friendError}
+                  onKeyPress={(e) => e.key === "Enter" && handleAddFriend()}
                   sx={{
                     "& .MuiOutlinedInput-root": {
                       color: "white",
@@ -374,130 +372,101 @@ export default function SoundRoomPage() {
                     "& .MuiFormHelperText-root": { color: "#ff6b6b" },
                   }}
                 />
-              </Box>
-
-              {/* Friend Invitation Section */}
-              <Box mt={3}>
-                <Typography variant="h6" color="white" mb={2}>
-                  Invite Friends
-                </Typography>
-                <Box display="flex" gap={1} mb={2}>
-                  <TextField
-                    fullWidth
-                    label="Friend's Email"
-                    variant="outlined"
-                    value={friendEmail}
-                    onChange={(e) => setFriendEmail(e.target.value)}
-                    error={!!friendError}
-                    helperText={friendError}
-                    onKeyPress={(e) => e.key === "Enter" && handleAddFriend()}
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        color: "white",
-                        "& fieldset": { borderColor: "#555" },
-                        "&:hover fieldset": { borderColor: "#888" },
-                        "&.Mui-focused fieldset": { borderColor: "white" },
-                      },
-                      "& .MuiInputLabel-root": { color: "#ccc" },
-                      "& .MuiFormHelperText-root": { color: "#ff6b6b" },
-                    }}
-                  />
-                  <Button
-                    variant="outlined"
-                    onClick={handleAddFriend}
-                    sx={{
-                      borderColor: "white",
-                      color: "white",
-                      minWidth: "auto",
-                      px: 2,
-                      "&:hover": {
-                        backgroundColor: "rgba(255, 255, 255, 0.1)",
-                      },
-                    }}
-                  >
-                    <AddIcon />
-                  </Button>
-                </Box>
-
-                {/* Invited Friends List */}
-                {invitedFriends.length > 0 && (
-                  <Box>
-                    <Typography variant="body2" color="#ccc" mb={1}>
-                      Invited Friends ({invitedFriends.length}):
-                    </Typography>
-                    <Box display="flex" flexWrap="wrap" gap={1}>
-                      {invitedFriends.map((email, index) => (
-                        <Chip
-                          key={index}
-                          label={email}
-                          onDelete={() => handleRemoveFriend(email)}
-                          deleteIcon={<DeleteIcon />}
-                          sx={{
-                            backgroundColor: "#444",
-                            color: "white",
-                            "& .MuiChip-deleteIcon": {
-                              color: "#ccc",
-                              "&:hover": { color: "#ff6b6b" },
-                            },
-                          }}
-                        />
-                      ))}
-                    </Box>
-                  </Box>
-                )}
-              </Box>
-
-              {/* Create Game Button */}
-              <Box mt={4}>
-                {/* Success/Error Messages */}
-                {successMessage && (
-                  <Alert severity="success" sx={{ mb: 2 }}>
-                    {successMessage}
-                  </Alert>
-                )}
-                {error && (
-                  <Alert severity="error" sx={{ mb: 2 }}>
-                    {error}
-                  </Alert>
-                )}
-
                 <Button
                   variant="outlined"
+                  onClick={handleAddFriend}
                   sx={{
                     borderColor: "white",
                     color: "white",
-                    textTransform: "uppercase",
-                    fontWeight: "bold",
-                    fontSize: "0.875rem",
-                    padding: "8px 16px",
-                    borderWidth: 2,
+                    minWidth: "auto",
+                    px: 2,
                     "&:hover": {
                       backgroundColor: "rgba(255, 255, 255, 0.1)",
                     },
-                    "&:disabled": {
-                      borderColor: "#666",
-                      color: "#666",
-                    },
                   }}
-                  onClick={handleCreateGame}
-                  disabled={isCreating}
                 >
-                  {isCreating ? (
-                    <CircularProgress size={20} sx={{ color: "white" }} />
-                  ) : (
-                    "Create Game"
-                  )}
+                  <AddIcon />
                 </Button>
-                {invitedFriends.length > 0 && (
-                  <Typography variant="body2" color="#ccc" mt={1}>
-                    Total players: {invitedFriends.length + 1} (including you)
-                  </Typography>
-                )}
               </Box>
+
+              {/* Invited Friends List */}
+              {invitedFriends.length > 0 && (
+                <Box>
+                  <Typography variant="body2" color="#ccc" mb={1}>
+                    Invited Friends ({invitedFriends.length}):
+                  </Typography>
+                  <Box display="flex" flexWrap="wrap" gap={1}>
+                    {invitedFriends.map((email, index) => (
+                      <Chip
+                        key={index}
+                        label={email}
+                        onDelete={() => handleRemoveFriend(email)}
+                        deleteIcon={<DeleteIcon />}
+                        sx={{
+                          backgroundColor: "#444",
+                          color: "white",
+                          "& .MuiChip-deleteIcon": {
+                            color: "#ccc",
+                            "&:hover": { color: "#ff6b6b" },
+                          },
+                        }}
+                      />
+                    ))}
+                  </Box>
+                </Box>
+              )}
             </Box>
-          </Grid>
+
+            {/* Create Game Button */}
+            <Box mt={4}>
+              {/* Success/Error Messages */}
+              {successMessage && (
+                <Alert severity="success" sx={{ mb: 2 }}>
+                  {successMessage}
+                </Alert>
+              )}
+              {error && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  {error}
+                </Alert>
+              )}
+
+              <Button
+                variant="outlined"
+                sx={{
+                  borderColor: "white",
+                  color: "white",
+                  textTransform: "uppercase",
+                  fontWeight: "bold",
+                  fontSize: "0.875rem",
+                  padding: "8px 16px",
+                  borderWidth: 2,
+                  "&:hover": {
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  },
+                  "&:disabled": {
+                    borderColor: "#666",
+                    color: "#666",
+                  },
+                }}
+                onClick={handleCreateGame}
+                disabled={isCreating}
+              >
+                {isCreating ? (
+                  <CircularProgress size={20} sx={{ color: "white" }} />
+                ) : (
+                  "Create Game"
+                )}
+              </Button>
+              {invitedFriends.length > 0 && (
+                <Typography variant="body2" color="#ccc" mt={1}>
+                  Total players: {invitedFriends.length + 1} (including you)
+                </Typography>
+              )}
+            </Box>
+          </Box>
         </Grid>
-      </Container>
-    </Box>
+      </Grid>
+    </>
   );
 }

@@ -10,13 +10,13 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import "/styles/globals.css";
 import "/styles/customize-progress-bar.css";
-import { AudioPlayerProvider } from "@/context/audio-player-context.jsx";
-import { AuthContextProvider } from "@/context/auth-context.jsx";
-import { UserProfileContextProvider } from "@/context/user-profile-context.jsx";
-// import { AppInitializer } from "@/app/components/app-initializer.jsx";
-import ClientErrorBoundary from "@/app/components/error-boundary-client.jsx";
-import { TestingContextProvider } from "@/context/testing-context";
-import { AudioPlayer } from "@/app/components/audio/audio-player.jsx";
+import { Providers } from "./providers.jsx";
+import { Box, Typography, Container } from "@mui/material";
+import SignedInAs from "@/app/components/login/signed-in-as";
+import { LogoutButton } from "@/app/components/login/logout-button";
+import Navigation from "@/app/components/navigation/nav-bar.jsx";
+import LoginPopup from "@/app/components/login/login-popup.jsx";
+import ColorblindFilters from "@/app/components/settings/colorblind-filters.jsx";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,26 +41,52 @@ export default function RootLayout({ children }) {
       className={`${geistSans.variable} ${geistMono.variable}`}
     >
       <body>
-        <ClientErrorBoundary>
-          <AudioPlayerProvider>
-            <AuthContextProvider>
-              <UserProfileContextProvider>
-                <TestingContextProvider>
-                  <div
-                    style={{
-                      backgroundColor: "#1e1e1e",
+        <Providers>
+          <Box
+            sx={{
+              backgroundColor: "#1e1e1e",
+              color: "white",
+              minHeight: "100vh",
+              pb: "30vh",
+              pt: 4,
+              width: "100%",
+            }}
+          >
+            <Container maxWidth="lg">
+              <LoginPopup />
+              <ColorblindFilters />
+              {/* Header and Logout */}
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                mb={4}
+              >
+                <Link href="/" passHref>
+                  <Typography
+                    variant="h4"
+                    fontWeight="bold"
+                    sx={{
+                      cursor: "pointer",
+                      textDecoration: "none",
                       color: "white",
-                      minHeight: "100vh",
                     }}
                   >
-                    {children}
-                  </div>
-                  <AudioPlayer />
-                </TestingContextProvider>
-              </UserProfileContextProvider>
-            </AuthContextProvider>
-          </AudioPlayerProvider>
-        </ClientErrorBoundary>
+                    TUTTi.
+                  </Typography>
+                </Link>
+                <Box display="flex" alignItems="center" gap={2}>
+                  <SignedInAs />
+                  <LogoutButton />
+                </Box>
+              </Box>
+
+              {/* Navigation Bar */}
+              <Navigation />
+              {children}
+            </Container>
+          </Box>
+        </Providers>
       </body>
     </html>
   );

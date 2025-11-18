@@ -19,7 +19,7 @@ import {
   Collapse,
 } from "@mui/material";
 import { Search } from "lucide-react";
-import { useUserAuth } from "@/context/auth-context";
+import { useSearchContext } from "@/context/search-context";
 
 const SearchBar = () => {
   const [userQuery, setUserQuery] = useState("");
@@ -27,7 +27,7 @@ const SearchBar = () => {
   const [aiResponse, setAiResponse] = useState(null);
   const [royaltyFree, setRoyaltyFree] = useState(true);
   const [error, setError] = useState(null);
-  const { setCurrentPlaylist } = useAudioPlayerContext();
+  const { setSearchResults } = useSearchContext();
 
   async function handleSearch() {
     console.log(
@@ -76,16 +76,17 @@ const SearchBar = () => {
       }
 
       const data = await response.json();
-      setCurrentPlaylist({
-        id: "searchResults",
-        name: "Search Results",
-        public: false,
-        userID: "searchUserID",
-        description: "Playlist generated from search",
-        timeCreated: new Date().toISOString(),
-        timeUpdated: new Date().toISOString(),
-        tracks: data.jamendoResponse || [],
-      });
+      setSearchResults(data.jamendoResponse || []);
+      // setCurrentPlaylist({
+      //   id: "searchResults",
+      //   name: "Search Results",
+      //   public: false,
+      //   userID: "searchUserID",
+      //   description: "Playlist generated from search",
+      //   timeCreated: new Date().toISOString(),
+      //   timeUpdated: new Date().toISOString(),
+      //   tracks: data.jamendoResponse || [],
+      // });
       setAiResponse(data.aiResponse?.output_text || "Search completed");
     } catch (err) {
       console.error("Search error:", err);

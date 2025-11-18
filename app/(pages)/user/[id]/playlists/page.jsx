@@ -22,11 +22,6 @@ import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
-import { LogoutButton } from "@/app/components/login/logout-button";
-import SignedInAs from "@/app/components/login/signed-in-as";
-import LoginPopup from "@/app/components/login/login-popup";
-import Navigation from "@/app/components/navigation/nav-bar";
-import ColorblindFilters from "@/app/components/settings/colorblind-filters";
 import { useUserAuth } from "@/context/auth-context";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -55,34 +50,24 @@ export default function PlaylistsPage() {
 
   // Fetch all playlists for the user
   useEffect(() => {
-    async function callFetchPlaylists() {
+    const fetchPlaylists = async () => {
       try {
         setLoading(true);
-        await fetchPlaylists();
+        const response = await axios.get(
+          `/api/users/${authUser.uid}/playlists`
+        );
+        setPlaylists(response.data.playlists || []);
       } catch (error) {
         console.error("Error fetching playlists:", error);
         showSnackbar("Failed to load playlists", "error");
       } finally {
         setLoading(false);
       }
-    }
+    };
     if (authUser?.uid) {
-      callFetchPlaylists();
+      fetchPlaylists();
     }
-  }, []);
-
-  const fetchPlaylists = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get(`/api/users/${authUser.uid}/playlists`);
-      setPlaylists(response.data.playlists || []);
-    } catch (error) {
-      console.error("Error fetching playlists:", error);
-      showSnackbar("Failed to load playlists", "error");
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [authUser?.uid]);
 
   // Create new playlist
   const handleCreatePlaylist = async () => {
@@ -201,40 +186,18 @@ export default function PlaylistsPage() {
     router.push(`/user/${authUser.uid}/playlists/${playlist.id}`);
   };
 
-  if (!authUser) {
-    return (
-      <Container maxWidth="lg">
-        <LoginPopup />
-        <ColorblindFilters />
-      </Container>
-    );
-  }
+  // if (!authUser) {
+  //   return (
+  //     <Container maxWidth="lg">
+  //       <LoginPopup />
+  //       <ColorblindFilters />
+  //     </Container>
+  //   );
+  // }
 
   return (
-    <Container maxWidth="lg">
-      <LoginPopup />
-      <ColorblindFilters />
-
-      {/* Header */}
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={4}
-      >
-        <Typography variant="h4" fontWeight="bold">
-          TUTTi.
-        </Typography>
-        <Box display="flex" alignItems="center" gap={2}>
-          <SignedInAs />
-          <LogoutButton />
-        </Box>
-      </Box>
-
-      {/* Navigation */}
-      <Navigation />
-
-      {/* Page Header */}
+    <>
+      {/* My Playlists + Create Button */}
       <Box
         display="flex"
         justifyContent="space-between"
@@ -492,6 +455,6 @@ export default function PlaylistsPage() {
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </Container>
+    </>
   );
 }

@@ -3,63 +3,15 @@
 // AudioPlayer component is located in the layout.jsx file so it's always visible to logged in users
 "use client";
 import SearchBar from "@/app/components/search-bar.jsx";
-import { LogoutButton } from "@/app/components/login/logout-button";
-import { Box, Typography, Container, Paper, Button } from "@mui/material";
-// import { PlayList } from "@/app/components/audio/playlist.jsx";
+import { Box, Typography, Paper } from "@mui/material";
 import { TrackList } from "@/app/components/audio/track-list.jsx";
-import SignedInAs from "@/app/components/login/signed-in-as";
-import LoginPopup from "@/app/components/login/login-popup";
-// import Link from "next/link";
-import Navigation from "@/app/components/navigation/nav-bar.jsx";
 import { useAudioPlayerContext } from "@/context/audio-player-context";
-// import { Add } from "@mui/icons-material";
-
-// import { AddTrackToPlaylistButton } from "@/app/components/playlist/add-track-to-playlist.jsx";
-// import { CreatePlaylistButton } from "@/app/components/playlist/create-playlist.jsx";
-// import { DeletePlaylistButton } from "@/app/components/playlist/delete-playlist.jsx";
-// import { DeleteTrackFromPlaylistButton } from "@/app/components/playlist/delete-track-from-playlist";
-// import { GetAllPlaylistsButton } from "@/app/components/playlist/get-all-playlists.jsx";
-// import { GetPlaylistButton } from "@/app/components/playlist/get-playlist.jsx";
-// import { UpdatePlaylistButton } from "@/app/components/playlist/update-playlist.jsx";
-// import { GetTracksButton } from "@/app/components/playlist/get-playlist-tracks.jsx";
-// import TestShowCurrentUser from "@/app/components/tests/test-show-current-user-profile.jsx";
+import { useSearchContext } from "@/context/search-context.jsx";
 
 export default function HomePage() {
-  const { currentPlaylist } = useAudioPlayerContext();
+  const { searchResults } = useSearchContext();
   return (
-    <Container maxWidth="lg">
-      <LoginPopup />
-      {/* Header and Logout */}
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={4}
-      >
-        <Typography variant="h4" fontWeight="bold">
-          TUTTi.
-        </Typography>
-
-        <Box display="flex" alignItems="center" gap={2}>
-          <SignedInAs />
-          <LogoutButton />
-        </Box>
-      </Box>
-
-      {/* Playlist Buttons for testing */}
-      {/* <GetAllPlaylistsButton />
-      <CreatePlaylistButton />
-      <UpdatePlaylistButton />
-      <DeletePlaylistButton />
-      <GetPlaylistButton />
-      <AddTrackToPlaylistButton />
-      <DeleteTrackFromPlaylistButton />
-      <GetTracksButton />
-      <TestShowCurrentUser /> */}
-
-      {/* Navigation Bar */}
-      <Navigation />
-
+    <>
       {/* Search Bar */}
       <Box
         sx={{
@@ -102,7 +54,7 @@ export default function HomePage() {
             maxWidth: "100%",
           }}
         >
-          {!currentPlaylist.id || currentPlaylist.tracks.length === 0 ? (
+          {searchResults.length === 0 ? (
             <Paper
               elevation={3}
               sx={{
@@ -126,10 +78,17 @@ export default function HomePage() {
               </Typography>
             </Paper>
           ) : (
-            <TrackList />
+            <TrackList
+              variant="search"
+              showDownload={true}
+              showAddButton={true}
+              showDeleteButton={false}
+              tracks={searchResults}
+              clearOnUnmount={true}
+            />
           )}
         </Box>
       </Box>
-    </Container>
+    </>
   );
 }

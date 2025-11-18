@@ -17,7 +17,7 @@ export default function Navigation() {
     { label: "Home", path: "/", icon: <HomeIcon /> },
     {
       label: "Profile",
-      path: authUser ? `/user/${authUser.uid}` : "/user",
+      path: authUser ? `/user/${authUser.uid}` : "/user", // Redirect to generic user-not-found page if not logged in
       icon: <PersonIcon />,
     },
     {
@@ -63,7 +63,7 @@ export default function Navigation() {
 
         return (
           <Button
-            key={item.path}
+            key={item.label}
             onClick={() => handleNavigation(item.path)}
             startIcon={item.icon}
             variant={isActive ? "contained" : "outlined"}

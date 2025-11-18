@@ -1,4 +1,3 @@
-// TrackList.jsx
 "use client";
 
 import { useAudioPlayerContext } from "@/context/audio-player-context";
@@ -20,55 +19,16 @@ import {
 } from "@/app/api/jamendo/jamendo-handler/go-to-jamendo";
 import { AddTrackToPlaylistButton } from "../playlist/add-track-to-playlist";
 import { DeleteTrackFromPlaylistButton } from "../playlist/delete-track-from-playlist";
-import { useState, useEffect } from "react";
 
-export const TrackList = ({
-  // optional explicit list of tracks; falls back to currentPlaylist.tracks
-  tracks,
-  // "search" | "playlist" | "default"
-  variant = "default",
-  // UI controls
-  showDownload = true,
-  showAddButton = false,
-  showDeleteButton = false,
-  clearOnUnmount = false,
-  // optional override for click behaviour
-  onTrackClick, // (track) => void
-}) => {
-  const { currentTrack, setCurrentTrack, setIsPlaying, setCurrentPlaylist } =
+export const TrackList = () => {
+  const { currentTrack, setCurrentTrack, setIsPlaying, currentPlaylist } =
     useAudioPlayerContext();
 
-  // const effectiveTracks = tracks ?? currentPlaylist?.tracks ?? [];
-  const [effectiveTracks, setEffectiveTracks] = useState(tracks ?? []);
-
-  // useEffect(() => {
-  //   return () => {
-  //     if (clearOnUnmount) {
-  //       setEffectiveTracks([]); // <-- MUST be an array
-  //     }
-  //   };
-  // }, [clearOnUnmount]);
-
-  const handlePlay = (track) => {
-    // default behaviour if no custom handler passed
-    if (onTrackClick) {
-      onTrackClick(track);
-    } else {
-      setCurrentTrack(track);
-      // if the current playlist is different from the one containing the track, update it
-      setCurrentPlaylist((prev) => {
-        if (!prev.tracks.find((t) => t.id === track.id)) {
-          return {
-            ...prev,
-            tracks: effectiveTracks,
-          };
-        }
-        return prev;
-      });
-      setIsPlaying(true);
-    }
+  // onClick handlers
+  const handleClick = (track) => {
+    setCurrentTrack(track);
+    setIsPlaying(true);
   };
-
   const handleTrackOnClick = (track) => {
     goToTrack(track);
   };
@@ -79,29 +39,6 @@ export const TrackList = ({
     goToAlbum(track);
   };
 
-  // if (!effectiveTracks || effectiveTracks.length === 0) {
-  //   return (
-  //     <Paper
-  //       elevation={3}
-  //       sx={{
-  //         bgcolor: "#4c4848",
-  //         color: "white",
-  //         overflowY: "auto",
-  //         borderRadius: 2,
-  //         width: "100%",
-  //         maxWidth: 900,
-  //         mx: "auto",
-  //       }}
-  //     >
-  //       <Typography variant="body1" color="white" textAlign="center" p={2}>
-  //         {variant === "search"
-  //           ? "No results found. Try a different search."
-  //           : "This playlist is empty."}
-  //       </Typography>
-  //     </Paper>
-  //   );
-  // }
-
   return (
     <Paper
       elevation={3}
@@ -110,23 +47,21 @@ export const TrackList = ({
         color: "white",
         overflowY: "auto",
         borderRadius: 2,
-        width: "100%",
-        maxWidth: 900,
-        mx: "auto",
+        width: "100%", // add this
+        maxWidth: 900, // adjust this width to make it wider
+        mx: "auto", // optional: centers it horizontally
       }}
     >
       <List disablePadding>
-        {effectiveTracks.map((track, index) => {
-          const isActive = currentTrack?.id
-            ? currentTrack.id === track.id
-            : currentTrack?.name === track.name;
+        {currentPlaylist.tracks.map((track, index) => {
+          const isActive = currentTrack?.name === track.name;
 
           return (
             <ListItemButton
-              key={track.id ?? index}
+              key={index}
               selected={isActive}
-              onClick={() => handlePlay(track)}
-              onKeyDown={(e) => e.key === "Enter" && handlePlay(track)}
+              onClick={() => handleClick(track)}
+              onKeyDown={(e) => e.key === "Enter" && handleClick(track)}
               sx={{
                 bgcolor: isActive ? "#a66646" : "transparent",
                 "&:hover": {
@@ -146,7 +81,9 @@ export const TrackList = ({
                 <Box display="flex" alignItems="center" gap={2}>
                   <ListItemAvatar
                     onClick={() => handleAlbumOnClick(track)}
-                    sx={{ cursor: "pointer" }}
+                    sx={{
+                      cursor: "pointer",
+                    }}
                   >
                     {track.image ? (
                       <Avatar
@@ -206,24 +143,14 @@ export const TrackList = ({
                   </Box>
                 </Box>
 
-                {/* Right Side: Actions – configurable per use case */}
-                <Box display="flex" alignItems="center" gap={1}>
-                  {showDownload && (
-                    <DownloadButton
-                      downloadUrl={track.audiodownload}
-                      downloadAllowed={track.audiodownload_allowed}
-                      filename={`${track.name}.mp3`}
-                    />
-                  )}
-
-                  {showAddButton && (
-                    <AddTrackToPlaylistButton trackId={track.id} />
-                  )}
-
-                  {showDeleteButton && (
-                    <DeleteTrackFromPlaylistButton trackId={track.id} />
-                  )}
-                </Box>
+                {/* Right Side: Download Button */}
+                <DownloadButton
+                  downloadUrl={track.audiodownload}
+                  downloadAllowed={track.audiodownload_allowed}
+                  filename={`${track.name}.mp3`}
+                />
+                <AddTrackToPlaylistButton trackId={track.id} />
+                <DeleteTrackFromPlaylistButton trackId={track.id} />
               </Box>
             </ListItemButton>
           );
