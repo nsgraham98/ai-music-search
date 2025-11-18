@@ -51,8 +51,8 @@ export async function runOpenAISearch(userQuery) {
     const toolCall = response.output[0];
     const args = JSON.parse(toolCall.arguments);
     console.log("🧠 Response from OpenAI received. (Jamendo search args)");
-    const result = await searchJamendo(args);
 
+    const result = await searchJamendo(args);
     // append model's function call message
     input.push(toolCall);
     input.push({
@@ -62,16 +62,16 @@ export async function runOpenAISearch(userQuery) {
     });
 
     // Send the tool call result back to OpenAI API for final response
-    console.log("🧠 Sending Jamendo results back to OpenAI for final response");
-    const rerankedResults = await rerankAIResults(result.results);
+    const newResponsePromise = runOpenAISummarization("gpt-4o", input, tools);
+    // In parallel, rerank the results from Jamendo
+    const rerankedResultsPromise = rerankAIResults(result.results);
 
-    const newResponse = await openai.responses.create({
-      model: "gpt-4o",
-      input,
-      tools,
-      store: true,
-    });
-    console.log("🧠 Final response from OpenAI received");
+    // Await both promises
+    const [newResponse, rerankedResults] = await Promise.all([
+      newResponsePromise,
+      rerankedResultsPromise,
+    ]);
+
     return {
       aiResponse: newResponse,
       jamendoResponse: rerankedResults,
@@ -84,7 +84,24 @@ export async function runOpenAISearch(userQuery) {
   }
 }
 
+// Helper function to run OpenAI summarization (final response) with tools
+// Separated for clarity and to allow parallelization with reranking
+async function runOpenAISummarization(model, input, tools, store = true) {
+  console.log("🧠 Sending Jamendo results back to OpenAI for final response");
+  const newResponse = await openai.responses.create({
+    model,
+    input,
+    tools,
+    store,
+  });
+  console.log("🧠 Search summary from OpenAI received");
+  return newResponse;
+}
+
+// Rerank the Jamendo results using OpenAI
+// Also separated for clarity and to allow parallelization with reranking
 export async function rerankAIResults(jamendoResults) {
+  console.log("🔁 Reranking Jamendo results with OpenAI");
   const compactTracks = jamendoResults.map((track) => ({
     id: track.id,
     title: track.name,
@@ -105,7 +122,7 @@ export async function rerankAIResults(jamendoResults) {
         content: `
 You are a ranking model for Jamendo search results.
 
-- Given a user query and a list of candidate tracks, choose the best 10 tracks.
+- Given a user query and a list of candidate tracks, choose the best 20 tracks.
 - Consider title, artist, album, duration, BPM, mood, instruments and tags.
 - Optimize for perceived match with the user's intent (mood, energy, context).
 - Return ONLY the IDs you choose, in order of best match first.
@@ -166,6 +183,6 @@ You are a ranking model for Jamendo search results.
   //   }
   // }
 
-  console.log("🧠 Reranking complete");
+  console.log("🔁 Reranking complete");
   return finalOrderedTracks;
 }
