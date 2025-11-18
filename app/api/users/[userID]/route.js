@@ -14,13 +14,8 @@ import { NextResponse } from "next/server";
 //     });
 //   }
 
-<<<<<<< HEAD
-  const userDocRef = dbAdmin.collection("users").doc(userID);
-  const userDoc = await userDocRef.get();
-=======
 //   const userDocRef = dbAdmin.collection("users").doc(userID);
 //   const userDoc = await userDocRef.get();
->>>>>>> main
 
 //   if (!userDoc) {
 //     return new Response(JSON.stringify({ error: "User not found" }), {

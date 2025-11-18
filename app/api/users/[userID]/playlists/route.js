@@ -45,22 +45,13 @@ export async function GET(request, { params }) {
     // const decodedToken = await authenticateCookie(request);
     // const uid = decodedToken.uid;
 
-<<<<<<< HEAD
-    const getQuery = query(
-      collection(db, "playlists"),
-      where("userID", "==", userID)
-    );
-    const snap = await getDocs(getQuery); // snap = read only collection of documents
-    // map through documents to load playlists into an array
-=======
     const playlistsRef = dbAdmin
       .collection("playlists")
-      .where("userID", "==", uid);
+      .where("userID", "==", userID);
     const snap = await playlistsRef.get();
     if (snap.empty) {
       return Response.json({ playlists: [] }, { status: 200 });
     }
->>>>>>> main
     const playlists = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     // const getQuery = query(
     //   collection(db, "playlists"),
