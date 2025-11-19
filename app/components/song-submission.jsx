@@ -168,14 +168,14 @@ export default function SongSubmissionInterface({
                 borderColor: "#777",
               },
               "&.Mui-focused fieldset": {
-                borderColor: "#4caf50",
+                borderColor: "#E03FD8",
               },
             },
             "& .MuiInputLabel-root": {
               color: "#ccc",
             },
             "& .MuiInputLabel-root.Mui-focused": {
-              color: "#4caf50",
+              color: "#E03FD8",
             },
           }}
         />
@@ -197,14 +197,14 @@ export default function SongSubmissionInterface({
                 borderColor: "#777",
               },
               "&.Mui-focused fieldset": {
-                borderColor: "#4caf50",
+                borderColor: "#E03FD8",
               },
             },
             "& .MuiInputLabel-root": {
               color: "#ccc",
             },
             "& .MuiInputLabel-root.Mui-focused": {
-              color: "#4caf50",
+              color: "#E03FD8",
             },
           }}
         />
@@ -229,14 +229,14 @@ export default function SongSubmissionInterface({
                 borderColor: "#777",
               },
               "&.Mui-focused fieldset": {
-                borderColor: "#4caf50",
+                borderColor: "#E03FD8",
               },
             },
             "& .MuiInputLabel-root": {
               color: "#ccc",
             },
             "& .MuiInputLabel-root.Mui-focused": {
-              color: "#4caf50",
+              color: "#E03FD8",
             },
           }}
         />
@@ -252,12 +252,16 @@ export default function SongSubmissionInterface({
             !songArgument.trim()
           }
           sx={{
-            bgcolor: "#4caf50",
+            bgcolor: "#E03FD8",
             color: "white",
             textTransform: "uppercase",
             fontWeight: "bold",
+            transition: "all 0.2s",
+            boxShadow: "0 4px 12px rgba(224, 63, 216, 0.3)",
             "&:hover": {
-              bgcolor: "#45a049",
+              bgcolor: "#c133b9",
+              transform: "translateY(-2px)",
+              boxShadow: "0 6px 16px rgba(224, 63, 216, 0.5)",
             },
             "&:disabled": {
               bgcolor: "#555",

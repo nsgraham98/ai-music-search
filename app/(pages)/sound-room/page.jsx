@@ -51,6 +51,9 @@ export default function SoundRoomPage() {
   const [gameToDelete, setGameToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Player names state - stores display names for all players across all games
+  const [playerNames, setPlayerNames] = useState({});
+
   // Fetch user's games when component mounts or user changes
   useEffect(() => {
     if (authUser) {
@@ -72,6 +75,8 @@ export default function SoundRoomPage() {
 
       if (data.success) {
         setUserGames(data.games);
+        // Fetch player names for all players in all games
+        fetchPlayerNames(data.games);
       } else {
         setGamesError(data.error || "Failed to load games");
       }
@@ -81,6 +86,33 @@ export default function SoundRoomPage() {
     } finally {
       setLoadingGames(false);
     }
+  };
+
+  const fetchPlayerNames = async (games) => {
+    // Collect all unique player IDs from all games
+    const allPlayerIds = new Set();
+    games.forEach((game) => {
+      if (game.players) {
+        game.players.forEach((playerId) => allPlayerIds.add(playerId));
+      }
+    });
+
+    // Fetch display names for all players
+    const names = {};
+    await Promise.all(
+      Array.from(allPlayerIds).map(async (playerId) => {
+        try {
+          const response = await fetch(`/api/users/${playerId}`);
+          const data = await response.json();
+          if (data.success) {
+            names[playerId] = data.displayName;
+          }
+        } catch (error) {
+          console.error(`Error fetching name for ${playerId}:`, error);
+        }
+      })
+    );
+    setPlayerNames(names);
   };
 
   const handleGameClick = (gameId) => {
@@ -104,9 +136,9 @@ export default function SoundRoomPage() {
   const getGameStatusColor = (status) => {
     switch (status) {
       case "waiting_for_players":
-        return "#ff9800"; // orange
+        return "#fffb87"; // light yellow
       case "active":
-        return "#4caf50"; // green
+        return "#90ee90"; // light green
       case "completed":
         return "#757575"; // gray
       default:
@@ -257,7 +289,7 @@ export default function SoundRoomPage() {
 
   return (
     <Box sx={{ bgcolor: "#1e1e1e", minHeight: "100vh", py: 4 }}>
-      <Container maxWidth="lg">
+      <Container maxWidth={false} sx={{ px: 4 }}>
         <LoginPopup />
         {/* Header with TUTTi logo and user info */}
         <Box
@@ -287,16 +319,21 @@ export default function SoundRoomPage() {
           </Box>
         </Box>
 
-        {/* Sound Room Content - Two Column Layout */}
-        <Grid container spacing={4}>
+        {/* Sound Room Content - Three Column Layout */}
+        <Grid container spacing={4} justifyContent="center">
           {/* Left Column - Games Dashboard */}
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} sm={4}>
             <Box
               sx={{
                 bgcolor: "#2e2d2d",
                 padding: 4,
                 borderRadius: 2,
                 height: "fit-content",
+                border: "1px solid #444",
+                transition: "border-color 0.3s",
+                "&:hover": {
+                  borderColor: "#888",
+                },
               }}
             >
               <Typography
@@ -336,11 +373,16 @@ export default function SoundRoomPage() {
                       key={game.id}
                       sx={{
                         mb: 2,
-                        bgcolor: "#444",
+                        bgcolor: "#3a3a3a",
                         color: "white",
                         cursor: "pointer",
+                        border: "1px solid #444",
+                        transition: "all 0.2s",
                         "&:hover": {
-                          bgcolor: "#555",
+                          bgcolor: "#444",
+                          borderColor: "#E03FD8",
+                          transform: "translateY(-2px)",
+                          boxShadow: "0 4px 12px rgba(224, 63, 216, 0.3)",
                         },
                       }}
                       onClick={() => handleGameClick(game.id)}
@@ -361,6 +403,61 @@ export default function SoundRoomPage() {
                             <Typography variant="body2" color="#ccc">
                               Created: {formatDate(game.created_at)}
                             </Typography>
+
+                            {/* Current Scores Section */}
+                            {game.overall_scores &&
+                              Object.keys(game.overall_scores).length > 0 && (
+                                <Box mt={2}>
+                                  <Typography
+                                    variant="body2"
+                                    color="#ccc"
+                                    mb={1}
+                                    fontWeight="normal"
+                                  >
+                                    Current Scores:
+                                  </Typography>
+                                  <Box display="flex" flexWrap="wrap" gap={1}>
+                                    {game.players
+                                      ?.sort((a, b) => {
+                                        // Sort by score (highest first)
+                                        const scoreA =
+                                          game.overall_scores?.[a] || 0;
+                                        const scoreB =
+                                          game.overall_scores?.[b] || 0;
+                                        if (scoreB !== scoreA)
+                                          return scoreB - scoreA;
+                                        return (
+                                          playerNames[a] || ""
+                                        ).localeCompare(playerNames[b] || "");
+                                      })
+                                      .map((playerId, index) => {
+                                        const score =
+                                          game.overall_scores?.[playerId] || 0;
+                                        const isLeader =
+                                          index === 0 && score > 0;
+
+                                        return (
+                                          <Chip
+                                            key={playerId}
+                                            label={`${playerNames[playerId] || "Loading..."} • ${score}`}
+                                            size="small"
+                                            sx={{
+                                              bgcolor: isLeader
+                                                ? "#ffd700"
+                                                : "#90ee90",
+                                              color: "#000",
+                                              fontWeight: isLeader
+                                                ? "normal"
+                                                : "normal",
+                                              border: "1px solid #333",
+                                              borderRadius: 1,
+                                            }}
+                                          />
+                                        );
+                                      })}
+                                  </Box>
+                                </Box>
+                              )}
                           </Box>
                           <Box display="flex" alignItems="center" gap={1}>
                             <Chip
@@ -370,8 +467,11 @@ export default function SoundRoomPage() {
                                 backgroundColor: getGameStatusColor(
                                   game.status
                                 ),
-                                color: "white",
+                                color:
+                                  game.status === "active" ? "#000" : "black",
                                 fontWeight: "bold",
+                                border: "1px solid #333",
+                                borderRadius: 1,
                               }}
                             />
                             {/* Delete button - only show for game creator */}
@@ -404,15 +504,19 @@ export default function SoundRoomPage() {
                   onClick={fetchUserGames}
                   disabled={loadingGames}
                   sx={{
-                    borderColor: "white",
-                    color: "white",
+                    borderColor: "#E03FD8",
+                    color: "#E03FD8",
                     textTransform: "uppercase",
                     fontWeight: "bold",
                     fontSize: "0.75rem",
                     padding: "6px 12px",
-                    borderWidth: 1,
+                    borderWidth: 2,
+                    transition: "all 0.2s",
                     "&:hover": {
-                      backgroundColor: "rgba(255, 255, 255, 0.1)",
+                      bgcolor: "rgba(224, 63, 216, 0.1)",
+                      borderColor: "#c133b9",
+                      transform: "translateY(-2px)",
+                      boxShadow: "0 4px 12px rgba(224, 63, 216, 0.4)",
                     },
                     "&:disabled": {
                       borderColor: "#666",
@@ -426,11 +530,21 @@ export default function SoundRoomPage() {
             </Box>
           </Grid>
 
-          {/* Right Column - Create and Join Game */}
-          <Grid item xs={12} md={6}>
+          {/* Middle Column - Create and Join Game */}
+          <Grid item xs={12} sm={4}>
             {/* Create New Game */}
             <Box
-              sx={{ bgcolor: "#2e2d2d", padding: 4, borderRadius: 2, mb: 4 }}
+              sx={{
+                bgcolor: "#2e2d2d",
+                padding: 4,
+                borderRadius: 2,
+                mb: 4,
+                border: "1px solid #444",
+                transition: "border-color 0.3s",
+                "&:hover": {
+                  borderColor: "#888",
+                },
+              }}
             >
               <Typography
                 variant="h4"
@@ -510,21 +624,25 @@ export default function SoundRoomPage() {
                 )}
 
                 <Button
-                  variant="outlined"
+                  variant="contained"
                   sx={{
-                    borderColor: "white",
+                    bgcolor: "#E03FD8",
                     color: "white",
                     textTransform: "uppercase",
                     fontWeight: "bold",
                     fontSize: "0.875rem",
-                    padding: "8px 16px",
-                    borderWidth: 2,
+                    padding: "10px 24px",
+                    borderWidth: 0,
+                    transition: "all 0.2s",
+                    boxShadow: "0 4px 12px rgba(224, 63, 216, 0.3)",
                     "&:hover": {
-                      backgroundColor: "rgba(255, 255, 255, 0.1)",
+                      bgcolor: "#c133b9",
+                      transform: "translateY(-2px)",
+                      boxShadow: "0 6px 16px rgba(224, 63, 216, 0.5)",
                     },
                     "&:disabled": {
-                      borderColor: "#666",
-                      color: "#666",
+                      bgcolor: "#666",
+                      color: "#999",
                     },
                   }}
                   onClick={handleCreateGame}
@@ -540,7 +658,18 @@ export default function SoundRoomPage() {
             </Box>
 
             {/* Join Game */}
-            <Box sx={{ bgcolor: "#2e2d2d", padding: 4, borderRadius: 2 }}>
+            <Box
+              sx={{
+                bgcolor: "#2e2d2d",
+                padding: 4,
+                borderRadius: 2,
+                border: "1px solid #444",
+                transition: "border-color 0.3s",
+                "&:hover": {
+                  borderColor: "#888",
+                },
+              }}
+            >
               <Typography
                 variant="h4"
                 fontWeight="bold"
@@ -586,21 +715,25 @@ export default function SoundRoomPage() {
                 )}
 
                 <Button
-                  variant="outlined"
+                  variant="contained"
                   sx={{
-                    borderColor: "white",
+                    bgcolor: "#E03FD8",
                     color: "white",
                     textTransform: "uppercase",
                     fontWeight: "bold",
                     fontSize: "0.875rem",
-                    padding: "8px 16px",
-                    borderWidth: 2,
+                    padding: "10px 24px",
+                    borderWidth: 0,
+                    transition: "all 0.2s",
+                    boxShadow: "0 4px 12px rgba(224, 63, 216, 0.3)",
                     "&:hover": {
-                      backgroundColor: "rgba(255, 255, 255, 0.1)",
+                      bgcolor: "#c133b9",
+                      transform: "translateY(-2px)",
+                      boxShadow: "0 6px 16px rgba(224, 63, 216, 0.5)",
                     },
                     "&:disabled": {
-                      borderColor: "#666",
-                      color: "#666",
+                      bgcolor: "#666",
+                      color: "#999",
                     },
                   }}
                   onClick={handleJoinGame}
@@ -612,6 +745,123 @@ export default function SoundRoomPage() {
                     "Join Game"
                   )}
                 </Button>
+              </Box>
+            </Box>
+          </Grid>
+
+          {/* Right Column - User Guide */}
+          <Grid item xs={12} sm={4}>
+            <Box
+              sx={{
+                bgcolor: "#2e2d2d",
+                padding: 4,
+                borderRadius: 2,
+                border: "1px solid #444",
+                transition: "border-color 0.3s",
+                "&:hover": {
+                  borderColor: "#888",
+                },
+              }}
+            >
+              <Typography
+                variant="h4"
+                fontWeight="bold"
+                gutterBottom
+                color="white"
+              >
+                Sound Room - User Guide
+              </Typography>
+
+              {/* How It Works Section */}
+              <Box mt={3} mb={4}>
+                <Typography
+                  variant="h6"
+                  fontWeight="bold"
+                  color="#E03FD8"
+                  mb={2}
+                >
+                  Ready to play? Here's how it works:
+                </Typography>
+                <Box component="ul" sx={{ color: "#ccc", pl: 2 }}>
+                  <Typography component="li" variant="body2" mb={1.5}>
+                    Each game is made up of multiple rounds.
+                  </Typography>
+                  <Typography component="li" variant="body2" mb={1.5}>
+                    When a round opens, all players are notified to submit a
+                    song that fits the theme.
+                  </Typography>
+                  <Typography component="li" variant="body2" mb={1.5}>
+                    After submitting, players can immediately start voting. You
+                    have 5 votes to allocate across other players' submissions.
+                  </Typography>
+                  <Typography component="li" variant="body2" mb={1.5}>
+                    When the game admin closes voting, everyone can see the
+                    results, including who submitted what, and how everyone voted.
+                  </Typography>
+                  <Typography component="li" variant="body2" mb={1.5}>
+                    Points accumulate from round to round until a winner is
+                    crowned!
+                  </Typography>
+                </Box>
+              </Box>
+
+              {/* How to Start Section */}
+              <Box mb={4}>
+                <Typography
+                  variant="h6"
+                  fontWeight="bold"
+                  color="#E03FD8"
+                  mb={2}
+                >
+                  Ready to start a game? Here's what to do:
+                </Typography>
+                <Box component="ol" sx={{ color: "#ccc", pl: 2.5 }}>
+                  <Typography component="li" variant="body2" mb={1.5}>
+                    G ive your game a name and click "Create Game"
+                  </Typography>
+                  <Typography component="li" variant="body2" mb={1.5}>
+                    Share the 4-digit join code with your friends (games are best with 4+ players!)
+                  </Typography>
+                  <Typography component="li" variant="body2" mb={1.5}>
+                    Once everyone has joined, click "Start Game"
+                  </Typography>
+                  <Typography component="li" variant="body2" mb={1.5}>
+                    Choose a random theme or create your own custom theme for
+                    the round
+                  </Typography>
+                  <Typography component="li" variant="body2" mb={1.5}>
+                    Players submit songs and vote simultaneously
+                  </Typography>
+                  <Typography component="li" variant="body2" mb={1.5}>
+                    When everyone has submitted and voted, close voting to see the results and start
+                    the next round!
+                  </Typography>
+                </Box>
+              </Box>
+
+              {/* Tips Section */}
+              <Box>
+                <Typography
+                  variant="h6"
+                  fontWeight="bold"
+                  color="#E03FD8"
+                  mb={2}
+                >
+                  Tips for a great game:
+                </Typography>
+                <Box component="ul" sx={{ color: "#ccc", pl: 2 }}>
+                  <Typography component="li" variant="body2" mb={1.5}>
+                    Choose themes that are broad enough for people to pick songs
+                    from memory
+                  </Typography>
+                  <Typography component="li" variant="body2" mb={1.5}>
+                    Aim for rounds to last up to a week at most
+                  </Typography>
+                  <Typography component="li" variant="body2" mb={1.5}>
+                    Mix up your themes: try specific genres, decades, moods, or
+                    creative prompts like "Songs with colors in the title"
+                  </Typography>
+                </Box>
               </Box>
             </Box>
           </Grid>

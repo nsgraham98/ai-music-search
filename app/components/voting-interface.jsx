@@ -301,13 +301,17 @@ export default function VotingInterface({
           disabled={isSubmitting || totalVotesAllocated === 0}
           fullWidth
           sx={{
-            bgcolor: "#4caf50",
+            bgcolor: "#E03FD8",
             color: "white",
             textTransform: "uppercase",
             fontWeight: "bold",
             py: 1.5,
+            transition: "all 0.2s",
+            boxShadow: "0 4px 12px rgba(224, 63, 216, 0.3)",
             "&:hover": {
-              bgcolor: "#45a049",
+              bgcolor: "#c133b9",
+              transform: "translateY(-2px)",
+              boxShadow: "0 6px 16px rgba(224, 63, 216, 0.5)",
             },
             "&:disabled": {
               bgcolor: "#555",
@@ -362,9 +366,13 @@ export default function VotingInterface({
             onClick={handleSubmitVotes}
             disabled={isSubmitting}
             sx={{
-              bgcolor: "#4caf50",
+              bgcolor: "#E03FD8",
               color: "white",
-              "&:hover": { bgcolor: "#45a049" },
+              transition: "all 0.2s",
+              "&:hover": {
+                bgcolor: "#c133b9",
+                transform: "translateY(-2px)",
+              },
             }}
           >
             {isSubmitting ? <CircularProgress size={20} /> : "Confirm Votes"}

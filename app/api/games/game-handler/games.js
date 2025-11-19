@@ -316,6 +316,15 @@ export async function startGame(gameId, request) {
 
     const userId = decodedToken.uid;
 
+    // Parse request body to check for custom theme
+    let customTheme = null;
+    try {
+      const body = await request.json();
+      customTheme = body?.customTheme;
+    } catch (e) {
+      // No body or invalid JSON, will use random theme
+    }
+
     // Get the game to verify it exists and user is creator
     const gameRef = dbAdmin.collection("games").doc(gameId);
     const gameDoc = await gameRef.get();
@@ -342,8 +351,11 @@ export async function startGame(gameId, request) {
       };
     }
 
-    // Get a random theme for the first round
-    const theme = await getRandomTheme(gameId);
+    // Use custom theme if provided, otherwise get a random theme
+    const theme =
+      customTheme && customTheme.trim()
+        ? customTheme.trim()
+        : await getRandomTheme(gameId);
 
     // Create the first round
     const roundRef = gameRef.collection("rounds").doc("1");
@@ -909,6 +921,15 @@ export async function startNextRound(gameId, request) {
 
     const userId = decodedToken.uid;
 
+    // Parse request body to check for custom theme
+    let customTheme = null;
+    try {
+      const body = await request.json();
+      customTheme = body?.customTheme;
+    } catch (e) {
+      // No body or invalid JSON, will use random theme
+    }
+
     // Get the game to verify it exists and user is creator
     const gameRef = dbAdmin.collection("games").doc(gameId);
     const gameDoc = await gameRef.get();
@@ -938,8 +959,11 @@ export async function startNextRound(gameId, request) {
     const currentRoundNumber = gameData.current_round || 0;
     const nextRoundNumber = currentRoundNumber + 1;
 
-    // Get a random theme for the next round
-    const theme = await getRandomTheme(gameId);
+    // Use custom theme if provided, otherwise get a random theme
+    const theme =
+      customTheme && customTheme.trim()
+        ? customTheme.trim()
+        : await getRandomTheme(gameId);
 
     // Create the next round
     const nextRoundRef = gameRef
