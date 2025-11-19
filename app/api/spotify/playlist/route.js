@@ -1,5 +1,5 @@
 // Spotify Playlist API Route
-import { getValidAccessToken } from "./accesstoken/spotifyroute";
+import { checkAccessToken } from "./accesstoken/spotifyroute";
 
 export async function getPlaylist(req) {
   const { searchParams } = new URL(req.url);
@@ -17,7 +17,7 @@ export async function getPlaylist(req) {
     }
     
     const authToken = authHeader.replace("Bearer ", "");
-    const accessToken = await getValidAccessToken(authToken);
+    const accessToken = await checkAccessToken(authToken);
     
     const res = await fetch(`https://api.spotify.com/v1/playlists/${id}`, {
       headers: {
