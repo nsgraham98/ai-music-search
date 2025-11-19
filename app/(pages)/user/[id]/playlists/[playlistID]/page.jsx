@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import axios, { Axios } from "axios";
+import axios from "axios";
 import { useUserAuth } from "@/context/auth-context";
 import { Typography, Paper, Box } from "@mui/material";
 import { TrackList } from "@/app/components/audio/track-list.jsx";

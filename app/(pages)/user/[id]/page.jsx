@@ -1,20 +1,15 @@
 // user profile page
 "use client";
 
-import { LogoutButton } from "@/app/components/login/logout-button";
 import {
   Box,
   Typography,
-  Container,
   Paper,
   TextField,
   Button,
   Alert,
   CircularProgress,
 } from "@mui/material";
-import SignedInAs from "@/app/components/login/signed-in-as";
-import LoginPopup from "@/app/components/login/login-popup";
-import Navigation from "@/app/components/navigation/nav-bar";
 import { useUserAuth } from "@/context/auth-context";
 import { useUserProfile } from "@/context/user-profile-context";
 import { useParams } from "next/navigation";

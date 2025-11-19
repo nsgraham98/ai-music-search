@@ -1,6 +1,5 @@
 "use client";
 
-import { LogoutButton } from "@/app/components/login/logout-button";
 import {
   Box,
   Typography,
@@ -10,9 +9,8 @@ import {
   CircularProgress,
   Divider,
 } from "@mui/material";
-import SignedInAs from "@/app/components/login/signed-in-as";
+
 import LoginPopup from "@/app/components/login/login-popup";
-import Navigation from "@/app/components/navigation/nav-bar";
 import { useUserAuth } from "@/context/auth-context";
 import { useUserProfile } from "@/context/user-profile-context";
 import { useState, useEffect } from "react";

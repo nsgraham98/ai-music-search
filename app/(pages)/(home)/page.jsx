@@ -5,7 +5,6 @@
 import SearchBar from "@/app/components/search-bar.jsx";
 import { Box, Typography, Paper } from "@mui/material";
 import { TrackList } from "@/app/components/audio/track-list.jsx";
-import { useAudioPlayerContext } from "@/context/audio-player-context";
 import { useSearchContext } from "@/context/search-context.jsx";
 import { useMemo } from "react";
 

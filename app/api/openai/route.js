@@ -4,10 +4,7 @@
 
 import OpenAI from "openai";
 import { runOpenAISearch } from "@/app/api/openai/openai-handler/openai.js";
-import {
-  authenticateIdToken,
-  authenticateCookie,
-} from "@/lib/authenticate-calls";
+import { authenticateCookie } from "@/lib/authenticate-calls";
 
 // Initialize OpenAI client
 const openai = new OpenAI({
