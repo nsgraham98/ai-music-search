@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import axios, { Axios } from "axios";
 import { useUserAuth } from "@/context/auth-context";
 import { Typography, Paper, Box } from "@mui/material";
-import { useAudioPlayerContext } from "@/context/audio-player-context";
 import { TrackList } from "@/app/components/audio/track-list.jsx";
 import { useParams } from "next/navigation";
 
