@@ -34,7 +34,7 @@ export async function getSongsJamendo(searchParams) {
   }
   const data = await response.json(); // Parse the response as JSON
   console.log("🎵 Jamendo results received:", data.results.length, "tracks");
-  console.log(data.results[0]);
+  // console.log(data.results[0]);
   return data;
 }
 
@@ -51,7 +51,7 @@ function createSearchString(searchArgsObj) {
     limit: "all", // how many results to return - "all" returns all results, max 200
     type: "single albumtrack",
     audioformat: "mp32",
-    boost: "popularity_month",
+    // boost: "popularity_month",
   };
 
   // "Fuzzy" tags are considered as an OR operation in search logic

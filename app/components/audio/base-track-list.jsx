@@ -1,8 +1,3 @@
-// This is the search results component that will be used to display the search results in the audio player
-// Should probably use a different name to avoid confusion once we add traditional playlist functionality...
-// It's called playlist for now because the search results are effectively a temporary playlist
-// used on home page: /app/(pages)/(home)/page.jsx
-
 "use client";
 
 import { useAudioPlayerContext } from "@/context/audio-player-context";
@@ -22,8 +17,10 @@ import {
   goToArtist,
   goToAlbum,
 } from "@/app/api/jamendo/jamendo-handler/go-to-jamendo";
+import { AddTrackToPlaylistButton } from "../playlist/add-track-to-playlist";
+import { DeleteTrackFromPlaylistButton } from "../playlist/delete-track-from-playlist";
 
-export const PlayList = () => {
+export const TrackList = () => {
   const { currentTrack, setCurrentTrack, setIsPlaying, currentPlaylist } =
     useAudioPlayerContext();
 
@@ -42,30 +39,6 @@ export const PlayList = () => {
     goToAlbum(track);
   };
 
-  // if no tracks, show message
-  if (!currentPlaylist || currentPlaylist.length === 0) {
-    return (
-      <Paper
-        elevation={3}
-        sx={{
-          bgcolor: "#4c4848",
-          color: "white",
-          // maxHeight: "18rem",
-          overflowY: "auto",
-          borderRadius: 2,
-          width: "100%", // add this
-          maxWidth: 900, // adjust this width to make it wider
-          mx: "auto", // optional: centers it horizontally
-        }}
-      >
-        <Typography variant="body1" color="white" textAlign="center" p={2}>
-          Please search again.
-        </Typography>
-      </Paper>
-    );
-  }
-
-  // else, show list of tracks
   return (
     <Paper
       elevation={3}
@@ -80,7 +53,7 @@ export const PlayList = () => {
       }}
     >
       <List disablePadding>
-        {currentPlaylist.map((track, index) => {
+        {currentPlaylist.tracks.map((track, index) => {
           const isActive = currentTrack?.name === track.name;
 
           return (
@@ -176,6 +149,8 @@ export const PlayList = () => {
                   downloadAllowed={track.audiodownload_allowed}
                   filename={`${track.name}.mp3`}
                 />
+                <AddTrackToPlaylistButton trackId={track.id} />
+                <DeleteTrackFromPlaylistButton trackId={track.id} />
               </Box>
             </ListItemButton>
           );

@@ -3,37 +3,23 @@
 // AudioPlayer component is located in the layout.jsx file so it's always visible to logged in users
 "use client";
 import SearchBar from "@/app/components/search-bar.jsx";
-import { LogoutButton } from "@/app/components/login/logout-button";
-import { Box, Typography, Container, Paper, Button } from "@mui/material";
-import { PlayList } from "@/app/components/audio/playlist.jsx";
-import SignedInAs from "@/app/components/login/signed-in-as";
-import LoginPopup from "@/app/components/login/login-popup";
-import Navigation from "@/app/components/navigation/nav-bar.jsx";
+import { Box, Typography, Paper } from "@mui/material";
+import { TrackList } from "@/app/components/audio/track-list.jsx";
+import { useAudioPlayerContext } from "@/context/audio-player-context";
+import { useSearchContext } from "@/context/search-context.jsx";
+import { useMemo } from "react";
 
 export default function HomePage() {
+  const { searchResults } = useSearchContext();
+
+  // Build a stable key based on current results, so that the TrackList remounts when results change
+  const trackListKey = useMemo(
+    () => searchResults.map((track) => track.id ?? "").join(","),
+    [searchResults]
+  );
+
   return (
-    <Container maxWidth="lg">
-      <LoginPopup />
-      {/* Header and Logout */}
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={4}
-      >
-        <Typography variant="h4" fontWeight="bold">
-          TUTTi.
-        </Typography>
-
-        <Box display="flex" alignItems="center" gap={2}>
-          <SignedInAs />
-          <LogoutButton />
-        </Box>
-      </Box>
-
-      {/* Navigation Bar */}
-      <Navigation />
-
+    <>
       {/* Search Bar */}
       <Box
         sx={{
@@ -76,9 +62,42 @@ export default function HomePage() {
             maxWidth: "100%",
           }}
         >
-          <PlayList />
+          {searchResults.length === 0 ? (
+            <Paper
+              elevation={3}
+              sx={{
+                bgcolor: "#4c4848",
+                color: "white",
+                // maxHeight: "18rem",
+                overflowY: "auto",
+                borderRadius: 2,
+                width: "100%", // add this
+                maxWidth: 900, // adjust this width to make it wider
+                mx: "auto", // optional: centers it horizontally
+              }}
+            >
+              <Typography
+                variant="body1"
+                color="white"
+                textAlign="center"
+                p={2}
+              >
+                Please search again.
+              </Typography>
+            </Paper>
+          ) : (
+            <TrackList
+              key={trackListKey}
+              variant="search"
+              showDownload={true}
+              showAddButton={true}
+              showDeleteButton={false}
+              tracks={searchResults}
+              clearOnUnmount={true}
+            />
+          )}
         </Box>
       </Box>
-    </Container>
+    </>
   );
 }

@@ -39,14 +39,15 @@ import axios from "axios";
 // Get all user playlists
 // Call using axios example:
 // await axios.get(`/api/users/${userID}/playlists`)
-export async function GET(request) {
+export async function GET(request, { params }) {
   try {
-    const decodedToken = await authenticateCookie(request);
-    const uid = decodedToken.uid;
+    const { userID } = await params;
+    // const decodedToken = await authenticateCookie(request);
+    // const uid = decodedToken.uid;
 
     const playlistsRef = dbAdmin
       .collection("playlists")
-      .where("userID", "==", uid);
+      .where("userID", "==", userID);
     const snap = await playlistsRef.get();
     if (snap.empty) {
       return Response.json({ playlists: [] }, { status: 200 });
