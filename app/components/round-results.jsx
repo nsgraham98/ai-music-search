@@ -156,7 +156,7 @@ export default function RoundResults({
             key={entry.userId}
             sx={{
               mb: 2,
-              bgcolor: index === 0 ? "#3d5a3d" : "#3e3d3d",
+              bgcolor: "#3e3d3d",
               color: "white",
               border: index === 0 ? "2px solid #ffd700" : "none",
             }}
@@ -217,12 +217,14 @@ export default function RoundResults({
                 <Chip
                   label={`${entry.totalScore} ${entry.totalScore === 1 ? "vote" : "votes"}`}
                   sx={{
-                    bgcolor: index === 0 ? "#ffd700" : "#4caf50",
-                    color: index === 0 ? "#000" : "white",
+                    bgcolor: index === 0 ? "#ffd700" : "#90ee90",
+                    color: "#000",
                     fontWeight: "bold",
                     fontSize: "1rem",
                     height: "40px",
                     minWidth: "80px",
+                    border: "1px solid #333",
+                    borderRadius: 1,
                   }}
                 />
               </Box>
@@ -326,9 +328,11 @@ export default function RoundResults({
                       label={player.score}
                       size="small"
                       sx={{
-                        bgcolor: player.rank === 1 ? "#ffd700" : "#4caf50",
-                        color: player.rank === 1 ? "#000" : "white",
+                        bgcolor: player.rank === 1 ? "#ffd700" : "#90ee90",
+                        color: "#000",
                         fontWeight: "bold",
+                        border: "1px solid #333",
+                        borderRadius: 1,
                       }}
                     />
                   </TableCell>
