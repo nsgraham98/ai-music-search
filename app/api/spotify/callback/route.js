@@ -1,44 +1,44 @@
-// API route to handle Spotify token exchange
+// API route to handle Spotify OAuth callback
+// Spotify redirects here after user authorizes the app
 import { NextResponse } from "next/server";
-import { checkAccessToken } from "../accesstoken/spotifyroute";
 import { exchangeCodeForToken } from "../accesstoken/spotifyroute";
 
-export async function POST(request) {
+// Spotify OAuth sends GET request with code in query params
+export async function GET(request) {
     try {
         const { searchParams } = new URL(request.url);
         const code = searchParams.get('code');
         const error = searchParams.get('error');
+        const state = searchParams.get('state');
         
-        // Get auth token from headers
-        const authHeader = request.headers.get('authorization');
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return NextResponse.json({ error: 'No auth token provided' }, { status: 401 });
-        }
-        const authToken = authHeader.substring(7);
+        console.log('=== Spotify Callback ===');
+        console.log('Code:', code ? 'received' : 'missing');
+        console.log('Error:', error);
         
         if (error) {
             console.error('Spotify auth error:', error);
-            return NextResponse.json({ error: 'Spotify authorization failed' }, { status: 400 });
+            // Redirect to settings with error
+            return NextResponse.redirect(
+                new URL(`/settings?spotify_error=${encodeURIComponent(error)}`, request.url)
+            );
         }
         
         if (!code) {
-            return NextResponse.json({ error: 'No authorization code received' }, { status: 400 });
+            return NextResponse.redirect(
+                new URL('/settings?spotify_error=no_code', request.url)
+            );
         }
-        
-        // Exchange code for access token
-        const accessToken = await exchangeCodeForToken(code, authToken);
-        
-        return NextResponse.json({ 
-            success: true, 
-            message: 'Spotify connected successfully',
-            accessToken: accessToken 
-        });
+
+        // For now, redirect to a page that will handle the token exchange client-side
+        // This is because we need the user's Firebase token which isn't available server-side
+        return NextResponse.redirect(
+            new URL(`/settings?spotify_code=${code}`, request.url)
+        );
         
     } catch (error) {
         console.error('Callback error:', error);
-        return NextResponse.json(
-            { error: 'Failed to process callback', details: error.message },
-            { status: 500 }
+        return NextResponse.redirect(
+            new URL(`/settings?spotify_error=${encodeURIComponent(error.message)}`, request.url)
         );
     }
 }

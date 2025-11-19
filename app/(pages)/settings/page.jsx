@@ -28,6 +28,8 @@ import HighContrast from "@/app/components/settings/high-contrast-toggle";
 import ReducedMotionToggle from "@/app/components/settings/reduced-motion-toggle";
 import ColorblindFilters from "@/app/components/settings/colorblind-filters";
 import SettingsSection from "@/app/components/settings/settings-section";
+import SpotifyConnect from "@/app/components/settings/spotify-connect";
+import MusicNoteIcon from "@mui/icons-material/MusicNote";
 
 // Import CSS
 import "@/styles/accessibility.css";
@@ -255,6 +257,16 @@ export default function SettingsPage() {
             onUpdate={handleUsernameUpdate}
           />
           <Logout onLogout={handleLogout} />
+        </SettingsSection>
+
+        <Divider sx={{ borderColor: "#444", my: 4 }} />
+
+        {/* Music Services Section */}
+        <SettingsSection
+          icon={<MusicNoteIcon sx={{ color: "#E03FD8" }} />}
+          title="Music Services"
+        >
+          <SpotifyConnect />
         </SettingsSection>
 
         <Divider sx={{ borderColor: "#444", my: 4 }} />

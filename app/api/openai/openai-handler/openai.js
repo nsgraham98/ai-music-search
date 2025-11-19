@@ -16,7 +16,6 @@ import OpenAI from "openai";
 import { searchJamendo } from "@/app/api/jamendo/jamendo-search.js";
 import { searchSpotify } from "@/app/api/spotify/spotifyhandler/spotify-search-helper.js";
 import { getTools } from "@/lib/ai-tools.js";
-import { getSpotifyTools } from "@/lib/ai-tools.js";
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -87,6 +86,7 @@ export async function runOpenAISearch(userQuery, musicService = "jamendo", authT
     console.log("🧠 Final response from OpenAI received");
     
     // Return results in a consistent format
+    // Return results in a consistent format
     return {
       aiResponse: newResponse,
       musicService: musicService,
@@ -96,72 +96,4 @@ export async function runOpenAISearch(userQuery, musicService = "jamendo", authT
     console.error("Error fetching OpenAI:", error);
     throw error;
   }
-}
-
-export async function runSpotifySearch(userQuery) {
-  try {
-    const tools = await getSpotifyTools();
-
-    const input = [
-      {
-        role: "user",
-        content: userQuery,
-      },
-    ];
-
-    //prompt to openai
-    const response = await openai.responses.create({
-      model: "gpt-4o",
-      input,
-      tools,
-      tool_choice: { type: "function", name: "searchSpotify" },
-    });
-
-    const toolCall = response.output[0];
-    const args = JSON.parse(toolCall.arguments);
-
-    //call search and store result
-    const result = await searchSpotify(args, authToken);
-
-    input.push(toolCall);
-    input.push({
-      type: "function_call_output",
-      call_id: toolCall.call_id,
-      output: result.toString(),
-    });
-
-    const newResponse = await openai.responses.create({
-      model: "gpt-4o",
-      input,
-      tools,
-      store: true,
-    });
-    return {
-      aiResponse: newResponse,
-      spotifyResponse: result.results,
-    };
-  } catch (error) {
-    console.error("Error fetching OpenAI:", error);
-    return new Response(JSON.stringify({ error: "Something went wrong" }), {
-      status: 500,
-    })
-
-  }
-}
-
-async function searchSpotify(search, authToken) { //api call
-  const response = await fetch('https://api.spotify.com/v1/search', {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      'Authorization': `Bearer ${authToken}`
-    },
-    body: JSON.stringify(search),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Spotify API error: ${response.statusText}`);
-  }
-
-  return await response.json();
 }

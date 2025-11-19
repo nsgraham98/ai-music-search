@@ -22,7 +22,7 @@ export default function Navigation() {
     },
     {
       label: "Playlists",
-      path: authUser ? `/user/${authUser.uid}/playlists` : "/", // Redirect to home if not logged in
+      path: authUser ? `/user/${authUser.uid}/playlists` : "/user", // Redirect to user page if not logged in
       icon: <PlaylistPlayIcon />,
     },
     { label: "Game Room", path: "/sound-room", icon: <SportsEsportsIcon /> },
