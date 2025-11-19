@@ -8,7 +8,6 @@ import { cleanForFirestore } from "@/utils/clean";
 // Create or update a user profile
 export async function saveUserProfile(uid, profileData) {
   try {
-    console.log("profileData in saveUserProfile:", profileData);
     // Prepare the profile data
     const userProfileData = cleanForFirestore({
       uid,

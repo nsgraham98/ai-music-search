@@ -1,19 +1,19 @@
 "use client";
 
 import { LogoutButton } from "@/app/components/login/logout-button";
-import { 
-  Box, 
-  Typography, 
-  Container, 
-  Paper, 
-  TextField, 
-  Button, 
-  Alert, 
+import {
+  Box,
+  Typography,
+  Container,
+  Paper,
+  TextField,
+  Button,
+  Alert,
   CircularProgress,
   Avatar,
   Divider,
   Chip,
-  Grid
+  Grid,
 } from "@mui/material";
 import SignedInAs from "@/app/components/login/signed-in-as";
 import LoginPopup from "@/app/components/login/login-popup";
@@ -21,20 +21,21 @@ import { useUserAuth } from "@/context/auth-context";
 import { useUserProfile } from "@/context/user-profile-context";
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { 
-  Edit2, 
-  Mail, 
-  Calendar, 
-  Key, 
+import {
+  Edit2,
+  Mail,
+  Calendar,
+  Key,
   User as UserIcon,
   Music,
   Clock,
-  TrendingUp
+  TrendingUp,
 } from "lucide-react";
 
 export default function UserProfilePage() {
   const { user } = useUserAuth();
-  const { userProfile, loadingProfile, updateDisplayName, getUserProfileById } = useUserProfile();
+  const { userProfile, loadingProfile, updateDisplayName, getUserProfileById } =
+    useUserProfile();
   const params = useParams();
   const router = useRouter();
   const userId = params.id;
@@ -88,20 +89,20 @@ export default function UserProfilePage() {
     setUpdateSuccess("");
 
     const result = await updateDisplayName(editDisplayName);
-    
+
     if (result.success) {
       setUpdateSuccess("Display name updated successfully!");
       setIsEditing(false);
       // Update local state
-      setViewingProfile(prev => ({
+      setViewingProfile((prev) => ({
         ...prev,
-        displayName: editDisplayName.trim()
+        displayName: editDisplayName.trim(),
       }));
       setTimeout(() => setUpdateSuccess(""), 3000);
     } else {
       setUpdateError(result.error || "Failed to update display name");
     }
-    
+
     setIsUpdating(false);
   };
 
@@ -125,10 +126,10 @@ export default function UserProfilePage() {
   const formatMemberSince = (timestamp) => {
     if (!timestamp) return "Unknown";
     const date = new Date(timestamp);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -139,14 +140,24 @@ export default function UserProfilePage() {
       github: { color: "#24292e", label: "GitHub" },
       facebook: { color: "#1877F2", label: "Facebook" },
     };
-    return providers[provider?.toLowerCase()] || { color: "#888", label: provider || "Unknown" };
+    return (
+      providers[provider?.toLowerCase()] || {
+        color: "#888",
+        label: provider || "Unknown",
+      }
+    );
   };
 
   if (loadingProfile || loadingViewProfile) {
     return (
       <Container maxWidth="lg">
         <LoginPopup />
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          minHeight="400px"
+        >
           <CircularProgress sx={{ color: "#E03FD8" }} size={60} />
         </Box>
       </Container>
@@ -156,36 +167,8 @@ export default function UserProfilePage() {
   const providerInfo = getProviderInfo(viewingProfile?.provider);
 
   return (
-    <Container maxWidth="lg">
-      <LoginPopup />
-      
-      {/* Header and Logout */}
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={4}
-      >
-        <Typography 
-          variant="h4" 
-          fontWeight="bold"
-          sx={{
-            background: "linear-gradient(135deg, #E03FD8 0%, #8B5CF6 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            cursor: "pointer"
-          }}
-          onClick={() => router.push("/")}
-        >
-          TUTTi.
-        </Typography>
-        <Box display="flex" alignItems="center" gap={2}>
-          <SignedInAs />
-          <LogoutButton />
-        </Box>
-      </Box>
-
-      {/* Profile Content */}
+    <>
+      {/* Profile Box */}
       <Box
         component={Paper}
         elevation={6}
@@ -207,7 +190,7 @@ export default function UserProfilePage() {
             right: 0,
             height: "4px",
             background: "linear-gradient(90deg, #E03FD8 0%, #8B5CF6 100%)",
-          }
+          },
         }}
       >
         {viewingProfile ? (
@@ -221,33 +204,35 @@ export default function UserProfilePage() {
                   bgcolor: "#E03FD8",
                   fontSize: "2rem",
                   fontWeight: "bold",
-                  border: "3px solid #8B5CF6"
+                  border: "3px solid #8B5CF6",
                 }}
               >
                 {getInitials(viewingProfile.displayName)}
               </Avatar>
               <Box flex={1}>
                 <Typography variant="h4" fontWeight="bold" mb={1}>
-                  {isOwnProfile ? "Your Profile" : `${viewingProfile.displayName}'s Profile`}
+                  {isOwnProfile
+                    ? "Your Profile"
+                    : `${viewingProfile.displayName}'s Profile`}
                 </Typography>
                 <Box display="flex" gap={1} flexWrap="wrap">
-                  <Chip 
+                  <Chip
                     label={providerInfo.label}
                     size="small"
-                    sx={{ 
+                    sx={{
                       bgcolor: providerInfo.color,
                       color: "white",
-                      fontWeight: "bold"
+                      fontWeight: "bold",
                     }}
                   />
-                  <Chip 
+                  <Chip
                     icon={<Calendar size={14} />}
                     label={`Member since ${new Date(viewingProfile.created_at).getFullYear()}`}
                     size="small"
                     variant="outlined"
-                    sx={{ 
+                    sx={{
                       borderColor: "#888",
-                      color: "#ccc"
+                      color: "#ccc",
                     }}
                   />
                 </Box>
@@ -264,7 +249,7 @@ export default function UserProfilePage() {
                   Display Name
                 </Typography>
               </Box>
-              
+
               {isOwnProfile && isEditing ? (
                 <Box>
                   <TextField
@@ -280,9 +265,9 @@ export default function UserProfilePage() {
                         bgcolor: "#1e1e1e",
                         "& fieldset": { borderColor: "#555" },
                         "&:hover fieldset": { borderColor: "#888" },
-                        "&.Mui-focused fieldset": { 
+                        "&.Mui-focused fieldset": {
                           borderColor: "#E03FD8",
-                          borderWidth: "2px"
+                          borderWidth: "2px",
                         },
                       },
                       "& .MuiInputLabel-root": { color: "#ccc" },
@@ -293,12 +278,16 @@ export default function UserProfilePage() {
                       variant="contained"
                       onClick={handleSaveDisplayName}
                       disabled={isUpdating}
-                      startIcon={isUpdating ? <CircularProgress size={16} sx={{ color: "white" }} /> : null}
+                      startIcon={
+                        isUpdating ? (
+                          <CircularProgress size={16} sx={{ color: "white" }} />
+                        ) : null
+                      }
                       sx={{
                         bgcolor: "#E03FD8",
                         "&:hover": { bgcolor: "#c935c4" },
                         "&:disabled": { bgcolor: "#666" },
-                        px: 3
+                        px: 3,
                       }}
                     >
                       {isUpdating ? "Saving..." : "Save"}
@@ -310,11 +299,11 @@ export default function UserProfilePage() {
                       sx={{
                         color: "white",
                         borderColor: "#888",
-                        "&:hover": { 
+                        "&:hover": {
                           borderColor: "#aaa",
-                          bgcolor: "rgba(255,255,255,0.05)"
+                          bgcolor: "rgba(255,255,255,0.05)",
                         },
-                        px: 3
+                        px: 3,
                       }}
                     >
                       Cancel
@@ -322,15 +311,15 @@ export default function UserProfilePage() {
                   </Box>
                 </Box>
               ) : (
-                <Box 
-                  display="flex" 
-                  justifyContent="space-between" 
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
                   alignItems="center"
                   sx={{
                     bgcolor: "#1e1e1e",
                     p: 2,
                     borderRadius: 2,
-                    border: "1px solid #444"
+                    border: "1px solid #444",
                   }}
                 >
                   <Typography variant="h6" fontWeight="500">
@@ -345,10 +334,10 @@ export default function UserProfilePage() {
                       sx={{
                         color: "white",
                         borderColor: "#888",
-                        "&:hover": { 
-                          borderColor: "#E03FD8", 
+                        "&:hover": {
+                          borderColor: "#E03FD8",
                           color: "#E03FD8",
-                          bgcolor: "rgba(224, 63, 216, 0.1)"
+                          bgcolor: "rgba(224, 63, 216, 0.1)",
                         },
                       }}
                     >
@@ -372,7 +361,7 @@ export default function UserProfilePage() {
                   bgcolor: "#1e1e1e",
                   p: 2,
                   borderRadius: 2,
-                  border: "1px solid #444"
+                  border: "1px solid #444",
                 }}
               >
                 <Typography variant="body1" fontSize="1.1rem">
@@ -397,7 +386,7 @@ export default function UserProfilePage() {
                   border: "1px solid #444",
                   display: "flex",
                   alignItems: "center",
-                  gap: 2
+                  gap: 2,
                 }}
               >
                 <Box
@@ -409,12 +398,16 @@ export default function UserProfilePage() {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontWeight: "bold"
+                    fontWeight: "bold",
                   }}
                 >
                   {providerInfo.label[0]}
                 </Box>
-                <Typography variant="body1" fontSize="1.1rem" sx={{ textTransform: "capitalize" }}>
+                <Typography
+                  variant="body1"
+                  fontSize="1.1rem"
+                  sx={{ textTransform: "capitalize" }}
+                >
                   {providerInfo.label}
                 </Typography>
               </Box>
@@ -433,7 +426,7 @@ export default function UserProfilePage() {
                   bgcolor: "#1e1e1e",
                   p: 2,
                   borderRadius: 2,
-                  border: "1px solid #444"
+                  border: "1px solid #444",
                 }}
               >
                 <Typography variant="body1" fontSize="1.1rem">
@@ -457,11 +450,19 @@ export default function UserProfilePage() {
                         p: 2,
                         borderRadius: 2,
                         border: "1px solid #444",
-                        textAlign: "center"
+                        textAlign: "center",
                       }}
                     >
-                      <Music size={24} color="#E03FD8" style={{ marginBottom: 8 }} />
-                      <Typography variant="h4" fontWeight="bold" color="#E03FD8">
+                      <Music
+                        size={24}
+                        color="#E03FD8"
+                        style={{ marginBottom: 8 }}
+                      />
+                      <Typography
+                        variant="h4"
+                        fontWeight="bold"
+                        color="#E03FD8"
+                      >
                         0
                       </Typography>
                       <Typography variant="body2" color="#888">
@@ -476,11 +477,19 @@ export default function UserProfilePage() {
                         p: 2,
                         borderRadius: 2,
                         border: "1px solid #444",
-                        textAlign: "center"
+                        textAlign: "center",
                       }}
                     >
-                      <Clock size={24} color="#8B5CF6" style={{ marginBottom: 8 }} />
-                      <Typography variant="h4" fontWeight="bold" color="#8B5CF6">
+                      <Clock
+                        size={24}
+                        color="#8B5CF6"
+                        style={{ marginBottom: 8 }}
+                      />
+                      <Typography
+                        variant="h4"
+                        fontWeight="bold"
+                        color="#8B5CF6"
+                      >
                         0h
                       </Typography>
                       <Typography variant="body2" color="#888">
@@ -495,11 +504,19 @@ export default function UserProfilePage() {
                         p: 2,
                         borderRadius: 2,
                         border: "1px solid #444",
-                        textAlign: "center"
+                        textAlign: "center",
                       }}
                     >
-                      <TrendingUp size={24} color="#10b981" style={{ marginBottom: 8 }} />
-                      <Typography variant="h4" fontWeight="bold" color="#10b981">
+                      <TrendingUp
+                        size={24}
+                        color="#10b981"
+                        style={{ marginBottom: 8 }}
+                      />
+                      <Typography
+                        variant="h4"
+                        fontWeight="bold"
+                        color="#10b981"
+                      >
                         0
                       </Typography>
                       <Typography variant="body2" color="#888">
@@ -508,7 +525,13 @@ export default function UserProfilePage() {
                     </Paper>
                   </Grid>
                 </Grid>
-                <Typography variant="caption" color="#666" display="block" mt={2} textAlign="center">
+                <Typography
+                  variant="caption"
+                  color="#666"
+                  display="block"
+                  mt={2}
+                  textAlign="center"
+                >
                   Stats coming soon! Start using TUTTi to see your activity.
                 </Typography>
               </Box>
@@ -516,26 +539,26 @@ export default function UserProfilePage() {
 
             {/* Update Messages */}
             {updateError && (
-              <Alert 
-                severity="error" 
-                sx={{ 
+              <Alert
+                severity="error"
+                sx={{
                   mt: 3,
                   bgcolor: "#3d1a1a",
                   color: "#ff6b6b",
-                  "& .MuiAlert-icon": { color: "#ff6b6b" }
+                  "& .MuiAlert-icon": { color: "#ff6b6b" },
                 }}
               >
                 {updateError}
               </Alert>
             )}
             {updateSuccess && (
-              <Alert 
-                severity="success" 
-                sx={{ 
+              <Alert
+                severity="success"
+                sx={{
                   mt: 3,
                   bgcolor: "#1a3d1a",
                   color: "#51cf66",
-                  "& .MuiAlert-icon": { color: "#51cf66" }
+                  "& .MuiAlert-icon": { color: "#51cf66" },
                 }}
               >
                 {updateSuccess}
@@ -549,13 +572,13 @@ export default function UserProfilePage() {
               {isOwnProfile ? "Profile not found" : "User profile not found"}
             </Typography>
             <Typography variant="body2" color="#888">
-              {isOwnProfile 
-                ? "Please try signing in again." 
+              {isOwnProfile
+                ? "Please try signing in again."
                 : "This user may not exist or their profile is unavailable."}
             </Typography>
           </Box>
         )}
       </Box>
-    </Container>
+    </>
   );
 }

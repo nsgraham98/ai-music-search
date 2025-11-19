@@ -123,11 +123,11 @@ export const Controls = () => {
   const handlePrevious = useCallback(() => {
     setTrackIndex((prev) => {
       const newIndex = isShuffle
-        ? Math.floor(Math.random() * currentPlaylist.length)
+        ? Math.floor(Math.random() * currentPlaylist.tracks.length)
         : prev === 0
-          ? currentPlaylist.length - 1
+          ? currentPlaylist.tracks.length - 1
           : prev - 1;
-      setCurrentTrack(currentPlaylist[newIndex]);
+      setCurrentTrack(currentPlaylist.tracks[newIndex]);
       return newIndex;
     });
   }, [isShuffle, setCurrentTrack, setTrackIndex, currentPlaylist]);
@@ -136,11 +136,11 @@ export const Controls = () => {
   const handleNext = useCallback(() => {
     setTrackIndex((prev) => {
       const newIndex = isShuffle
-        ? Math.floor(Math.random() * currentPlaylist.length)
-        : prev >= currentPlaylist.length - 1
+        ? Math.floor(Math.random() * currentPlaylist.tracks.length)
+        : prev >= currentPlaylist.tracks.length - 1
           ? 0
           : prev + 1;
-      setCurrentTrack(currentPlaylist[newIndex]);
+      setCurrentTrack(currentPlaylist.tracks[newIndex]);
       return newIndex;
     });
   }, [isShuffle, setCurrentTrack, setTrackIndex, currentPlaylist]);

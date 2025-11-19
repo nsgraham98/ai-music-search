@@ -19,7 +19,8 @@ import {
   Collapse,
 } from "@mui/material";
 import { Search } from "lucide-react";
-import { useUserAuth } from "@/context/auth-context";
+import { useSearchContext } from "@/context/search-context";
+import axios from "axios";
 
 const SearchBar = () => {
   const [userQuery, setUserQuery] = useState("");
@@ -40,6 +41,22 @@ const SearchBar = () => {
     if (!userQuery.trim()) {
       setError("Please enter a search query");
       setTimeout(() => setError(null), 3000);
+      return;
+    }
+    // base case - no query
+    setIsLoading(true);
+    // const idToken = await user.getIdToken();
+    const response = await fetch("/api/openai", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        // Authorization: `Bearer ${idToken}`,
+      },
+      body: JSON.stringify({ userQuery, royaltyFree }),
+    });
+    if (!response.ok) {
+      console.error("Error fetching data:", response.statusText);
+      setIsLoading(false);
       return;
     }
 
@@ -76,12 +93,22 @@ const SearchBar = () => {
       }
 
       const data = await response.json();
-      setCurrentPlaylist(data.results || []);
+      console.log("Search results received -> DATA:", data);
+      setSearchResults(data.jamendoResponse || []);
+      // setCurrentPlaylist({
+      //   id: "searchResults",
+      //   name: "Search Results",
+      //   public: false,
+      //   userID: "searchUserID",
+      //   description: "Playlist generated from search",
+      //   timeCreated: new Date().toISOString(),
+      //   timeUpdated: new Date().toISOString(),
+      //   tracks: data.jamendoResponse || [],
+      // });
       setAiResponse(data.aiResponse?.output_text || "Search completed");
     } catch (err) {
       console.error("Search error:", err);
       setError(err.message || "Failed to search. Please try again.");
-      setCurrentPlaylist([]);
     } finally {
       setIsLoading(false);
     }

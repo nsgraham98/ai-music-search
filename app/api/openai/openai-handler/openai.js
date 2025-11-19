@@ -97,3 +97,106 @@ export async function runOpenAISearch(userQuery, musicService = "jamendo", authT
     throw error;
   }
 }
+
+// Helper function to run OpenAI summarization (final response) with tools
+// Separated for clarity and to allow parallelization with reranking
+async function runOpenAISummarization(model, input, tools, store = true) {
+  console.log("🧠 Sending Jamendo results back to OpenAI for final response");
+  const newResponse = await openai.responses.create({
+    model,
+    input,
+    tools,
+    store,
+  });
+  console.log("🧠 Search summary from OpenAI received");
+  return newResponse;
+}
+
+// Rerank the Jamendo results using OpenAI
+// Also separated for clarity and to allow parallelization with reranking
+export async function rerankAIResults(jamendoResults) {
+  console.log("🔁 Reranking Jamendo results with OpenAI");
+  const compactTracks = jamendoResults.map((track) => ({
+    id: track.id,
+    title: track.name,
+    artist_name: track.artist_name,
+    album_name: track.album_name,
+    duration: track.duration,
+    bpm: track.musicinfo?.bpm,
+    tags: track.musicinfo?.tags,
+    mood: track.musicinfo?.mood,
+    instruments: track.musicinfo?.instruments,
+  }));
+
+  const rerankResponse = await openai.responses.create({
+    model: "gpt-4o",
+    input: [
+      {
+        role: "system",
+        content: `
+You are a ranking model for Jamendo search results.
+
+- Given a user query and a list of candidate tracks, choose the best 20 tracks.
+- Consider title, artist, album, duration, BPM, mood, instruments and tags.
+- Optimize for perceived match with the user's intent (mood, energy, context).
+- Return ONLY the IDs you choose, in order of best match first.
+        `,
+      },
+      {
+        role: "user",
+        content: JSON.stringify({
+          tracks: compactTracks,
+        }),
+      },
+    ],
+    // Structured JSON output with a strict schema
+    text: {
+      format: {
+        type: "json_schema",
+        name: "track_ranking",
+        schema: {
+          type: "object",
+          properties: {
+            orderedTrackIds: {
+              type: "array",
+              items: { type: "string" },
+              description:
+                "Track IDs from the Jamendo results, ordered from best to worst match.",
+            },
+          },
+          required: ["orderedTrackIds"],
+          additionalProperties: false,
+        },
+      },
+    },
+  });
+  // response.output_text will be a JSON string matching our schema
+  const textPart = rerankResponse.output[0].content[0].text;
+  const { orderedTrackIds } = JSON.parse(textPart);
+
+  // Map IDs back to full Jamendo track objects
+  const trackMap = new Map(jamendoResults.map((track) => [track.id, track]));
+  const rankedTracks = orderedTrackIds
+    .map((id) => trackMap.get(id))
+    .filter(Boolean); // drop unknown IDs just in case
+
+  // ✅ Now append the remaining tracks in their original order
+  const chosenIds = new Set(rankedTracks.map((t) => t.id));
+  const leftoverTracks = jamendoResults.filter((t) => !chosenIds.has(t.id));
+
+  const finalOrderedTracks = [...rankedTracks, ...leftoverTracks];
+
+  // Optional: top up to 10 with leftover tracks if model returned fewer
+  // if (rankedTracks.length < 10) {
+  //   const existing = new Set(rankedTracks.map((track) => track.id));
+  //   for (const track of jamendoResults) {
+  //     if (!existing.has(track.id)) {
+  //       rankedTracks.push(track);
+  //       if (rankedTracks.length >= 10) break;
+  //     }
+  //   }
+  // }
+
+  console.log("🔁 Reranking complete");
+  return finalOrderedTracks;
+}

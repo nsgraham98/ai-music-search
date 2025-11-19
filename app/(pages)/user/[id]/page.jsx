@@ -103,44 +103,20 @@ export default function UserProfilePage() {
 
   if (loadingProfile || loadingViewProfile) {
     return (
-      <Container maxWidth="lg">
-        <LoginPopup />
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          minHeight="400px"
-        >
-          <CircularProgress color="primary" />
-        </Box>
-      </Container>
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="400px"
+      >
+        <CircularProgress color="primary" />
+      </Box>
     );
   }
 
   return (
-    <Container maxWidth="lg">
-      <LoginPopup />
-
-      {/* Header and Logout */}
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={4}
-      >
-        <Typography variant="h4" fontWeight="bold">
-          TUTTi.
-        </Typography>
-        <Box display="flex" alignItems="center" gap={2}>
-          <SignedInAs />
-          <LogoutButton />
-        </Box>
-      </Box>
-
-      {/* Navigation Bar */}
-      <Navigation />
-
-      {/* Profile Content */}
+    <>
+      {/* Profile Box */}
       <Box
         component={Paper}
         elevation={4}
@@ -315,6 +291,6 @@ export default function UserProfilePage() {
           </Typography>
         )}
       </Box>
-    </Container>
+    </>
   );
 }

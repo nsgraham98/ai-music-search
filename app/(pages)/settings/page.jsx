@@ -205,29 +205,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <Container maxWidth="lg">
-      <LoginPopup />
-      <ColorblindFilters />
-
-      {/* Header */}
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={4}
-      >
-        <Typography variant="h4" fontWeight="bold">
-          TUTTi.
-        </Typography>
-        <Box display="flex" alignItems="center" gap={2}>
-          <SignedInAs />
-          <LogoutButton />
-        </Box>
-      </Box>
-
-      {/* Navigation */}
-      <Navigation />
-
+    <>
       {/* Settings Content */}
       <Box
         component={Paper}
@@ -310,6 +288,6 @@ export default function SettingsPage() {
           </Alert>
         )}
       </Box>
-    </Container>
+    </>
   );
 }

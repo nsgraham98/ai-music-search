@@ -1,4 +1,5 @@
 // Small component to display the signed-in user's display name and email
+"use client";
 
 import { useUserAuth } from "@/context/auth-context";
 import { useUserProfile } from "@/context/user-profile-context";

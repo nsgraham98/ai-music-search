@@ -8,7 +8,17 @@ import { createContext, useContext, useState, useRef } from "react";
 const AudioPlayerContext = createContext(undefined);
 
 export const AudioPlayerProvider = ({ children }) => {
-  const [currentPlaylist, setCurrentPlaylist] = useState([]); // array of track objects (for the playlist)
+  const [currentPlaylist, setCurrentPlaylist] = useState({
+    id: null,
+    userID: null,
+    name: null,
+    public: null,
+    description: null,
+    timeCreated: null,
+    timeUpdated: null,
+    tracks: [],
+  });
+  const [playlists, setPlaylists] = useState([]); // array of playlist objects
   const [trackIndex, setTrackIndex] = useState(0);
   const [currentTrack, setCurrentTrack] = useState(null);
   const [timeProgress, setTimeProgress] = useState(0);
@@ -45,7 +55,10 @@ export const AudioPlayerProvider = ({ children }) => {
     audiodownload_allowed: true,
     content_id_free: false,
   };
-  const testPlaylist = [testTrack, testTrack, testTrack];
+  const testPlaylist = {
+    id: "testPlaylist",
+    tracks: [testTrack, testTrack, testTrack],
+  };
 
   // context value to be provided to consuming components
   // functions to update state are also provided

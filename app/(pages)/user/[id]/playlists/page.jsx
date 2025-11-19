@@ -22,11 +22,6 @@ import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
-import { LogoutButton } from "@/app/components/login/logout-button";
-import SignedInAs from "@/app/components/login/signed-in-as";
-import LoginPopup from "@/app/components/login/login-popup";
-import Navigation from "@/app/components/navigation/nav-bar";
-import ColorblindFilters from "@/app/components/settings/colorblind-filters";
 import { useUserAuth } from "@/context/auth-context";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -55,36 +50,24 @@ export default function PlaylistsPage() {
 
   // Fetch all playlists for the user
   useEffect(() => {
-    async function callFetchPlaylists() {
+    const fetchPlaylists = async () => {
       try {
-        console.log("useEffect fetching playlists for user:", authUser.uid);
         setLoading(true);
-        await fetchPlaylists();
+        const response = await axios.get(
+          `/api/users/${authUser.uid}/playlists`
+        );
+        setPlaylists(response.data.playlists || []);
       } catch (error) {
         console.error("Error fetching playlists:", error);
         showSnackbar("Failed to load playlists", "error");
       } finally {
         setLoading(false);
       }
-    }
+    };
     if (authUser?.uid) {
-      callFetchPlaylists();
+      fetchPlaylists();
     }
-  }, []);
-
-  const fetchPlaylists = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get(`/api/users/${authUser.uid}/playlists`);
-      console.log("Playlists fetched:", response.data.playlists);
-      setPlaylists(response.data.playlists || []);
-    } catch (error) {
-      console.error("Error fetching playlists:", error);
-      showSnackbar("Failed to load playlists", "error");
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [authUser?.uid]);
 
   // Create new playlist
   const handleCreatePlaylist = async () => {
@@ -203,40 +186,18 @@ export default function PlaylistsPage() {
     router.push(`/user/${authUser.uid}/playlists/${playlist.id}`);
   };
 
-  if (!authUser) {
-    return (
-      <Container maxWidth="lg">
-        <LoginPopup />
-        <ColorblindFilters />
-      </Container>
-    );
-  }
+  // if (!authUser) {
+  //   return (
+  //     <Container maxWidth="lg">
+  //       <LoginPopup />
+  //       <ColorblindFilters />
+  //     </Container>
+  //   );
+  // }
 
   return (
-    <Container maxWidth="lg">
-      <LoginPopup />
-      <ColorblindFilters />
-
-      {/* Header */}
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={4}
-      >
-        <Typography variant="h4" fontWeight="bold">
-          TUTTi.
-        </Typography>
-        <Box display="flex" alignItems="center" gap={2}>
-          <SignedInAs />
-          <LogoutButton />
-        </Box>
-      </Box>
-
-      {/* Navigation */}
-      <Navigation />
-
-      {/* Page Header */}
+    <>
+      {/* My Playlists + Create Button */}
       <Box
         display="flex"
         justifyContent="space-between"
@@ -317,7 +278,12 @@ export default function PlaylistsPage() {
               >
                 <Box display="flex" alignItems="center" gap={1} mb={1}>
                   <MusicNoteIcon sx={{ color: "#E03FD8", fontSize: 20 }} />
-                  <Typography variant="subtitle1" fontWeight="bold" noWrap>
+                  <Typography
+                    variant="subtitle1"
+                    fontWeight="600"
+                    noWrap
+                    color="white"
+                  >
                     {playlist.name}
                   </Typography>
                 </Box>
@@ -330,7 +296,7 @@ export default function PlaylistsPage() {
                   alignItems="center"
                 >
                   <Typography variant="caption" color="#666">
-                    {playlist.trackCount || 0} tracks
+                    {playlist.tracks.length || 0} tracks
                   </Typography>
                   <Box
                     display="flex"
@@ -494,6 +460,6 @@ export default function PlaylistsPage() {
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </Container>
+    </>
   );
 }
