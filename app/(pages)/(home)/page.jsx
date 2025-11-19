@@ -8,6 +8,7 @@ import { TrackList } from "@/app/components/audio/track-list.jsx";
 import { useAudioPlayerContext } from "@/context/audio-player-context";
 import { useSearchContext } from "@/context/search-context.jsx";
 import { useMemo } from "react";
+import { useUserAuth } from "@/context/auth-context";
 
 export default function HomePage() {
   const { searchResults } = useSearchContext();
