@@ -43,22 +43,6 @@ const SearchBar = () => {
       setTimeout(() => setError(null), 3000);
       return;
     }
-    // base case - no query
-    setIsLoading(true);
-    // const idToken = await user.getIdToken();
-    const response = await fetch("/api/openai", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        // Authorization: `Bearer ${idToken}`,
-      },
-      body: JSON.stringify({ userQuery, royaltyFree }),
-    });
-    if (!response.ok) {
-      console.error("Error fetching data:", response.statusText);
-      setIsLoading(false);
-      return;
-    }
 
     setIsLoading(true);
     setError(null);

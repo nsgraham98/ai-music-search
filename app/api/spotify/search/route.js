@@ -1,4 +1,4 @@
-import { getValidAccessToken } from "../accesstoken/spotifyroute";
+import { checkAccessToken } from "../accesstoken/spotifyroute";
 
 export async function POST(request) {
   try {
@@ -29,7 +29,7 @@ export async function POST(request) {
     }
     
     const authToken = authHeader.replace("Bearer ", "");
-    const accessToken = await getValidAccessToken(authToken);
+    const accessToken = await checkAccessToken(authToken);
     
     let allTracks = [];
     
