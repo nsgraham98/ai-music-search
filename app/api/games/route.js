@@ -2,23 +2,13 @@
 // Handles creation and retrieval of games
 
 import { NextResponse } from "next/server";
-import { createGame, getGamesByUser } from "./game-handler/games";
+// import { createGame, getGamesByUser } from "./game-handler/games";
+import { createGame, getGamesByUser } from "@/app/api/games/game-handler/games";
 
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { gameName, invitedEmails } = body;
-
-    // Get the user ID from the Authorization header
-    const authHeader = request.headers.get("Authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return NextResponse.json(
-        { error: "Authorization header missing or invalid" },
-        { status: 401 }
-      );
-    }
-
-    const token = authHeader.substring(7);
+    const { gameName } = body;
 
     // Validate required fields
     if (!gameName || typeof gameName !== "string" || !gameName.trim()) {
@@ -28,18 +18,10 @@ export async function POST(request) {
       );
     }
 
-    if (!Array.isArray(invitedEmails)) {
-      return NextResponse.json(
-        { error: "Invited emails must be an array" },
-        { status: 400 }
-      );
-    }
-
-    // Create the game
+    // Create the game (authentication happens inside createGame)
     const result = await createGame({
       name: gameName.trim(),
-      invitedEmails: invitedEmails,
-      authToken: token,
+      request: request,
     });
 
     if (!result.success) {
@@ -49,6 +31,7 @@ export async function POST(request) {
     return NextResponse.json({
       success: true,
       gameId: result.gameId,
+      joinCode: result.joinCode,
       message: "Game created successfully",
     });
   } catch (error) {
@@ -62,19 +45,8 @@ export async function POST(request) {
 
 export async function GET(request) {
   try {
-    // Get the user ID from the Authorization header
-    const authHeader = request.headers.get("Authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return NextResponse.json(
-        { error: "Authorization header missing or invalid" },
-        { status: 401 }
-      );
-    }
-
-    const token = authHeader.substring(7);
-
-    // Get games for the user
-    const result = await getGamesByUser(token);
+    // Get games for the user (authentication happens inside getGamesByUser)
+    const result = await getGamesByUser(request);
 
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 500 });

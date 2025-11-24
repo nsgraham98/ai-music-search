@@ -8,20 +8,36 @@ import { useUserAuth } from "@/context/auth-context";
 import { useEffect, useState } from "react";
 import { Dialog, DialogTitle, DialogContent, Typography } from "@mui/material";
 import { LoginForm } from "@/app/components/login/login-form";
+import { useUserProfile } from "@/context/user-profile-context";
 
 export default function LoginPopup() {
-  const { user } = useUserAuth();
+  const { authUser, loadingUser, setLoadingUser } = useUserAuth();
+  const { userProfile } = useUserProfile();
   // state to control dialog open/close
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // open dialog if user is not logged in
   useEffect(() => {
-    if (!user) {
-      setOpen(true);
+    if (!authUser && !userProfile) {
+      if (!loadingUser) {
+        setOpen(true);
+      }
+
+      // check if user has uid in cookies
+      // only for visual purposes, actual auth is done via session cookie on backend
+      const cookies = document.cookie;
+      const uid = cookies
+        .split("; ")
+        .find((row) => row.startsWith("uid="))
+        ?.split("=")[1];
+      if (!uid) {
+        setOpen(true);
+      }
     } else {
       setOpen(false);
     }
-  }, [user]);
+  }, [authUser, userProfile, loadingUser]);
 
   return (
     <Dialog

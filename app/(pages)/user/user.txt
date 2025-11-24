@@ -1,2 +1,0 @@
-add in picture from github/google/facebook beside username? or find a better spot for it, and maybe(?) add in the ability to customize the profile picture.
-change the hovor over name link to profile to an individual button in the nav-bar

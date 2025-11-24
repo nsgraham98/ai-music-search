@@ -3,17 +3,17 @@
 // Functions to handle Jamendo token management
 
 export async function getValidJamendoToken(uid) {
-  const docRef = db.collection("sessions").doc(uid);
-  const docSnap = await docRef.get();
+  const docRef = doc(db, "sessions", uid);
+  const docSnap = await getDoc(docRef);
 
-  if (!docSnap.exists) throw new Error("Session not found");
+  if (!docSnap.exists()) throw new Error("Session not found");
 
   const session = docSnap.data();
 
   if (Date.now() >= session.expires_at) {
     const refreshed = await refreshJamendoToken(session.refresh_token);
 
-    await docRef.update({
+    await setDoc(docRef, {
       access_token: refreshed.access_token,
       expires_at: refreshed.expires_at,
     });

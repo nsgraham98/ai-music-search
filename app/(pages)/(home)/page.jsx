@@ -1,45 +1,25 @@
-"use client";
-
 // HOME PAGE (DASHBOARD)
-// Only shown to logged-in users; otherwise, the login popup is shown
-// AudioPlayer component is located in layout.jsx so it's always visible to logged-in users
-
-import { Box, Typography, Container, Paper, Button } from "@mui/material";
-import Link from "next/link";
-
+// Only shown to logged in users, otherwise login popup is shown
+// AudioPlayer component is located in the layout.jsx file so it's always visible to logged in users
+"use client";
 import SearchBar from "@/app/components/search-bar.jsx";
-import { PlayList } from "@/app/components/audio/playlist.jsx";
-import SignedInAs from "@/app/components/login/signed-in-as";
-import LoginPopup from "@/app/components/login/login-popup";
-import Navigation from "@/app/navigation/nav-bar";
+import { Box, Typography, Paper } from "@mui/material";
+import { TrackList } from "@/app/components/audio/track-list.jsx";
+import { useAudioPlayerContext } from "@/context/audio-player-context";
+import { useSearchContext } from "@/context/search-context.jsx";
+import { useMemo } from "react";
 
 export default function HomePage() {
+  const { searchResults } = useSearchContext();
+
+  // Build a stable key based on current results, so that the TrackList remounts when results change
+  const trackListKey = useMemo(
+    () => searchResults.map((track) => track.id ?? "").join(","),
+    [searchResults]
+  );
+
   return (
-    <Container maxWidth="lg">
-      {/* Show login popup if user not authenticated */}
-      <LoginPopup />
-
-      {/* Header */}
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={4}
-      >
-        <Box display="flex" alignItems="center" gap={2}>
-          <Typography variant="h4" fontWeight="bold">
-            TUTTi.
-          </Typography>
-        </Box>
-
-        <Box display="flex" alignItems="center" gap={2}>
-          <SignedInAs />
-        </Box>
-      </Box>
-
-      {/* Navigation Bar */}
-      <Navigation />
-
+    <>
       {/* Search Bar */}
       <Box
         sx={{
@@ -54,8 +34,8 @@ export default function HomePage() {
           <SearchBar />
         </Box>
       </Box>
-
-      {/* Playlist (search results) */}
+      {/* Playlist (aka search results) */}
+      {/* Outer playlist box */}
       <Box
         component={Paper}
         elevation={4}
@@ -69,18 +49,55 @@ export default function HomePage() {
           mx: "auto",
           p: { xs: 2, md: 4 },
           borderRadius: 2,
+          // flexGrow: 1,
+          // display: "flex",
+          // flexDirection: "column",
           gap: 3,
         }}
       >
+        {/* Inner playlist box */}
         <Box
           sx={{
             width: "100%",
             maxWidth: "100%",
           }}
         >
-          <PlayList />
+          {searchResults.length === 0 ? (
+            <Paper
+              elevation={3}
+              sx={{
+                bgcolor: "#4c4848",
+                color: "white",
+                // maxHeight: "18rem",
+                overflowY: "auto",
+                borderRadius: 2,
+                width: "100%", // add this
+                maxWidth: 900, // adjust this width to make it wider
+                mx: "auto", // optional: centers it horizontally
+              }}
+            >
+              <Typography
+                variant="body1"
+                color="white"
+                textAlign="center"
+                p={2}
+              >
+                Please search again.
+              </Typography>
+            </Paper>
+          ) : (
+            <TrackList
+              key={trackListKey}
+              variant="search"
+              showDownload={true}
+              showAddButton={true}
+              showDeleteButton={false}
+              tracks={searchResults}
+              clearOnUnmount={true}
+            />
+          )}
         </Box>
       </Box>
-    </Container>
+    </>
   );
 }

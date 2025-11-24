@@ -2,7 +2,7 @@
 // Functions for creating, updating, and retrieving user profile data
 // Called from /api/users/route.js
 
-import { adminAuth, db } from "@/lib/firebase-admin";
+import { adminAuth, dbAdmin } from "@/lib/firebase-admin";
 import { cleanForFirestore } from "@/utils/clean";
 
 // Create or update a user profile
@@ -18,7 +18,8 @@ export async function saveUserProfile(uid, profileData) {
     });
 
     // Write to the database (the "users" collection, document ID is the user's uid)
-    await db.collection("users").doc(uid).set(userProfileData, { merge: true });
+    const userDocRef = dbAdmin.collection("users").doc(uid);
+    await userDocRef.set(userProfileData, { merge: true });
 
     return { success: true, data: userProfileData };
   } catch (error) {
@@ -26,11 +27,19 @@ export async function saveUserProfile(uid, profileData) {
     throw error;
   }
 }
+/* 
+  THIS FILE IS PENDING DELETION
+  I moved the user CRUD functions to the users/route.js file to simplify the API structure.
+  This file was originally created to separate logic from route handlers, but it adds unnecessary complexity.
+  The functions here are now redundant with those in users/route.js.
+  I will delete this file after confirming everything works correctly without it.
+  - Nick
+*/
 
 // Retrieve a user profile by UID
 export async function getUserProfile(uid) {
   try {
-    const docRef = db.collection("users").doc(uid);
+    const docRef = dbAdmin.collection("users").doc(uid);
     const docSnap = await docRef.get();
 
     if (docSnap.exists) {
@@ -62,9 +71,10 @@ export function generateDisplayName(email, providerDisplayName = null) {
 }
 
 // Update only the display name of a user profile
-export async function updateDisplayName(uid, newDisplayName) {
+export async function updateUserProfile(uid, newDisplayName) {
   try {
-    await db.collection("users").doc(uid).update({
+    const userDocRef = dbAdmin.collection("users").doc(uid);
+    await userDocRef.update({
       displayName: newDisplayName,
       lastUpdated: Date.now(),
     });

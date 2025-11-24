@@ -1,5 +1,3 @@
-// NOT IN USE - don't delete yet
-
 // This endpoint is called after a successful login to set a session cookie
 // The session cookie contains the Firestore document ID where session data is stored
 // This allows the server to identify the user session on subsequent requests
@@ -19,20 +17,23 @@ export async function POST(req) {
 
     // Verify the ID token and get the user info
     const decoded = await adminAuth.verifyIdToken(idToken);
-    console.log("IdToken successfully verified");
+    console.log("🔒 IdToken successfully verified for login");
 
     const expiresIn = 60 * 60 * 24 * 7 * 1000; // one week
     const sessionCookie = await adminAuth.createSessionCookie(idToken, {
       expiresIn,
     });
-    console.log("Session cookie created");
+    console.log("🍪 Session cookie created");
 
     // set the cookie in the response headers
     return new Response(JSON.stringify({ ok: true }), {
       status: 200,
       headers: {
         "Content-Type": "application/json",
-        "Set-Cookie": `session=${sessionCookie}; HttpOnly; Secure; Path=/; Max-Age=${expiresIn / 1000}`, // session=${cookie} -> name=value pair
+        "Set-Cookie": [
+          `session=${sessionCookie}; HttpOnly; Secure; Path=/; Max-Age=${expiresIn / 1000}`,
+          `uid=${decoded.uid}; Path=/; Max-Age=${expiresIn / 1000}`,
+        ],
       },
     });
   } catch (err) {

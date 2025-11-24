@@ -6,80 +6,126 @@
 
 import { useContext, createContext, useState, useEffect } from "react";
 import { useUserAuth } from "@/context/auth-context";
-import { getIdToken } from "firebase/auth";
 
 const UserProfileContext = createContext();
 
 export const UserProfileContextProvider = ({ children }) => {
-  const { user } = useUserAuth(); // Get the authenticated user
+  const { authUser } = useUserAuth(); // has authUser?.uid
   const [userProfile, setUserProfile] = useState(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [profileError, setProfileError] = useState(null);
 
-  // Fetch user profile when user changes
+  // When auth user changes, fetch the profile
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (!user) {
-        setUserProfile(null);
-        setLoadingProfile(false);
-        setProfileError(null);
-        return;
-      }
-
-      try {
+    const run = async () => {
+      console.log("UserProfileContext useEffect: authUser changed:", authUser);
+      if (authUser?.uid) {
+        console.log("in useEffect authUser.uid = true:", authUser.uid);
         setLoadingProfile(true);
+
+        // I need a way to get the authentication token from auth context
+        const token = await authUser.getIdToken();
+        const user = await fetchCurrentUserProfile(token); // no uid -> current user
+        console.log("useEffect: Fetched user profile:", user);
+        setUserProfile(user ?? null);
+        setProfileError(user ? null : "Profile not found");
+      } else {
+        console.log("in useEffect authUser.uid = false");
+        setUserProfile(null);
         setProfileError(null);
-
-        const token = await getIdToken(user, true);
-
-        const response = await fetch("/api/users", {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          const result = await response.json();
-          if (result.success) {
-            setUserProfile(result.data);
-          } else {
-            setProfileError("Profile not found");
-          }
-        } else {
-          setProfileError("Failed to fetch profile");
-        }
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-        setProfileError("Error fetching profile");
-      } finally {
         setLoadingProfile(false);
       }
     };
+    run();
+  }, [authUser?.uid]);
 
-    fetchUserProfile();
-  }, [user]);
+  // Fetch user profile from the backend for setting the userProfile state
+  // Works if uid is provided, or uid isn't provided (for when authUser hasn't updated yet)
+  const fetchCurrentUserProfile = async (token = null) => {
+    try {
+      setLoadingProfile(true);
+      setProfileError(null);
 
-  // Update display name
-  const updateDisplayName = async (newDisplayName) => {
-    if (!user || !newDisplayName.trim()) {
+      const response = await fetch("/api/users", {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+      });
+
+      // Handle 404 -> no profile yet (could have been just created in sign-in flow)
+      if (response.status === 404) return null;
+
+      const result = await response.json();
+      console.log("fetchCurrentUserProfile GET /api/users result:", result);
+
+      // Accept multiple shapes:
+      // 1) { success: true, data: {...} }
+      if (result?.success && result?.data) return result.data;
+      // 2) { userProfile: {...} }
+      if (result?.userProfile) return result.userProfile;
+
+      // 3) raw object (some APIs just return the document)
+      if (result && typeof result === "object") return result;
+
+      return null;
+    } catch (err) {
+      console.error("Error fetching user profile:", err);
+      setProfileError("Error fetching profile");
+      return null;
+    } finally {
+      setLoadingProfile(false);
+    }
+  };
+
+  const fetchOtherUserProfile = async (uid) => {
+    try {
+      setLoadingProfile(true);
+      setProfileError(null);
+      if (!uid) {
+        throw new Error("No UID provided for other user profile fetch");
+      }
+      const response = await fetch(`/api/users?uid=${uid}`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const result = await response.json();
+      if (result.success) {
+        const user = result.data;
+        return user;
+      } else {
+        throw new Error("Profile not found");
+      }
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      setProfileError("Error fetching profile");
+      return;
+    } finally {
+      setLoadingProfile(false);
+    }
+  };
+
+  // Update user profile (currently only display name)
+  // updateProfileData = { displayName: "New Name", email: "newemail@example.com", etc. }
+  const updateUserProfile = async (updateProfileData) => {
+    if (!authUser || !updateProfileData.displayName?.trim()) {
       return { success: false, error: "Invalid display name" };
     }
 
     try {
-      const token = await getIdToken(user, true);
-
       const response = await fetch("/api/users", {
         method: "PATCH",
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          displayName: newDisplayName.trim(),
+          ...updateProfileData,
         }),
       });
 
@@ -87,7 +133,7 @@ export const UserProfileContextProvider = ({ children }) => {
         // Update local state
         setUserProfile((prev) => ({
           ...prev,
-          displayName: newDisplayName.trim(),
+          ...updateProfileData,
           lastUpdated: Date.now(),
         }));
         return { success: true };
@@ -95,11 +141,11 @@ export const UserProfileContextProvider = ({ children }) => {
         const error = await response.json();
         return {
           success: false,
-          error: error.error || "Failed to update display name",
+          error: error.error || "Failed to update user profile",
         };
       }
     } catch (error) {
-      console.error("Error updating display name:", error);
+      console.error("Error updating user profile:", error);
       return { success: false, error: "Network error" };
     }
   };
@@ -129,43 +175,41 @@ export const UserProfileContextProvider = ({ children }) => {
 
   // Refresh current user's profile
   const refreshProfile = async () => {
-    if (!user) return;
-
-    try {
-      setLoadingProfile(true);
-      const token = await getIdToken(user, true);
-
-      const response = await fetch("/api/users", {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        if (result.success) {
-          setUserProfile(result.data);
-        }
-      }
-    } catch (error) {
-      console.error("Error refreshing profile:", error);
-    } finally {
-      setLoadingProfile(false);
-    }
+    // if (!authUser) return;
+    // try {
+    //   setLoadingProfile(true);
+    //   const response = await fetch("/api/users", {
+    //     method: "GET",
+    //     credentials: "include",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //   });
+    //   if (response.ok) {
+    //     const result = await response.json();
+    //     if (result.success) {
+    //       setUserProfile(result.data);
+    //     }
+    //   }
+    // } catch (error) {
+    //   console.error("Error refreshing profile:", error);
+    // } finally {
+    //   setLoadingProfile(false);
+    // }
   };
 
   return (
     <UserProfileContext.Provider
       value={{
         userProfile,
+        setUserProfile,
         loadingProfile,
         profileError,
-        updateDisplayName,
+        updateUserProfile,
         getUserProfileById,
         refreshProfile,
+        fetchCurrentUserProfile,
+        fetchOtherUserProfile,
       }}
     >
       {children}
