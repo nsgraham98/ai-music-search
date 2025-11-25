@@ -24,6 +24,7 @@ export const AudioPlayerProvider = ({ children }) => {
   const [timeProgress, setTimeProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
   // useRef is used to persist values between renders without causing re-renders
   const audioRef = useRef(null); // create a ref for the <audio> element created in controls.jsx
   const progressBarRef = useRef(null); // ref for the progress bar <input> element in progress-bar.jsx
@@ -79,6 +80,8 @@ export const AudioPlayerProvider = ({ children }) => {
     progressBarRef,
     testTrack,
     testPlaylist,
+    isMinimized,
+    setIsMinimized,
   };
 
   return (

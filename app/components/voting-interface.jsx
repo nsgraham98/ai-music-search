@@ -18,8 +18,14 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  TextField,
+  Collapse,
+  IconButton,
 } from "@mui/material";
-import { CheckCircle as CheckIcon } from "@mui/icons-material";
+import {
+  CheckCircle as CheckIcon,
+  Comment as CommentIcon,
+} from "@mui/icons-material";
 import { useUserAuth } from "@/context/auth-context";
 
 export default function VotingInterface({
@@ -33,6 +39,8 @@ export default function VotingInterface({
 }) {
   const { authUser } = useUserAuth();
   const [votes, setVotes] = useState({});
+  const [comments, setComments] = useState({});
+  const [expandedComments, setExpandedComments] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
@@ -43,12 +51,15 @@ export default function VotingInterface({
   useEffect(() => {
     if (submissions) {
       const initialVotes = {};
+      const initialComments = {};
       Object.keys(submissions).forEach((userId) => {
         if (userId !== currentUserId) {
           initialVotes[userId] = 0;
+          initialComments[userId] = "";
         }
       });
       setVotes(initialVotes);
+      setComments(initialComments);
     }
   }, [submissions, currentUserId]);
 
@@ -74,6 +85,25 @@ export default function VotingInterface({
     });
   };
 
+  // Handle comment changes
+  const handleCommentChange = (userId, newComment) => {
+    // Enforce 1000 character limit
+    if (newComment.length <= 1000) {
+      setComments({
+        ...comments,
+        [userId]: newComment,
+      });
+    }
+  };
+
+  // Toggle comment field visibility
+  const toggleCommentField = (userId) => {
+    setExpandedComments({
+      ...expandedComments,
+      [userId]: !expandedComments[userId],
+    });
+  };
+
   // Submit votes
   const handleSubmitVotes = async () => {
     setIsSubmitting(true);
@@ -90,6 +120,7 @@ export default function VotingInterface({
           },
           body: JSON.stringify({
             votes: votes,
+            comments: comments,
           }),
         }
       );
@@ -288,6 +319,53 @@ export default function VotingInterface({
                   },
                 }}
               />
+            </Box>
+
+            {/* Comment Section */}
+            <Box mt={2}>
+              <Button
+                size="small"
+                startIcon={<CommentIcon />}
+                onClick={() => toggleCommentField(userId)}
+                sx={{
+                  color: "#ccc",
+                  textTransform: "none",
+                  "&:hover": {
+                    color: "#E03FD8",
+                  },
+                }}
+              >
+                {expandedComments[userId]
+                  ? "Hide Comment"
+                  : comments[userId]
+                    ? "Edit Comment"
+                    : "Add Comment (optional)"}
+              </Button>
+              <Collapse in={expandedComments[userId]}>
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={3}
+                  placeholder="Share your thoughts about this submission... (optional)"
+                  value={comments[userId] || ""}
+                  onChange={(e) => handleCommentChange(userId, e.target.value)}
+                  disabled={isSubmitting}
+                  sx={{
+                    mt: 1,
+                    "& .MuiOutlinedInput-root": {
+                      color: "white",
+                      bgcolor: "#2e2d2d",
+                      "& fieldset": { borderColor: "#555" },
+                      "&:hover fieldset": { borderColor: "#888" },
+                      "&.Mui-focused fieldset": { borderColor: "#E03FD8" },
+                    },
+                  }}
+                  helperText={`${comments[userId]?.length || 0}/1000 characters`}
+                  FormHelperTextProps={{
+                    sx: { color: "#999", textAlign: "right" },
+                  }}
+                />
+              </Collapse>
             </Box>
           </CardContent>
         </Card>
