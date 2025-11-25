@@ -20,7 +20,6 @@ import {
 } from "@mui/material";
 import { Search } from "lucide-react";
 import { useSearchContext } from "@/context/search-context";
-import axios from "axios";
 
 const SearchBar = () => {
   const [userQuery, setUserQuery] = useState("");
@@ -32,6 +31,8 @@ const SearchBar = () => {
 
   async function handleSearch() {
     try {
+      setIsLoading(true);
+      setError(null);
       const response = await fetch("/api/openai", {
         method: "POST",
         headers: {

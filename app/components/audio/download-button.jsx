@@ -14,12 +14,27 @@ export const DownloadButton = ({
   if (!downloadAllowed) {
     return (
       <Button
-        variant="outlined"
         size="medium"
         disabled
-        sx={{ cursor: "not-allowed" }}
+        sx={{
+          transition: "all 0.1s ease-in-out", // Force all transitions
+          "&:hover": {
+            color: "#E03FD8",
+            borderColor: "#E03FD8",
+            cursor: "not-allowed",
+          },
+          "& .MuiButton-label": {
+            transition: "inherit", // just in case, applies transition to inner span
+          },
+        }}
       >
-        Unavailable
+        <Typography
+          variant="body2"
+          sx={{ fontSize: "0.8rem", color: "white", mr: 0.5 }}
+        >
+          Unavailable
+        </Typography>
+        <DownloadIcon sx={{ color: "white" }} />
       </Button>
     );
   } else {

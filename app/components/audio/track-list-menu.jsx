@@ -1,3 +1,5 @@
+// hamburger menu for each track in the tracklist
+// holds buttons for adding/removing from playlist, downloading, etc.
 "use client";
 import { useState } from "react";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -9,7 +11,7 @@ import { DeleteTrackFromPlaylistButton } from "@/app/components/playlist/delete-
 import { DownloadButton } from "@/app/components/audio/download-button.jsx";
 
 export default function TracklistMenu({
-  track,
+  track = {},
   playlistId = "",
   showAddButton = true,
   showDeleteButton = true,
@@ -19,8 +21,8 @@ export default function TracklistMenu({
 
   return (
     <Box onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
-      {!open && <MenuIcon />}
-      {open && (
+      {!open && <MenuIcon sx={{ color: "white" }} />}
+      {open && track && (
         <Box
           display={open ? "flex" : "none"}
           alignItems="flex-end"
