@@ -8,16 +8,28 @@ import { createContext, useContext, useState, useEffect } from "react";
 const SearchContext = createContext(undefined);
 
 export const SearchContextProvider = ({ children }) => {
-  const [searchResults, setSearchResults] = useState([]);
+  const [userQuery, setUserQuery] = useState(""); // latest user search input
+  const [searchResults, setSearchResults] = useState([]); // latest search results
+  const [conversationHistory, setConversationHistory] = useState([
+    // { id: "someID", role: "user", content: "example", tracks: [] },
+    // { id: "someID", role: "assistant", content: "response", tracks: [searchResults] }, etc.
+    // maintains context for multi-turn conversations with AI
+  ]);
 
   // cleanup on unmount
   useEffect(() => {
     return () => {
       setSearchResults([]);
+      setUserQuery("");
+      setConversationHistory([]);
     };
   }, []);
 
   const contextValue = {
+    userQuery,
+    setUserQuery,
+    conversationHistory,
+    setConversationHistory,
     searchResults,
     setSearchResults,
   };

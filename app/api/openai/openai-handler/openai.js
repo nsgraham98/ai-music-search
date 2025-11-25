@@ -50,7 +50,10 @@ export async function runOpenAISearch(userQuery) {
     // can make this more elaborate later if needed - eg. more than one tool call
     const toolCall = response.output[0];
     const args = JSON.parse(toolCall.arguments);
-    console.log("🧠 Response from OpenAI received. (Jamendo search args)");
+    console.log(
+      "🧠 Response from OpenAI received. (Jamendo search args)",
+      args
+    );
 
     const result = await searchJamendo(args);
     // append model's function call message

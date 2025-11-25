@@ -6,7 +6,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAudioPlayerContext } from "@/context/audio-player-context";
 import {
   Switch,
   FormControlLabel,
@@ -22,14 +21,20 @@ import { Search } from "lucide-react";
 import { useSearchContext } from "@/context/search-context";
 
 const SearchBar = () => {
-  const [userQuery, setUserQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [aiResponse, setAiResponse] = useState(null);
   const [royaltyFree, setRoyaltyFree] = useState(true);
   const [error, setError] = useState(null);
-  const { setSearchResults } = useSearchContext();
+  const {
+    searchResults,
+    setSearchResults,
+    userQuery,
+    setUserQuery,
+    conversationHistory,
+    setConversationHistory,
+  } = useSearchContext();
 
-  async function handleSearch() {
+  async function handleSearch(userQuery, royaltyFree) {
     try {
       setIsLoading(true);
       setError(null);
@@ -46,19 +51,24 @@ const SearchBar = () => {
       }
 
       const data = await response.json();
-      console.log("Search results received -> DATA:", data);
+
       setSearchResults(data.jamendoResponse || []);
-      // setCurrentPlaylist({
-      //   id: "searchResults",
-      //   name: "Search Results",
-      //   public: false,
-      //   userID: "searchUserID",
-      //   description: "Playlist generated from search",
-      //   timeCreated: new Date().toISOString(),
-      //   timeUpdated: new Date().toISOString(),
-      //   tracks: data.jamendoResponse || [],
-      // });
       setAiResponse(data.aiResponse?.output_text || "Search completed");
+      setConversationHistory((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          role: "user",
+          content: userQuery,
+          tracks: [],
+        },
+        {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          content: data.aiResponse?.output_text || "",
+          tracks: data.jamendoResponse || [],
+        },
+      ]);
     } catch (err) {
       console.error("Search error:", err);
       setError(err.message || "Failed to search. Please try again.");
@@ -139,7 +149,7 @@ const SearchBar = () => {
         />
 
         <Button
-          onClick={handleSearch}
+          onClick={() => handleSearch(userQuery, royaltyFree)}
           variant="contained"
           disabled={isLoading || !userQuery.trim()}
           startIcon={!isLoading && <Search size={20} />}

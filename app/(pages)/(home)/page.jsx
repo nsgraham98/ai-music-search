@@ -3,14 +3,13 @@
 // AudioPlayer component is located in the layout.jsx file so it's always visible to logged in users
 "use client";
 import SearchBar from "@/app/components/search-bar.jsx";
-import { Box, Typography, Paper } from "@mui/material";
+import { Box, Typography, Paper, List } from "@mui/material";
 import { TrackList } from "@/app/components/audio/track-list.jsx";
-import { useAudioPlayerContext } from "@/context/audio-player-context";
 import { useSearchContext } from "@/context/search-context.jsx";
 import { useMemo } from "react";
 
 export default function HomePage() {
-  const { searchResults } = useSearchContext();
+  const { searchResults, conversationHistory, userQuery } = useSearchContext();
 
   // Build a stable key based on current results, so that the TrackList remounts when results change
   const trackListKey = useMemo(
@@ -20,6 +19,21 @@ export default function HomePage() {
 
   return (
     <>
+      <Typography variant="h3" color="white" gutterBottom>
+        {userQuery
+          ? `Search Results for: "${userQuery}"`
+          : "Welcome to AI Music Search"}
+      </Typography>
+      <Typography variant="h4" color="white" gutterBottom>
+        Conversation History
+      </Typography>
+      <List>
+        {conversationHistory.map((entry) => (
+          <Typography key={entry.id} variant="body2" color="white">
+            <strong>{entry.role}:</strong> {entry.content}
+          </Typography>
+        ))}
+      </List>
       {/* Search Bar */}
       <Box
         sx={{
