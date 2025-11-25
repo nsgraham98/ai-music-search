@@ -3,7 +3,8 @@
 
 "use client";
 
-import { Button } from "@mui/material";
+import { Button, Typography } from "@mui/material";
+import DownloadIcon from "@mui/icons-material/Download";
 export const DownloadButton = ({
   // these attributes are part of each track obj returned from Jamendo API
   downloadUrl,
@@ -23,29 +24,37 @@ export const DownloadButton = ({
     );
   } else {
     return (
-      <Button
-        component="a"
-        href={downloadUrl}
-        download={filename}
-        target="_blank"
-        rel="noopener noreferrer"
-        size="medium"
-        variant="outlined"
-        sx={{
-          color: "white",
-          borderColor: "#888",
-          transition: "all 0.1s ease-in-out", // Force all transitions
-          "&:hover": {
-            color: "#E03FD8",
-            borderColor: "#E03FD8",
-          },
-          "& .MuiButton-label": {
-            transition: "inherit", // just in case, applies transition to inner span
-          },
-        }}
-      >
-        Download
-      </Button>
+      <>
+        <Button
+          component="a"
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+          href={downloadUrl}
+          download={filename}
+          target="_blank"
+          rel="noopener noreferrer"
+          size="medium"
+          sx={{
+            transition: "all 0.1s ease-in-out", // Force all transitions
+            "&:hover": {
+              color: "#E03FD8",
+              borderColor: "#E03FD8",
+            },
+            "& .MuiButton-label": {
+              transition: "inherit", // just in case, applies transition to inner span
+            },
+          }}
+        >
+          <Typography
+            variant="body2"
+            sx={{ fontSize: "0.8rem", color: "white", mr: 0.5 }}
+          >
+            Download
+          </Typography>
+          <DownloadIcon sx={{ color: "white" }} />
+        </Button>
+      </>
     );
   }
 };
