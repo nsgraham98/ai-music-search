@@ -26,6 +26,7 @@ import {
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
 } from "@mui/icons-material";
+import SoundCloudPlayer from "./soundcloud-player";
 
 export default function RoundResults({
   roundData,
@@ -233,6 +234,14 @@ export default function RoundResults({
                       {userNames[entry.userId] || "Anonymous"}
                     </strong>
                   </Typography>
+
+                  {/* SoundCloud Player */}
+                  {entry.song.soundcloud_url && (
+                    <Box mt={2} mb={2}>
+                      <SoundCloudPlayer url={entry.song.soundcloud_url} />
+                    </Box>
+                  )}
+
                   {entry.song.argument && (
                     <Box
                       mt={2}

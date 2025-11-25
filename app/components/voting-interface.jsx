@@ -27,6 +27,7 @@ import {
   Comment as CommentIcon,
 } from "@mui/icons-material";
 import { useUserAuth } from "@/context/auth-context";
+import SoundCloudPlayer from "./soundcloud-player";
 
 export default function VotingInterface({
   gameId,
@@ -178,6 +179,17 @@ export default function VotingInterface({
                 <Typography variant="body2" color="#ccc" mb={2}>
                   by {submission.song.artist_name}
                 </Typography>
+
+                {/* SoundCloud Player */}
+                {submission.song.soundcloud_url && (
+                  <Box mb={3}>
+                    <SoundCloudPlayer
+                      url={submission.song.soundcloud_url}
+                      compact={true}
+                    />
+                  </Box>
+                )}
+
                 {submission.song.argument && (
                   <Box
                     mt={2}
@@ -261,6 +273,16 @@ export default function VotingInterface({
               by {submission.song.artist_name}
             </Typography>
 
+            {/* SoundCloud Player */}
+            {submission.song.soundcloud_url && (
+              <Box mb={3}>
+                <SoundCloudPlayer
+                  url={submission.song.soundcloud_url}
+                  compact={true}
+                />
+              </Box>
+            )}
+
             {/* Song Argument */}
             {submission.song.argument && (
               <Box
@@ -324,14 +346,22 @@ export default function VotingInterface({
             {/* Comment Section */}
             <Box mt={2}>
               <Button
-                size="small"
+                size="medium"
+                variant="outlined"
                 startIcon={<CommentIcon />}
                 onClick={() => toggleCommentField(userId)}
                 sx={{
-                  color: "#ccc",
+                  color: comments[userId] ? "#E03FD8" : "#ccc",
+                  borderColor: comments[userId] ? "#E03FD8" : "#555",
                   textTransform: "none",
+                  fontWeight: comments[userId] ? "bold" : "normal",
+                  px: 2,
+                  py: 1,
+                  transition: "all 0.2s",
                   "&:hover": {
                     color: "#E03FD8",
+                    borderColor: "#E03FD8",
+                    bgcolor: "rgba(224, 63, 216, 0.05)",
                   },
                 }}
               >

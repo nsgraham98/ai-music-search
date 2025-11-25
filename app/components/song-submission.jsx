@@ -17,6 +17,12 @@ import {
 } from "@mui/material";
 import { CheckCircle as CheckIcon } from "@mui/icons-material";
 import { useUserAuth } from "@/context/auth-context";
+import {
+  isValidSoundCloudUrl,
+  getSoundCloudTrackInfo,
+  parseSoundCloudTrackData,
+} from "@/lib/soundcloud-utils";
+import SoundCloudPlayer from "./soundcloud-player";
 
 export default function SongSubmissionInterface({
   gameId,
@@ -30,8 +36,37 @@ export default function SongSubmissionInterface({
   const [songName, setSongName] = useState("");
   const [artistName, setArtistName] = useState("");
   const [songArgument, setSongArgument] = useState("");
+  const [soundcloudUrl, setSoundcloudUrl] = useState("");
+  const [isFetchingTrackInfo, setIsFetchingTrackInfo] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+
+  // Handle SoundCloud URL input and fetch track info
+  const handleSoundCloudUrlChange = async (url) => {
+    setSoundcloudUrl(url);
+    setError("");
+
+    // Only fetch if it's a valid URL
+    if (url.trim() && isValidSoundCloudUrl(url)) {
+      setIsFetchingTrackInfo(true);
+      try {
+        const trackInfo = await getSoundCloudTrackInfo(url);
+        if (trackInfo.success) {
+          const { title, artist } = parseSoundCloudTrackData(trackInfo);
+          // Auto-fill the song and artist fields
+          setSongName(title);
+          setArtistName(artist);
+        } else {
+          setError(trackInfo.error || "Could not fetch track information");
+        }
+      } catch (err) {
+        console.error("Error fetching track info:", err);
+        setError("Failed to fetch track information from SoundCloud");
+      } finally {
+        setIsFetchingTrackInfo(false);
+      }
+    }
+  };
 
   // Submit the song
   const handleSubmitSong = async () => {
@@ -63,6 +98,7 @@ export default function SongSubmissionInterface({
               name: songName.trim(),
               artist_name: artistName.trim(),
               argument: songArgument.trim(), // User's case for the song
+              soundcloud_url: soundcloudUrl.trim() || null, // Optional SoundCloud URL
               duration: 0, // No duration for manual entries
               audio: null,
               image: null,
@@ -80,6 +116,7 @@ export default function SongSubmissionInterface({
       setSongName("");
       setArtistName("");
       setSongArgument("");
+      setSoundcloudUrl("");
 
       // Call success callback
       if (onSubmissionSuccess) {
@@ -117,6 +154,14 @@ export default function SongSubmissionInterface({
             <Typography variant="body2" color="#ccc" mb={2}>
               by {currentSubmission.artist_name}
             </Typography>
+
+            {/* SoundCloud Player */}
+            {currentSubmission.soundcloud_url && (
+              <Box mb={2}>
+                <SoundCloudPlayer url={currentSubmission.soundcloud_url} />
+              </Box>
+            )}
+
             {currentSubmission.argument && (
               <Box mt={2} p={2} sx={{ bgcolor: "#2e2d2d", borderRadius: 1 }}>
                 <Typography variant="body2" color="#aaa" mb={1}>
@@ -151,6 +196,54 @@ export default function SongSubmissionInterface({
 
       {/* Manual Entry Form */}
       <Box component="form" display="flex" flexDirection="column" gap={2}>
+        {/* SoundCloud URL Field */}
+        <Box>
+          <TextField
+            fullWidth
+            label="SoundCloud URL (Optional)"
+            variant="outlined"
+            placeholder="https://soundcloud.com/artist/track"
+            value={soundcloudUrl}
+            onChange={(e) => handleSoundCloudUrlChange(e.target.value)}
+            disabled={disabled || isSubmitting || isFetchingTrackInfo}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                color: "white",
+                "& fieldset": {
+                  borderColor: "#555",
+                },
+                "&:hover fieldset": {
+                  borderColor: "#777",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "#E03FD8",
+                },
+              },
+              "& .MuiInputLabel-root": {
+                color: "#ccc",
+              },
+              "& .MuiInputLabel-root.Mui-focused": {
+                color: "#E03FD8",
+              },
+            }}
+          />
+          {isFetchingTrackInfo && (
+            <Box display="flex" alignItems="center" gap={1} mt={1}>
+              <CircularProgress size={16} sx={{ color: "#E03FD8" }} />
+              <Typography variant="caption" color="#ccc">
+                Fetching track information...
+              </Typography>
+            </Box>
+          )}
+          {soundcloudUrl && !isFetchingTrackInfo && (
+            <Typography variant="caption" color="#999" display="block" mt={1}>
+              {isValidSoundCloudUrl(soundcloudUrl)
+                ? "✓ Valid SoundCloud URL - Song info will auto-fill"
+                : "⚠ Enter a valid SoundCloud track URL"}
+            </Typography>
+          )}
+        </Box>
+
         <TextField
           fullWidth
           label="Song Name *"
