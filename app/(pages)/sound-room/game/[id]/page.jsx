@@ -13,6 +13,11 @@ import {
   Chip,
   CircularProgress,
   Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
 } from "@mui/material";
 import { EmojiEvents as TrophyIcon } from "@mui/icons-material";
 import { LogoutButton } from "@/app/components/login/logout-button";
@@ -42,6 +47,11 @@ export default function GamePage() {
   const [closingVoting, setClosingVoting] = useState(false);
   const [startingNextRound, setStartingNextRound] = useState(false);
   const [playerNames, setPlayerNames] = useState({});
+
+  // Theme selection dialog state
+  const [themeDialogOpen, setThemeDialogOpen] = useState(false);
+  const [customTheme, setCustomTheme] = useState("");
+  const [themeDialogType, setThemeDialogType] = useState(""); // "start" or "next"
 
   useEffect(() => {
     if (authUser && gameId) {
@@ -116,14 +126,25 @@ export default function GamePage() {
     }
   };
 
-  const handleStartGame = async () => {
+  const handleStartGame = () => {
+    // Open theme selection dialog
+    setThemeDialogType("start");
+    setCustomTheme("");
+    setThemeDialogOpen(true);
+  };
+
+  const handleStartGameWithTheme = async (theme = null) => {
     setStartingGame(true);
     setError("");
+    setThemeDialogOpen(false);
 
     try {
+      const body = theme ? JSON.stringify({ customTheme: theme }) : undefined;
       const response = await fetch(`/api/games/${gameId}/start`, {
         method: "POST",
-        credentials: "include", // Include cookies for authentication
+        credentials: "include",
+        headers: theme ? { "Content-Type": "application/json" } : undefined,
+        body,
       });
 
       const data = await response.json();
@@ -139,6 +160,7 @@ export default function GamePage() {
       setError("Failed to start game");
     } finally {
       setStartingGame(false);
+      setCustomTheme("");
     }
   };
 
@@ -228,14 +250,25 @@ export default function GamePage() {
     }
   };
 
-  const handleStartNextRound = async () => {
+  const handleStartNextRound = () => {
+    // Open theme selection dialog
+    setThemeDialogType("next");
+    setCustomTheme("");
+    setThemeDialogOpen(true);
+  };
+
+  const handleStartNextRoundWithTheme = async (theme = null) => {
     setStartingNextRound(true);
     setError("");
+    setThemeDialogOpen(false);
 
     try {
+      const body = theme ? JSON.stringify({ customTheme: theme }) : undefined;
       const response = await fetch(`/api/games/${gameId}/start-next-round`, {
         method: "POST",
         credentials: "include",
+        headers: theme ? { "Content-Type": "application/json" } : undefined,
+        body,
       });
 
       const data = await response.json();
@@ -251,6 +284,7 @@ export default function GamePage() {
       setError("Failed to start next round");
     } finally {
       setStartingNextRound(false);
+      setCustomTheme("");
     }
   };
 
@@ -270,9 +304,9 @@ export default function GamePage() {
   const getGameStatusColor = (status) => {
     switch (status) {
       case "waiting_for_players":
-        return "#ff9800"; // orange
+        return "#fffb87"; // light yellow
       case "active":
-        return "#4caf50"; // green
+        return "#90ee90"; // light green
       case "completed":
         return "#757575"; // gray
       default:
@@ -308,7 +342,19 @@ export default function GamePage() {
       ) : game ? (
         <Box>
           {/* Game Header */}
-          <Paper sx={{ bgcolor: "#2e2d2d", color: "white", p: 4, mb: 4 }}>
+          <Paper
+            sx={{
+              bgcolor: "#2e2d2d",
+              color: "white",
+              p: 4,
+              mb: 4,
+              border: "1px solid #444",
+              transition: "border-color 0.3s",
+              "&:hover": {
+                borderColor: "#888",
+              },
+            }}
+          >
             <Box
               display="flex"
               justifyContent="space-between"
@@ -359,17 +405,21 @@ export default function GamePage() {
                             size="medium"
                             sx={{
                               bgcolor: isCurrentUser
-                                ? "#4caf50"
+                                ? "#90ee90"
                                 : isLeader
                                   ? "#ffd700"
                                   : "#555",
                               color:
-                                isLeader && !isCurrentUser ? "#000" : "white",
+                                isCurrentUser || (isLeader && !isCurrentUser)
+                                  ? "#000"
+                                  : "white",
                               fontWeight:
                                 isCurrentUser || isLeader ? "bold" : "normal",
                               fontSize: "0.9rem",
                               px: 1.5,
                               py: 2,
+                              border: "1px solid #333",
+                              borderRadius: 1,
                               "& .MuiChip-icon": {
                                 marginLeft: "8px",
                               },
@@ -384,10 +434,12 @@ export default function GamePage() {
                 label={getGameStatusText(game)}
                 sx={{
                   backgroundColor: getGameStatusColor(game.status),
-                  color: "white",
+                  color: game.status === "active" ? "#000" : "black",
                   fontWeight: "bold",
                   fontSize: "1rem",
                   padding: "8px 16px",
+                  border: "1px solid #333",
+                  borderRadius: 1,
                 }}
               />
             </Box>
@@ -422,7 +474,18 @@ export default function GamePage() {
           </Paper>
 
           {/* Game Content Based on Status */}
-          <Paper sx={{ bgcolor: "#2e2d2d", color: "white", p: 4 }}>
+          <Paper
+            sx={{
+              bgcolor: "#2e2d2d",
+              color: "white",
+              p: 4,
+              border: "1px solid #444",
+              transition: "border-color 0.3s",
+              "&:hover": {
+                borderColor: "#888",
+              },
+            }}
+          >
             {game.status === "waiting_for_players" ? (
               <Box textAlign="center" py={4}>
                 <Typography variant="h5" gutterBottom>
@@ -432,15 +495,24 @@ export default function GamePage() {
                   Everyone's here? Click below to start the game.
                 </Typography>
                 <Button
-                  variant="outlined"
+                  variant="contained"
                   sx={{
-                    borderColor: "white",
+                    bgcolor: "#E03FD8",
                     color: "white",
                     textTransform: "uppercase",
                     fontWeight: "bold",
+                    px: 4,
+                    py: 1.5,
+                    transition: "all 0.2s",
+                    boxShadow: "0 4px 12px rgba(224, 63, 216, 0.3)",
                     "&:hover": {
-                      borderColor: "#4caf50",
-                      backgroundColor: "#4caf50",
+                      bgcolor: "#c133b9",
+                      transform: "translateY(-2px)",
+                      boxShadow: "0 6px 16px rgba(224, 63, 216, 0.5)",
+                    },
+                    "&:disabled": {
+                      bgcolor: "#666",
+                      color: "#999",
                     },
                   }}
                   onClick={handleStartGame}
@@ -464,9 +536,43 @@ export default function GamePage() {
                   </Box>
                 ) : currentRound ? (
                   <Box mb={3}>
-                    <Typography variant="h6" color="#4caf50" gutterBottom>
-                      Theme: {currentRound.theme}
-                    </Typography>
+                    {/* Theme Display Box */}
+                    <Box
+                      sx={{
+                        bgcolor: "#3a3a3a",
+                        border: "2px solid #E03FD8",
+                        borderRadius: 2,
+                        p: 3,
+                        textAlign: "center",
+                        mb: 2,
+                        boxShadow: "0 4px 12px rgba(224, 63, 216, 0.3)",
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        color="#E03FD8"
+                        fontWeight="bold"
+                        display="block"
+                        mb={1}
+                        sx={{
+                          textTransform: "uppercase",
+                          letterSpacing: "0.1em",
+                          fontSize: "0.9rem",
+                        }}
+                      >
+                        Round Theme
+                      </Typography>
+                      <Typography
+                        variant="h5"
+                        fontWeight="bold"
+                        color="white"
+                        sx={{
+                          textShadow: "0 2px 8px rgba(224, 63, 216, 0.4)",
+                        }}
+                      >
+                        {currentRound.theme}
+                      </Typography>
+                    </Box>
                     <Typography variant="body2" color="#ccc">
                       Round ends: {formatDate(currentRound.round_deadline)}
                     </Typography>
@@ -504,13 +610,17 @@ export default function GamePage() {
                           disabled={startingNextRound}
                           fullWidth
                           sx={{
-                            bgcolor: "#4caf50",
+                            bgcolor: "#E03FD8",
                             color: "white",
                             textTransform: "uppercase",
                             fontWeight: "bold",
                             py: 1.5,
+                            transition: "all 0.2s",
+                            boxShadow: "0 4px 12px rgba(224, 63, 216, 0.3)",
                             "&:hover": {
-                              bgcolor: "#45a049",
+                              bgcolor: "#c133b9",
+                              transform: "translateY(-2px)",
+                              boxShadow: "0 6px 16px rgba(224, 63, 216, 0.5)",
                             },
                             "&:disabled": {
                               bgcolor: "#666",
@@ -580,14 +690,19 @@ export default function GamePage() {
                                 disabled={closingVoting}
                                 fullWidth
                                 sx={{
-                                  borderColor: "#ff9800",
-                                  color: "#ff9800",
+                                  borderColor: "#E03FD8",
+                                  color: "#E03FD8",
                                   textTransform: "uppercase",
                                   fontWeight: "bold",
                                   py: 1.5,
+                                  borderWidth: 2,
+                                  transition: "all 0.2s",
                                   "&:hover": {
-                                    borderColor: "#f57c00",
-                                    backgroundColor: "rgba(255, 152, 0, 0.1)",
+                                    borderColor: "#c133b9",
+                                    bgcolor: "rgba(224, 63, 216, 0.1)",
+                                    transform: "translateY(-2px)",
+                                    boxShadow:
+                                      "0 4px 12px rgba(224, 63, 216, 0.4)",
                                   },
                                   "&:disabled": {
                                     borderColor: "#666",
@@ -635,6 +750,160 @@ export default function GamePage() {
           Game not found or you don't have access to this game.
         </Alert>
       )}
+
+      {/* Theme Selection Dialog */}
+      <Dialog
+        open={themeDialogOpen}
+        onClose={() =>
+          !startingGame && !startingNextRound && setThemeDialogOpen(false)
+        }
+        maxWidth="sm"
+        fullWidth
+        sx={{
+          "& .MuiDialog-paper": {
+            bgcolor: "#2e2d2d",
+            color: "white",
+            borderRadius: 2,
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            borderBottom: "1px solid #444",
+            fontWeight: "normal",
+            fontSize: "1.25rem",
+            textAlign: "center",
+          }}
+        >
+          Choose Round Theme
+        </DialogTitle>
+
+        <DialogContent sx={{ pt: 3 }}>
+          <Box mb={3} mt={4}>
+            <Button
+              variant="contained"
+              fullWidth
+              onClick={() => {
+                if (themeDialogType === "start") {
+                  handleStartGameWithTheme();
+                } else {
+                  handleStartNextRoundWithTheme();
+                }
+              }}
+              disabled={startingGame || startingNextRound}
+              sx={{
+                bgcolor: "#E03FD8",
+                color: "white",
+                textTransform: "uppercase",
+                fontWeight: "bold",
+                py: 1.5,
+                transition: "all 0.2s",
+                boxShadow: "0 4px 12px rgba(224, 63, 216, 0.3)",
+                "&:hover": {
+                  bgcolor: "#c133b9",
+                  transform: "translateY(-2px)",
+                  boxShadow: "0 6px 16px rgba(224, 63, 216, 0.5)",
+                },
+                "&:disabled": {
+                  bgcolor: "#666",
+                  color: "#999",
+                },
+              }}
+            >
+              {startingGame || startingNextRound ? (
+                <CircularProgress size={24} sx={{ color: "white" }} />
+              ) : (
+                "Use Random Theme"
+              )}
+            </Button>
+          </Box>
+
+          <Box display="flex" alignItems="center" gap={2} mb={2}>
+            <Box flex={1} height="1px" bgcolor="#555" />
+            <Typography variant="body2" color="#999">
+              OR
+            </Typography>
+            <Box flex={1} height="1px" bgcolor="#555" />
+          </Box>
+
+          <Typography variant="body2" color="#ccc" mb={1}>
+            Enter Custom Round Theme:
+          </Typography>
+          <TextField
+            fullWidth
+            value={customTheme}
+            onChange={(e) => setCustomTheme(e.target.value)}
+            placeholder="e.g., Songs about summer"
+            disabled={startingGame || startingNextRound}
+            sx={{
+              mb: 2,
+              "& .MuiOutlinedInput-root": {
+                color: "white",
+                "& fieldset": {
+                  borderColor: "#555",
+                },
+                "&:hover fieldset": {
+                  borderColor: "#888",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "#E03FD8",
+                },
+              },
+              "& .MuiInputBase-input::placeholder": {
+                color: "#666",
+                opacity: 1,
+              },
+            }}
+          />
+          <Button
+            variant="outlined"
+            fullWidth
+            onClick={() => {
+              if (themeDialogType === "start") {
+                handleStartGameWithTheme(customTheme.trim());
+              } else {
+                handleStartNextRoundWithTheme(customTheme.trim());
+              }
+            }}
+            disabled={!customTheme.trim() || startingGame || startingNextRound}
+            sx={{
+              borderColor: "#E03FD8",
+              color: "#E03FD8",
+              textTransform: "uppercase",
+              fontWeight: "bold",
+              py: 1.5,
+              borderWidth: 2,
+              transition: "all 0.2s",
+              "&:hover": {
+                borderColor: "#c133b9",
+                bgcolor: "rgba(224, 63, 216, 0.1)",
+                transform: "translateY(-2px)",
+                boxShadow: "0 4px 12px rgba(224, 63, 216, 0.4)",
+              },
+              "&:disabled": {
+                borderColor: "#666",
+                color: "#666",
+              },
+            }}
+          >
+            Use Custom Theme
+          </Button>
+        </DialogContent>
+        <DialogActions sx={{ borderTop: "1px solid #444", p: 2 }}>
+          <Button
+            onClick={() => setThemeDialogOpen(false)}
+            disabled={startingGame || startingNextRound}
+            sx={{
+              color: "#999",
+              "&:hover": {
+                bgcolor: "rgba(255, 255, 255, 0.05)",
+              },
+            }}
+          >
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }
