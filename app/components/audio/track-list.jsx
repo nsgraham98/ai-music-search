@@ -18,7 +18,7 @@ import {
   goToAlbum,
 } from "@/app/api/jamendo/jamendo-handler/go-to-jamendo";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TracklistMenu from "./track-list-menu";
 
 export const TrackList = ({
@@ -37,7 +37,13 @@ export const TrackList = ({
     useAudioPlayerContext();
 
   // const effectiveTracks = tracks ?? currentPlaylist?.tracks ?? [];
+  // const [effectiveTracks, setEffectiveTracks] = useState(tracks ?? []);
   const [effectiveTracks, setEffectiveTracks] = useState(tracks ?? []);
+
+  useEffect(() => {
+    console.log("TrackList mounted with tracks:", tracks);
+    setEffectiveTracks(tracks ?? []);
+  }, [tracks]);
 
   const handlePlay = (track) => {
     // default behaviour if no custom handler passed

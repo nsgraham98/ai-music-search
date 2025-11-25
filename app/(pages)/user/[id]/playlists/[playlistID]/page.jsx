@@ -30,7 +30,6 @@ export default function PlaylistPage() {
   const { authUser } = useUserAuth();
   const [playlistInfo, setPlaylistInfo] = useState({});
   const [loadingMessage, setLoadingMessage] = useState("Loading playlist...");
-  const [playlists, setPlaylists] = useState([]);
   const [dialog, setDialog] = useState({
     open: false,
     type: "",

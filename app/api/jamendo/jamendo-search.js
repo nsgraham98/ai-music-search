@@ -33,9 +33,14 @@ export async function getSongsJamendo(searchParams) {
     return;
   }
   const data = await response.json(); // Parse the response as JSON
-  console.log("🎵 Jamendo results received:", data.results.length, "tracks");
-  // console.log(data.results[0]);
-  return data;
+  // Remove waveform data from each track to reduce payload size
+  const cleaned = {
+    ...data,
+    results: data.results.map(({ waveform, ...rest }) => rest),
+  };
+  console.log("🎵 Jamendo results received:", cleaned.results.length, "tracks");
+  // console.log(cleaned.results[0]);
+  return cleaned;
 }
 
 // Creates a URLSearchParams object, to be used in the url for the fetch call
