@@ -11,7 +11,7 @@ export async function POST(request, { params }) {
 
     // Parse the request body
     const body = await request.json();
-    const { votes } = body;
+    const { votes, comments } = body;
 
     if (!votes || typeof votes !== "object") {
       return NextResponse.json(
@@ -21,7 +21,13 @@ export async function POST(request, { params }) {
     }
 
     // Submit the votes (authentication happens inside submitVotes)
-    const result = await submitVotes(gameId, roundId, votes, request);
+    const result = await submitVotes(
+      gameId,
+      roundId,
+      votes,
+      comments || {},
+      request
+    );
 
     if (!result.success) {
       const statusCode =

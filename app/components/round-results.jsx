@@ -18,8 +18,15 @@ import {
   TableRow,
   Chip,
   CircularProgress,
+  IconButton,
+  Collapse,
 } from "@mui/material";
-import { EmojiEvents as TrophyIcon } from "@mui/icons-material";
+import {
+  EmojiEvents as TrophyIcon,
+  ExpandMore as ExpandMoreIcon,
+  ExpandLess as ExpandLessIcon,
+} from "@mui/icons-material";
+import SoundCloudPlayer from "./soundcloud-player";
 
 export default function RoundResults({
   roundData,
@@ -29,6 +36,7 @@ export default function RoundResults({
 }) {
   const [userNames, setUserNames] = useState({});
   const [loadingNames, setLoadingNames] = useState(true);
+  const [showComments, setShowComments] = useState({});
 
   useEffect(() => {
     fetchUserNames();
@@ -110,6 +118,33 @@ export default function RoundResults({
       displayName: userNames[entry.userId] || "Loading...",
       score: entry.totalScore,
       rank: index + 1,
+    }));
+  };
+
+  // Get comments for a specific song submission
+  const getCommentsForSong = (songUserId) => {
+    const votes = roundData.votes || {};
+    const comments = [];
+
+    Object.entries(votes).forEach(([voterId, voteData]) => {
+      const commentText = voteData.comments?.[songUserId];
+      if (commentText && commentText.trim()) {
+        comments.push({
+          voterId,
+          voterName: userNames[voterId] || "Anonymous",
+          comment: commentText,
+        });
+      }
+    });
+
+    return comments;
+  };
+
+  // Toggle comments visibility for a song
+  const toggleComments = (userId) => {
+    setShowComments((prev) => ({
+      ...prev,
+      [userId]: !prev[userId],
     }));
   };
 
@@ -199,6 +234,14 @@ export default function RoundResults({
                       {userNames[entry.userId] || "Anonymous"}
                     </strong>
                   </Typography>
+
+                  {/* SoundCloud Player */}
+                  {entry.song.soundcloud_url && (
+                    <Box mt={2} mb={2}>
+                      <SoundCloudPlayer url={entry.song.soundcloud_url} />
+                    </Box>
+                  )}
+
                   {entry.song.argument && (
                     <Box
                       mt={2}
@@ -213,6 +256,78 @@ export default function RoundResults({
                       </Typography>
                     </Box>
                   )}
+
+                  {/* Comments Section */}
+                  {(() => {
+                    const comments = getCommentsForSong(entry.userId);
+                    if (comments.length > 0) {
+                      return (
+                        <Box mt={2}>
+                          <Box
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="space-between"
+                          >
+                            <Typography variant="body2" color="#aaa">
+                              Comments ({comments.length})
+                            </Typography>
+                            <IconButton
+                              size="small"
+                              onClick={() => toggleComments(entry.userId)}
+                              sx={{
+                                color: "#ccc",
+                                "&:hover": { color: "#E03FD8" },
+                              }}
+                            >
+                              {showComments[entry.userId] === false ? (
+                                <ExpandMoreIcon />
+                              ) : (
+                                <ExpandLessIcon />
+                              )}
+                            </IconButton>
+                          </Box>
+                          <Collapse in={showComments[entry.userId] !== false}>
+                            <Box mt={1}>
+                              {comments.map((commentData, idx) => (
+                                <Box
+                                  key={idx}
+                                  sx={{
+                                    bgcolor: "#2e2d2d",
+                                    borderRadius: 1,
+                                    p: 2,
+                                    mb: 1,
+                                  }}
+                                >
+                                  <Box
+                                    display="flex"
+                                    alignItems="center"
+                                    gap={1}
+                                    mb={1}
+                                  >
+                                    <Chip
+                                      label={commentData.voterName}
+                                      size="small"
+                                      sx={{
+                                        bgcolor: "#90ee90",
+                                        color: "#000",
+                                        fontWeight: "bold",
+                                        border: "1px solid #333",
+                                        borderRadius: 1,
+                                      }}
+                                    />
+                                  </Box>
+                                  <Typography variant="body2" color="#ddd">
+                                    {commentData.comment}
+                                  </Typography>
+                                </Box>
+                              ))}
+                            </Box>
+                          </Collapse>
+                        </Box>
+                      );
+                    }
+                    return null;
+                  })()}
                 </Box>
                 <Chip
                   label={`${entry.totalScore} ${entry.totalScore === 1 ? "vote" : "votes"}`}

@@ -25,7 +25,7 @@ export default function Navigation() {
       path: authUser ? `/user/${authUser.uid}/playlists` : "/", // Redirect to home if not logged in
       icon: <PlaylistPlayIcon />,
     },
-    { label: "Game Room", path: "/sound-room", icon: <SportsEsportsIcon /> },
+    { label: "Sound Room", path: "/sound-room", icon: <SportsEsportsIcon /> },
     { label: "Settings", path: "/settings", icon: <SettingsIcon /> },
   ];
 
