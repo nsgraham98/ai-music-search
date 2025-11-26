@@ -1,6 +1,54 @@
 "use client";
+import { useEffect } from "react";
 
 export default function ColorblindFilters() {
+  useEffect(() => {
+    // Load saved settings from localStorage
+    if (typeof window !== "undefined") {
+      const savedDarkMode = localStorage.getItem("darkMode");
+      const savedColorblind = localStorage.getItem("colorblindMode");
+      const savedHighContrast = localStorage.getItem("highContrast");
+      const savedReducedMotion = localStorage.getItem("reducedMotion");
+
+      // Apply dark mode
+      if (savedDarkMode !== null) {
+        const isDark = savedDarkMode === "true";
+        if (isDark) {
+          document.body.classList.remove("light-mode");
+          document.body.classList.add("dark-mode");
+        } else {
+          document.body.classList.remove("dark-mode");
+          document.body.classList.add("light-mode");
+        }
+      }
+
+      // Apply colorblind mode
+      if (savedColorblind) {
+        document.body.setAttribute("data-colorblind-mode", savedColorblind);
+      }
+
+      // Apply high contrast
+      if (savedHighContrast !== null) {
+        const isEnabled = savedHighContrast === "true";
+        if (isEnabled) {
+          document.body.classList.add("high-contrast");
+        } else {
+          document.body.classList.remove("high-contrast");
+        }
+      }
+
+      // Apply reduced motion
+      if (savedReducedMotion !== null) {
+        const isEnabled = savedReducedMotion === "true";
+        if (isEnabled) {
+          document.body.classList.add("reduced-motion");
+        } else {
+          document.body.classList.remove("reduced-motion");
+        }
+      }
+    }
+  }, []);
+
   return (
     <svg style={{ position: "absolute", width: 0, height: 0 }}>
       <defs>

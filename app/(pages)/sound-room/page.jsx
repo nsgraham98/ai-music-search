@@ -770,7 +770,7 @@ export default function SoundRoomPage() {
               </Typography>
               <Box component="ol" sx={{ color: "#ccc", pl: 2.5 }}>
                 <Typography component="li" variant="body2" mb={1.5}>
-                  G ive your game a name and click "Create Game"
+                  Give your game a name and click "Create Game"
                 </Typography>
                 <Typography component="li" variant="body2" mb={1.5}>
                   Share the 4-digit join code with your friends (games are best
