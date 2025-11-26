@@ -7,11 +7,11 @@
 // playback controls
 // progress bar
 // volume control
-// download button
+// Hamburger menu
 
 "use client";
 
-import { Box, IconButton, useMediaQuery, useTheme} from "@mui/material";
+import { Box, IconButton, useMediaQuery, useTheme } from "@mui/material";
 import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
 import { TrackInfo } from "./track-info";
 import { Controls } from "./controls";
@@ -85,14 +85,14 @@ export const AudioPlayer = () => {
             <Controls compact={true} />
           </Box>
 
-          {/* Download Button */}
+          {/* Hamburger menu */}
           {currentTrack?.audiodownload_allowed && (
             <Box sx={{ flexShrink: 0 }}>
-              <DownloadButton
-                downloadUrl={currentTrack?.audiodownload}
-                downloadAllowed={currentTrack?.audiodownload_allowed}
-                filename={`${currentTrack?.name}.mp3`}
-                size="small"
+              <TracklistMenu
+                track={currentTrack}
+                showAddButton={true}
+                showDeleteButton={false}
+                showDownload={true}
               />
             </Box>
           )}
@@ -160,10 +160,11 @@ export const AudioPlayer = () => {
             }}
           >
             <VolumeControl />
-            <DownloadButton
-              downloadUrl={currentTrack?.audiodownload}
-              downloadAllowed={currentTrack?.audiodownload_allowed}
-              filename={`${currentTrack?.name}.mp3`}
+            <TracklistMenu
+              track={currentTrack}
+              showAddButton={true}
+              showDeleteButton={false}
+              showDownload={true}
             />
           </Box>
         </Box>
