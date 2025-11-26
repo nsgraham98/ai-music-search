@@ -1,22 +1,11 @@
-// Component for the audio player UI at the bottom of the screen
-// Present on every page after login (i.e. within the dashboard layout)
-// Used in /app/(pages)/(home)/layout.jsx
-
-// Contains subcomponents for:
-// track info
-// playback controls
-// progress bar
-// volume control
-// download button
-
 "use client";
 
 import { Box, IconButton, useMediaQuery, useTheme } from "@mui/material";
-import { TrackInfo } from "./track-info";
-import { Controls } from "./controls";
-import { ProgressBar } from "./progress-bar";
-import { VolumeControl } from "./volume-control";
-import { DownloadButton } from "./download-button.jsx";
+import { TrackInfo } from "../audio/track-info";
+import { Controls } from "../audio/controls";
+import { ProgressBar } from "../audio/progress-bar";
+import { VolumeControl } from "../audio/volume-control";
+import { DownloadButton } from "../audio/download-button.jsx";
 import { useAudioPlayerContext } from "@/context/audio-player-context";
 
 export const AudioPlayer = () => {
