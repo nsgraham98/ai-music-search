@@ -1,26 +1,12 @@
-// Component for the audio player UI at the bottom of the screen
-// Present on every page after login (i.e. within the dashboard layout)
-// Used in /app/(pages)/(home)/layout.jsx
-
-// Contains subcomponents for:
-// track info
-// playback controls
-// progress bar
-// volume control
-// download button
-
 "use client";
 
 import { Box, IconButton, useMediaQuery, useTheme } from "@mui/material";
-import { TrackInfo } from "./track-info";
-import { Controls } from "./controls";
-import { ProgressBar } from "./progress-bar";
-import { VolumeControl } from "./volume-control";
+import { TrackInfo } from "../audio/track-info";
+import { Controls } from "../audio/controls";
+import { ProgressBar } from "../audio/progress-bar";
+import { VolumeControl } from "../audio/volume-control";
+import { DownloadButton } from "../audio/download-button.jsx";
 import { useAudioPlayerContext } from "@/context/audio-player-context";
-import TracklistMenu from "@/app/components/audio/track-list-menu";
-
-// import { AddTrackToPlaylistButton } from "../playlist/add-track-to-playlist";
-// import { DeleteTrackFromPlaylistButton } from "../playlist/delete-track-from-playlist";
 
 export const AudioPlayer = () => {
   const { currentTrack } = useAudioPlayerContext();
@@ -242,14 +228,11 @@ export const AudioPlayer = () => {
         }}
       >
         <VolumeControl />
-        <TracklistMenu
-          track={currentTrack}
-          showAddButton={true}
-          showDeleteButton={false}
-          showDownload={true}
+        <DownloadButton
+          downloadUrl={currentTrack?.audiodownload}
+          downloadAllowed={currentTrack?.audiodownload_allowed}
+          filename={`${currentTrack?.name}.mp3`}
         />
-        {/* <AddTrackToPlaylistButton trackId={currentTrack?.id} />
-        <DeleteTrackFromPlaylistButton trackId={currentTrack?.id} /> */}
       </Box>
     </Box>
   );

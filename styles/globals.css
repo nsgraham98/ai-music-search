@@ -1,10 +1,8 @@
 /* Written by copilot */
 /* just created as an outline/starting point */
 /* Change anything as needed */
-
 /* This is a global CSS file for a web application.
    It includes reset styles, typography, and utility classes. */
-
 /* Reset Styles */
 /* Add a CSS reset to ensure consistent styling across browsers */
 html,
@@ -95,12 +93,10 @@ video {
   font: inherit;
   vertical-align: baseline;
 }
-
 /* Box Sizing */
 * {
   box-sizing: border-box;
 }
-
 /* Global Typography */
 body {
   font-family: "Arial", sans-serif;
@@ -108,69 +104,85 @@ body {
   color: #333;
   background-color: #f9f9f9;
 }
-
 /* Link Styles */
 a {
   color: #007bff;
   text-decoration: none;
 }
-
 a:hover {
   text-decoration: underline;
 }
-
 /* Utility Classes */
 .hidden {
   display: none !important;
 }
-
 .text-center {
   text-align: center;
 }
-
 .margin-auto {
   margin: auto;
 }
-
 /* Global Layout */
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 15px;
 }
-
 /* Custom Scrollbar (Optional) */
 ::-webkit-scrollbar {
   width: 10px;
 }
-
 ::-webkit-scrollbar-thumb {
   background: #888;
   border-radius: 5px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
-
-/* Light mode styles */
+/* Light mode styles - Pure white background like home page */
 body.light-mode {
-  background-color: #ffffff;
-  color: #000000;
+  background-color: #ffffff !important;
+  color: #1a1a1a;
 }
 
+/* Override any page-specific backgrounds */
+body.light-mode > div,
+body.light-mode #__next,
+body.light-mode main {
+  background-color: #ffffff !important;
+}
+
+/* Force all containers to have white background */
+body.light-mode .MuiContainer-root {
+  background-color: #ffffff !important;
+}
+
+/* All Box components get white background */
+body.light-mode .MuiBox-root {
+  background-color: transparent !important;
+}
+
+/* Content boxes/cards - light grey */
 body.light-mode .MuiPaper-root {
   background-color: #f5f5f5 !important;
-  color: #000000 !important;
+  color: #1a1a1a !important;
+  border: 1px solid #e0e0e0 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
 }
 
 body.light-mode .MuiTypography-root {
-  color: #000000 !important;
+  color: #1a1a1a !important;
 }
 
 body.light-mode .MuiButton-outlined {
-  color: #000000 !important;
-  border-color: #cccccc !important;
+  color: #1a1a1a !important;
+  border-color: #d0d0d0 !important;
+  background-color: #ffffff !important;
+}
+
+body.light-mode .MuiButton-outlined:hover {
+  background-color: #f5f5f5 !important;
+  border-color: #a0a0a0 !important;
 }
 
 body.light-mode .MuiButton-contained {
@@ -178,17 +190,85 @@ body.light-mode .MuiButton-contained {
   color: #ffffff !important;
 }
 
+body.light-mode .MuiButton-contained:hover {
+  background-color: #c133b9 !important;
+}
+
+/* Cards in light mode */
+body.light-mode .MuiCard-root {
+  background-color: #f5f5f5 !important;
+  color: #1a1a1a !important;
+  border: 1px solid #e0e0e0 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Card content areas should match */
+body.light-mode .MuiCardContent-root {
+  background-color: transparent !important;
+}
+
+/* Input fields in light mode */
+body.light-mode .MuiInputBase-root {
+  background-color: #ffffff !important;
+  color: #1a1a1a !important;
+  border-color: #d0d0d0 !important;
+}
+
+body.light-mode .MuiOutlinedInput-notchedOutline {
+  border-color: #d0d0d0 !important;
+}
+
+body.light-mode .MuiInputBase-input {
+  color: #1a1a1a !important;
+}
+
+body.light-mode .MuiInputLabel-root {
+  color: #666666 !important;
+}
+
+/* Icons in light mode */
+body.light-mode .MuiSvgIcon-root {
+  color: #666666 !important;
+}
+
+body.light-mode .MuiButton-root .MuiSvgIcon-root {
+  color: inherit !important;
+}
+
+/* Chips in light mode */
+body.light-mode .MuiChip-root {
+  color: #ffffff !important;
+}
+
+/* Dialog in light mode */
+body.light-mode .MuiDialog-paper {
+  background-color: #ffffff !important;
+  color: #1a1a1a !important;
+  border: 1px solid #e0e0e0 !important;
+}
+
+body.light-mode .MuiDialogTitle-root {
+  color: #1a1a1a !important;
+}
+
+body.light-mode .MuiDialogContent-root {
+  color: #1a1a1a !important;
+}
+
+/* Alert components */
+body.light-mode .MuiAlert-root {
+  color: #1a1a1a !important;
+}
+
 /* Dark mode styles */
 body.dark-mode {
   background-color: #1a1a1a;
   color: #ffffff;
 }
-
 body.dark-mode .MuiPaper-root {
   background-color: #2e2d2d !important;
   color: #ffffff !important;
 }
-
 body.dark-mode .MuiTypography-root {
   color: #ffffff !important;
 }
