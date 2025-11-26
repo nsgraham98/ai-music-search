@@ -3,11 +3,24 @@
 
 "use client";
 
-import { createContext, useContext, useState, useRef } from "react";
+import { createContext, useContext, useState, useRef, useEffect } from "react";
 
 const AudioPlayerContext = createContext(undefined);
 
 export const AudioPlayerProvider = ({ children }) => {
+  // Initialize isMinimized - always start false to match server render
+  const [isMinimized, setIsMinimized] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // After hydration, load from localStorage
+  useEffect(() => {
+    setIsHydrated(true);
+    const saved = localStorage.getItem("audioPlayerMinimized");
+    if (saved === "true") {
+      setIsMinimized(true);
+    }
+  }, []);
+
   const [currentPlaylist, setCurrentPlaylist] = useState({
     id: null,
     userID: null,
@@ -28,6 +41,13 @@ export const AudioPlayerProvider = ({ children }) => {
   const audioRef = useRef(null); // create a ref for the <audio> element created in controls.jsx
   const progressBarRef = useRef(null); // ref for the progress bar <input> element in progress-bar.jsx
 
+  // Save isMinimized to localStorage whenever it changes (only after hydration)
+  useEffect(() => {
+    if (isHydrated) {
+      localStorage.setItem("audioPlayerMinimized", isMinimized.toString());
+    }
+  }, [isMinimized, isHydrated]);
+
   // context value to be provided to consuming components
   // functions to update state are also provided
   // so that consuming components can update the state
@@ -45,6 +65,8 @@ export const AudioPlayerProvider = ({ children }) => {
     setTrackIndex,
     audioRef, // ref for the <audio> element
     progressBarRef,
+    isMinimized,
+    setIsMinimized,
   };
 
   return (

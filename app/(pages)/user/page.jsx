@@ -1,6 +1,5 @@
 "use client";
 
-import { LogoutButton } from "@/app/components/login/logout-button";
 import {
   Box,
   Typography,
@@ -15,7 +14,6 @@ import {
   Chip,
   Grid,
 } from "@mui/material";
-import SignedInAs from "@/app/components/login/signed-in-as";
 import LoginPopup from "@/app/components/login/login-popup";
 import { useUserAuth } from "@/context/auth-context";
 import { useUserProfile } from "@/context/user-profile-context";

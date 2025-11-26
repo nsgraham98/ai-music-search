@@ -5,7 +5,6 @@
 import OpenAI from "openai";
 import { runOpenAISearch } from "@/app/api/openai/openai-handler/openai.js";
 import { authenticateCookie } from "@/lib/authenticate-calls";
-import { Tags } from "lucide-react";
 
 // Initialize OpenAI client
 const openai = new OpenAI({

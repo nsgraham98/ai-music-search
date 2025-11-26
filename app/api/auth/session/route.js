@@ -3,7 +3,7 @@
 import { dbAdmin } from "@/lib/firebase-admin.js";
 import { authenticateCookie } from "@/lib/authenticate-calls.js";
 import { cookies } from "next/headers";
-import { doc, getDoc } from "firebase/firestore";
+import { getDoc } from "firebase/firestore";
 
 // saves the session data to the database
 export async function POST(request) {

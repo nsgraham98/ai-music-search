@@ -608,7 +608,13 @@ export async function getRandomTheme(gameId) {
  * @param {Request} request - Request object for authentication
  * @returns {Object} Result object with success status or error
  */
-export async function submitVotes(gameId, roundId, votesData, request) {
+export async function submitVotes(
+  gameId,
+  roundId,
+  votesData,
+  commentsData,
+  request
+) {
   try {
     // Authenticate the user using session cookie
     const decodedToken = await authenticateCookie(request);
@@ -698,6 +704,7 @@ export async function submitVotes(gameId, roundId, votesData, request) {
     const voteSubmission = {
       user_id: userId,
       votes: votesData,
+      comments: commentsData || {},
       voted_at: new Date(),
       total_votes_allocated: totalVotes,
     };

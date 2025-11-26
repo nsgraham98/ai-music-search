@@ -23,11 +23,7 @@ import {
   DialogActions,
 } from "@mui/material";
 import { Delete as DeleteIcon } from "@mui/icons-material";
-import { LogoutButton } from "@/app/components/login/logout-button";
-import SignedInAs from "@/app/components/login/signed-in-as";
-import LoginPopup from "@/app/components/login/login-popup";
 import { useUserAuth } from "@/context/auth-context";
-import Link from "next/link";
 import { formatDate } from "@/utils/date-utils";
 
 export default function SoundRoomPage() {
