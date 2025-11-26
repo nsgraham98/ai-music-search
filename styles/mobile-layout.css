@@ -1,0 +1,534 @@
+/* Mobile Layout Improvements */
+
+/* Base Mobile Breakpoints */
+@media (max-width: 768px) {
+  /* Body and Container Fixes */
+  body {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  .MuiContainer-root {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    max-width: 100% !important;
+  }
+
+  /* Header/Navigation */
+  header {
+    padding: 12px 16px !important;
+  }
+
+  .MuiAppBar-root {
+    padding: 8px 12px !important;
+  }
+
+  /* Search Bar - Make it full width and larger touch target */
+  .search-container,
+  .search-bar {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 12px 16px !important;
+  }
+
+  .search-container input,
+  .search-bar input,
+  .MuiTextField-root input {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+    padding: 14px !important;
+    min-height: 48px; /* Better touch target */
+  }
+
+  /* Search Results Grid */
+  .results-grid,
+  .MuiGrid-container {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+
+  .MuiGrid-item {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  /* Track Cards */
+  .track-card,
+  .MuiCard-root {
+    margin: 0 0 16px 0 !important;
+    width: 100% !important;
+  }
+
+  .track-card img,
+  .MuiCardMedia-root {
+    height: 200px !important;
+    width: 100% !important;
+    object-fit: cover;
+  }
+
+  /* Audio Player - Bottom Fixed Bar */
+  .audio-player,
+  [class*="audio-player"] {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    padding: 12px 8px !important;
+    flex-direction: column !important;
+    min-height: auto !important;
+    z-index: 1000 !important;
+  }
+
+  /* Audio Player Layout - Stack Vertically */
+  .audio-player > div,
+  .audio-player .MuiBox-root {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 4px 0 !important;
+  }
+
+  /* Track Info in Player */
+  .audio-player .track-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .audio-player .track-info img {
+    width: 48px !important;
+    height: 48px !important;
+  }
+
+  .audio-player .track-info .MuiTypography-root {
+    font-size: 14px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Player Controls */
+  .audio-player .controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin: 8px 0;
+  }
+
+  .audio-player .controls button,
+  .audio-player button {
+    min-width: 48px !important;
+    min-height: 48px !important;
+    padding: 12px !important;
+  }
+
+  /* Progress Bar */
+  .audio-player .progress-bar,
+  .audio-player .MuiSlider-root {
+    width: 100% !important;
+    margin: 8px 0 !important;
+  }
+
+  /* Volume Control - Hide on very small screens */
+  .audio-player .volume-control {
+    display: none !important;
+  }
+
+  /* Playlist/Queue */
+  .playlist,
+  .queue {
+    padding: 16px !important;
+    margin-bottom: 120px !important; /* Space for audio player */
+  }
+
+  /* Settings Page */
+  .settings-container {
+    padding: 16px !important;
+    margin-bottom: 100px !important;
+  }
+
+  .settings-section {
+    margin-bottom: 24px !important;
+  }
+
+  /* Settings Toggles and Selects */
+  .settings-section .MuiFormControl-root {
+    width: 100% !important;
+  }
+
+  .settings-section .MuiSelect-root {
+    min-height: 48px !important;
+  }
+
+  /* Buttons - Larger Touch Targets */
+  .MuiButton-root,
+  button {
+    min-height: 48px !important;
+    padding: 12px 24px !important;
+    font-size: 16px !important;
+  }
+
+  .MuiIconButton-root {
+    min-width: 48px !important;
+    min-height: 48px !important;
+    padding: 12px !important;
+  }
+
+  /* Modal/Dialog */
+  .MuiDialog-paper {
+    margin: 16px !important;
+    max-width: calc(100% - 32px) !important;
+    max-height: calc(100% - 32px) !important;
+  }
+
+  .MuiDialog-paper .MuiDialogTitle-root {
+    font-size: 20px !important;
+    padding: 16px !important;
+  }
+
+  .MuiDialog-paper .MuiDialogContent-root {
+    padding: 16px !important;
+  }
+
+  /* Typography - Responsive Sizes */
+  h1,
+  .MuiTypography-h1 {
+    font-size: 28px !important;
+  }
+
+  h2,
+  .MuiTypography-h2 {
+    font-size: 24px !important;
+  }
+
+  h3,
+  .MuiTypography-h3 {
+    font-size: 20px !important;
+  }
+
+  h4,
+  .MuiTypography-h4 {
+    font-size: 18px !important;
+  }
+
+  h5,
+  .MuiTypography-h5 {
+    font-size: 16px !important;
+  }
+
+  h6,
+  .MuiTypography-h6 {
+    font-size: 14px !important;
+  }
+
+  /* Navigation Drawer/Sidebar */
+  .MuiDrawer-paper {
+    width: 85% !important;
+    max-width: 320px !important;
+  }
+
+  /* Profile Page */
+  .profile-container {
+    padding: 16px !important;
+    margin-bottom: 100px !important;
+  }
+
+  .profile-header {
+    flex-direction: column !important;
+    text-align: center !important;
+  }
+
+  .profile-header img {
+    margin: 0 auto 16px auto !important;
+  }
+
+  /* Game Page (Sound Room) */
+  .game-container {
+    padding: 16px !important;
+    margin-bottom: 100px !important;
+  }
+
+  .game-lobby,
+  .game-room {
+    padding: 16px !important;
+  }
+
+  /* Form Inputs */
+  .MuiTextField-root {
+    width: 100% !important;
+    margin-bottom: 16px !important;
+  }
+
+  .MuiTextField-root input,
+  .MuiTextField-root textarea {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+  }
+
+  /* Tables */
+  .MuiTable-root {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  /* Spacing Utilities */
+  .mobile-hide {
+    display: none !important;
+  }
+
+  .mobile-only {
+    display: block !important;
+  }
+
+  /* Fix for content being cut off by fixed elements */
+  main,
+  .main-content {
+    padding-bottom: 140px !important; /* Space for audio player */
+  }
+
+  /* Search Results - Better spacing */
+  .search-results {
+    padding: 16px !important;
+    margin-bottom: 120px !important;
+  }
+
+  /* Loading States */
+  .MuiCircularProgress-root {
+    margin: 24px auto !important;
+  }
+
+  /* Snackbar/Toast Notifications */
+  .MuiSnackbar-root {
+    bottom: 120px !important; /* Above audio player */
+  }
+
+  /* Image Gallery */
+  .image-gallery,
+  .album-art-gallery {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+}
+
+/* Extra Small Devices (phones in portrait, less than 576px) */
+@media (max-width: 576px) {
+  /* Even more compact spacing */
+  .MuiContainer-root {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+
+  /* Smaller text on very small screens */
+  body {
+    font-size: 14px !important;
+  }
+
+  /* Single column for everything */
+  .MuiGrid-container {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  /* Smaller buttons on very small screens */
+  .MuiButton-root {
+    padding: 10px 16px !important;
+    font-size: 14px !important;
+  }
+
+  /* Audio player even more compact */
+  .audio-player {
+    padding: 8px 4px !important;
+  }
+
+  .audio-player .controls button {
+    min-width: 40px !important;
+    min-height: 40px !important;
+    padding: 8px !important;
+  }
+
+  /* Hide secondary info on very small screens */
+  .secondary-info,
+  .artist-info-extended {
+    display: none !important;
+  }
+}
+
+/* Landscape Mode on Mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  /* Make audio player more compact in landscape */
+  .audio-player {
+    flex-direction: row !important;
+    padding: 8px !important;
+    min-height: 80px !important;
+  }
+
+  .audio-player > div {
+    width: auto !important;
+    flex: 1;
+  }
+
+  .audio-player .track-info {
+    flex: 2;
+    margin-bottom: 0 !important;
+  }
+
+  .audio-player .controls {
+    flex: 2;
+    margin: 0 !important;
+  }
+
+  .audio-player .volume-control {
+    display: flex !important;
+    flex: 1;
+  }
+
+  main,
+  .main-content {
+    padding-bottom: 90px !important;
+  }
+}
+
+/* iOS Specific Fixes */
+@supports (-webkit-touch-callout: none) {
+  /* Fix for iOS Safari viewport units */
+  .audio-player {
+    padding-bottom: env(safe-area-inset-bottom, 12px) !important;
+  }
+
+  /* Prevent zoom on input focus */
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  /* Fix for iOS scroll bounce */
+  body {
+    position: fixed;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+  }
+
+  main {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    height: 100%;
+  }
+}
+
+/* Android Specific Fixes */
+@media (max-width: 768px) {
+  /* Fix for Android Chrome bottom bar */
+  .audio-player {
+    bottom: 0 !important;
+  }
+
+  /* Better touch targets for Android */
+  a,
+  button,
+  .MuiButtonBase-root {
+    -webkit-tap-highlight-color: rgba(224, 63, 216, 0.2);
+  }
+}
+
+/* Tablet Adjustments (768px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  /* Two column layout for tablets */
+  .results-grid .MuiGrid-item {
+    width: 50% !important;
+    max-width: 50% !important;
+  }
+
+  /* Audio player can be more horizontal */
+  .audio-player {
+    flex-direction: row !important;
+    padding: 16px !important;
+  }
+
+  .audio-player > div {
+    width: auto !important;
+  }
+
+  .audio-player .track-info {
+    flex: 1;
+  }
+
+  .audio-player .controls {
+    flex: 2;
+  }
+
+  .audio-player .volume-control {
+    display: flex !important;
+    flex: 1;
+  }
+}
+
+/* Touch-specific Improvements */
+@media (hover: none) and (pointer: coarse) {
+  /* Larger touch targets for all interactive elements */
+  button,
+  a,
+  .MuiButtonBase-root,
+  .MuiIconButton-root {
+    min-height: 48px !important;
+    min-width: 48px !important;
+  }
+
+  /* Remove hover effects that don't work on touch */
+  .MuiButton-root:hover,
+  .MuiIconButton-root:hover {
+    background-color: inherit !important;
+  }
+
+  /* Add active/pressed states instead */
+  .MuiButton-root:active,
+  .MuiIconButton-root:active {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+}
+
+/* Accessibility - High Contrast Mode on Mobile */
+@media (max-width: 768px) {
+  body.high-contrast .audio-player {
+    border-top: 3px solid currentColor !important;
+  }
+
+  body.high-contrast button,
+  body.high-contrast .MuiButton-root {
+    border-width: 2px !important;
+    font-weight: bold !important;
+  }
+}
+
+/* Dark Mode Mobile Adjustments */
+@media (max-width: 768px) {
+  body.dark-mode .audio-player {
+    background-color: #1a1a1a !important;
+    border-top: 1px solid #333 !important;
+  }
+
+  body.light-mode .audio-player {
+    background-color: #ffffff !important;
+    border-top: 1px solid #e0e0e0 !important;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1) !important;
+  }
+}
+
+/* Print Styles - Hide non-essential mobile elements */
+@media print {
+  .audio-player,
+  .navigation,
+  .MuiAppBar-root,
+  .mobile-menu {
+    display: none !important;
+  }
+
+  body {
+    font-size: 12pt !important;
+  }
+}

@@ -7,6 +7,11 @@ export default function ColourblindSelector({ mode, onChange }) {
     onChange(event.target.value);
   };
 
+  // Check if we're in light mode
+  const isLightMode =
+    typeof document !== "undefined" &&
+    document.body.classList.contains("light-mode");
+
   return (
     <Box
       sx={{
@@ -40,9 +45,12 @@ export default function ColourblindSelector({ mode, onChange }) {
             "& .MuiSvgIcon-root": { color: "#888" },
           }}
           MenuProps={{
+            disableScrollLock: true,
+            hideBackdrop: true,
             PaperProps: {
               sx: {
                 bgcolor: "#3a3a3a",
+                maxHeight: "300px",
                 "& .MuiMenuItem-root": {
                   color: "white",
                   "&:hover": {
@@ -52,6 +60,22 @@ export default function ColourblindSelector({ mode, onChange }) {
                     bgcolor: "#2e2d2d",
                     "&:hover": {
                       bgcolor: "#4a4a4a",
+                    },
+                  },
+                },
+                // Light mode overrides
+                ".light-mode &": {
+                  bgcolor: "#f5f5f5",
+                  "& .MuiMenuItem-root": {
+                    color: "#000000",
+                    "&:hover": {
+                      bgcolor: "#e0e0e0",
+                    },
+                    "&.Mui-selected": {
+                      bgcolor: "#d0d0d0",
+                      "&:hover": {
+                        bgcolor: "#c0c0c0",
+                      },
                     },
                   },
                 },

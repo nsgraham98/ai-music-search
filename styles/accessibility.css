@@ -1,73 +1,148 @@
-/*
-/* Light Mode */
-body.light-mode {
-  background-color: #ffffff;
-  color: #000000;
-}
-
-body.light-mode .MuiPaper-root {
-  background-color: #f5f5f5 !important;
-  color: #000000 !important;
-}
-
-body.light-mode .MuiBox-root {
+/* High Contrast Mode - Light Mode Base */
+body.light-mode.high-contrast {
   background-color: #ffffff !important;
   color: #000000 !important;
 }
 
-/* High Contrast Mode */
-body.high-contrast {
+body.light-mode.high-contrast .MuiPaper-root {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+}
+
+body.light-mode.high-contrast .MuiBox-root {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+body.light-mode.high-contrast button {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+  font-weight: bold !important;
+}
+
+body.light-mode.high-contrast button:hover {
   background-color: #000000 !important;
   color: #ffffff !important;
 }
 
-body.high-contrast * {
+body.light-mode.high-contrast .MuiButton-contained {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+body.light-mode.high-contrast .MuiButton-contained:hover {
+  background-color: #333333 !important;
+}
+
+body.light-mode.high-contrast input,
+body.light-mode.high-contrast textarea {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+}
+
+body.light-mode.high-contrast .MuiTypography-root {
+  color: #000000 !important;
+  font-weight: 500 !important;
+}
+
+body.light-mode.high-contrast a {
+  color: #0000ff !important;
+  text-decoration: underline !important;
+  font-weight: bold !important;
+}
+
+/* High Contrast Mode - Dark Mode Base */
+body.dark-mode.high-contrast {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+body.dark-mode.high-contrast * {
   border-color: #ffffff !important;
 }
 
-body.high-contrast .MuiPaper-root {
+body.dark-mode.high-contrast .MuiPaper-root {
   background-color: #000000 !important;
   color: #ffffff !important;
   border: 2px solid #ffffff !important;
 }
 
-body.high-contrast button {
-  background-color: #ffffff !important;
-  color: #000000 !important;
-  border: 2px solid #ffffff !important;
+body.dark-mode.high-contrast .MuiBox-root {
+  background-color: #000000 !important;
+  color: #ffffff !important;
 }
 
-body.high-contrast button:hover {
+body.dark-mode.high-contrast button {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+  font-weight: bold !important;
+}
+
+body.dark-mode.high-contrast button:hover {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+body.dark-mode.high-contrast .MuiButton-contained {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+body.dark-mode.high-contrast .MuiButton-contained:hover {
   background-color: #cccccc !important;
 }
 
-/* Reduced Motion */
-body.reduced-motion *,
-body.reduced-motion *::before,
-body.reduced-motion *::after {
-  animation-duration: 0.01ms !important;
-  animation-iteration-count: 1 !important;
-  transition-duration: 0.01ms !important;
-  scroll-behavior: auto !important;
+body.dark-mode.high-contrast input,
+body.dark-mode.high-contrast textarea {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
 }
 
-/* Colorblind Modes - Using CSS Filters */
-body[data-colorblind-mode="protanopia"] {
-  filter: url("#protanopia-filter");
+body.dark-mode.high-contrast .MuiTypography-root {
+  color: #ffffff !important;
+  font-weight: 500 !important;
 }
 
-body[data-colorblind-mode="deuteranopia"] {
-  filter: url("#deuteranopia-filter");
+body.dark-mode.high-contrast a {
+  color: #ffff00 !important;
+  text-decoration: underline !important;
+  font-weight: bold !important;
 }
 
-body[data-colorblind-mode="tritanopia"] {
-  filter: url("#tritanopia-filter");
+/* Common High Contrast Styles */
+body.high-contrast * {
+  text-shadow: none !important;
+  box-shadow: none !important;
 }
 
-body[data-colorblind-mode="monochromacy"] {
-  filter: grayscale(100%);
+body.high-contrast *:focus {
+  outline: 3px solid currentColor !important;
+  outline-offset: 2px !important;
 }
 
-body[data-colorblind-mode="none"] {
-  filter: none;
+body.high-contrast img {
+  border: 2px solid currentColor !important;
+}
+
+/* Override the old high-contrast rule to be more specific */
+body:not(.light-mode):not(.dark-mode).high-contrast {
+  /* Fallback for when neither light nor dark mode is set */
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+/* Fix for MUI Select backdrop in light mode */
+.light-mode .MuiBackdrop-root {
+  display: none !important;
+}
+
+/* Ensure MUI Modal/Popover doesn't hide content in light mode */
+.light-mode .MuiModal-root .MuiBackdrop-root {
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
