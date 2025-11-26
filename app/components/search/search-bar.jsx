@@ -108,6 +108,7 @@ const SearchBar = () => {
       console.error("Search error:", err);
       setError(err.message || "Failed to search. Please try again.");
     } finally {
+      setIsReplying(false);
       setIsLoading(false);
     }
   }
@@ -278,13 +279,23 @@ const SearchBar = () => {
         <Button
           onClick={handleReplyPress}
           variant={isReplying ? "contained" : "outlined"}
+          disabled={isLoading || !aiResponse}
           sx={{
             bgcolor: isReplying ? "#E03FD8" : "transparent",
             color: isReplying ? "white" : "#E03FD8",
             borderColor: "#E03FD8",
           }}
           startIcon={
-            <ReplyIcon sx={{ color: isReplying ? "white" : "#E03FD8" }} />
+            <ReplyIcon
+              sx={{
+                color:
+                  isLoading || !aiResponse
+                    ? "#3A3A3A"
+                    : isReplying
+                      ? "white"
+                      : "#E03FD8",
+              }}
+            />
           }
         >
           {isReplying && "Replying..."}
