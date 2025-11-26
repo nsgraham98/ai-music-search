@@ -11,7 +11,7 @@
 
 "use client";
 
-import { Box, IconButton, useMediaQuery, useTheme, IconButton } from "@mui/material";
+import { Box, IconButton, useMediaQuery, useTheme} from "@mui/material";
 import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
 import { TrackInfo } from "./track-info";
 import { Controls } from "./controls";
@@ -256,28 +256,25 @@ export const AudioPlayer = () => {
       )}
 
       {/* Right */}
-      {!isMinimized && (
-        <Box
-          sx={{
-            width: "25%",
-            maxWidth: "25%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-evenly",
-            mr: 2,
-            transition: "all 0.3s ease-in-out",
-          }}
-        >
-          <VolumeControl />
-          <DownloadButton
-            downloadUrl={currentTrack?.audiodownload}
-            downloadAllowed={currentTrack?.audiodownload_allowed}
-            filename={`${currentTrack?.name}.mp3`}
-          />
-          {/* <AddTrackToPlaylistButton trackId={currentTrack?.id} />
+      <Box
+        sx={{
+          width: "25%",
+          maxWidth: "25%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-evenly",
+          mr: 2,
+        }}
+      >
+        <VolumeControl />
+        <DownloadButton
+          downloadUrl={currentTrack?.audiodownload}
+          downloadAllowed={currentTrack?.audiodownload_allowed}
+          filename={`${currentTrack?.name}.mp3`}
+        />
+        {/* <AddTrackToPlaylistButton trackId={currentTrack?.id} />
         <DeleteTrackFromPlaylistButton trackId={currentTrack?.id} /> */}
-        </Box>
-      )}
+      </Box>
     </Box>
   );
 };
