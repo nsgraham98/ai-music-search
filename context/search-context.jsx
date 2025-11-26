@@ -15,7 +15,7 @@ export const SearchContextProvider = ({ children }) => {
     // { id: "someID", role: "assistant", content: "response", tracks: [searchResults] }, etc.
     // maintains context for multi-turn conversations with AI
   ]);
-
+  const [isReplying, setIsReplying] = useState(false);
   // cleanup on unmount
   useEffect(() => {
     return () => {
@@ -32,6 +32,8 @@ export const SearchContextProvider = ({ children }) => {
     setConversationHistory,
     searchResults,
     setSearchResults,
+    isReplying,
+    setIsReplying,
   };
 
   return (

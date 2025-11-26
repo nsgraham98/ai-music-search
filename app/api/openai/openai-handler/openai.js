@@ -23,21 +23,35 @@ const openai = new OpenAI({
 
 // Main function to handle the OpenAI search workflow
 // uses OpenAI "function calling": https://platform.openai.com/docs/guides/function-calling#page-top
-export async function runOpenAISearch(userQuery) {
+export async function runOpenAISearch(conversationHistory, latestUserQuery) {
   try {
     const tools = await getTools(); // load the tools (available search tags, etc.) from the tools.js file
 
     // input is the conversation history
     // Only one message (the user's initial query) and role are included right now
-    const input = [
-      {
-        role: "user",
-        content: userQuery,
-      },
-    ];
+    // const input = [
+    //   {
+    //     role: "user",
+    //     content: latestUserQuery,
+    //   },
+    // ];
+
+    // If isReplying is true, include full conversation history
+    const history =
+      conversationHistory[0] === undefined
+        ? []
+        : conversationHistory.map((e) => ({
+            role: e.role,
+            content: e.content,
+          }));
+
+    // Append the latest user query
+    const input = [...history, { role: "user", content: latestUserQuery }];
 
     // Send the prompt to OpenAI API
     console.log("🧠 Sending prompt to OpenAI API");
+    console.log("conversationHistory:", conversationHistory);
+    console.log("Input:", input);
     const response = await openai.responses.create({
       model: "gpt-4o",
       input,
@@ -78,6 +92,7 @@ export async function runOpenAISearch(userQuery) {
     return {
       aiResponse: newResponse,
       jamendoResponse: rerankedResults,
+      tags: args,
     };
   } catch (error) {
     console.error("Error fetching OpenAI:", error);

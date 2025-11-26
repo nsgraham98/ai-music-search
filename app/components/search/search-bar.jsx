@@ -5,7 +5,8 @@
 
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
+import axios from "axios";
 import {
   Switch,
   FormControlLabel,
@@ -19,6 +20,7 @@ import {
 } from "@mui/material";
 import { Search } from "lucide-react";
 import { useSearchContext } from "@/context/search-context";
+import ReplyIcon from "@mui/icons-material/Reply";
 
 const SearchBar = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -32,18 +34,25 @@ const SearchBar = () => {
     setUserQuery,
     conversationHistory,
     setConversationHistory,
+    isReplying,
+    setIsReplying,
   } = useSearchContext();
 
   async function handleSearch(userQuery, royaltyFree) {
     try {
       setIsLoading(true);
       setError(null);
+      console.log("conversationHistory before fetch:", conversationHistory);
+
       const response = await fetch("/api/openai", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ userQuery, royaltyFree }),
+        body: JSON.stringify({
+          conversationHistory: isReplying ? conversationHistory : [], // conversationHistory from context
+          latestUserQuery: userQuery, // latest user query
+        }),
       });
 
       if (!response.ok) {
@@ -52,23 +61,49 @@ const SearchBar = () => {
 
       const data = await response.json();
 
+      // update contexts with new search results and AI response
       setSearchResults(data.jamendoResponse || []);
       setAiResponse(data.aiResponse?.output_text || "Search completed");
-      setConversationHistory((prev) => [
-        ...prev,
-        {
-          id: crypto.randomUUID(),
-          role: "user",
-          content: userQuery,
-          tracks: [],
-        },
-        {
-          id: crypto.randomUUID(),
-          role: "assistant",
-          content: data.aiResponse?.output_text || "",
-          tracks: data.jamendoResponse || [],
-        },
-      ]);
+      // if not replying, start new conversation
+      if (!isReplying) {
+        setConversationHistory([
+          {
+            id: crypto.randomUUID(),
+            role: "user",
+            content: userQuery,
+            // tracks: [],
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: crypto.randomUUID(),
+            role: "assistant",
+            content: data.aiResponse?.output_text,
+            tags: data.tags || {},
+            // tracks: data.jamendoResponse || [],
+            createdAt: new Date().toISOString(),
+          },
+        ]);
+      } else {
+        // if replying, append to existing conversation
+        setConversationHistory((prev) => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            role: "user",
+            content: userQuery,
+            // tracks: [],
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: crypto.randomUUID(),
+            role: "assistant",
+            content: data.aiResponse?.output_text,
+            tags: data.tags || {},
+            // tracks: data.jamendoResponse || [],
+            createdAt: new Date().toISOString(),
+          },
+        ]);
+      }
     } catch (err) {
       console.error("Search error:", err);
       setError(err.message || "Failed to search. Please try again.");
@@ -82,6 +117,14 @@ const SearchBar = () => {
       handleSearch();
     }
   };
+  const handleReplyPress = () => {
+    setIsReplying(!isReplying);
+    if (isReplying) {
+      inputRef.current.focus();
+    }
+  };
+
+  const inputRef = useRef(null);
 
   return (
     <Box display="flex" flexDirection="column" gap={2}>
@@ -102,6 +145,7 @@ const SearchBar = () => {
           onChange={(e) => setUserQuery(e.target.value)}
           onKeyDown={handleKeyPress}
           disabled={isLoading}
+          inputRef={inputRef}
           sx={{
             flex: 1,
             "& .MuiOutlinedInput-root": {
@@ -221,6 +265,10 @@ const SearchBar = () => {
             ? "🎵 Searching for the perfect tracks..."
             : aiResponse || "Enter a search query to find music"}
         </Typography>
+        <Button onClick={handleReplyPress} startIcon={<ReplyIcon />}>
+          {isReplying && "Replying..."}
+          {!isReplying && "Reply"}
+        </Button>
       </Box>
     </Box>
   );
