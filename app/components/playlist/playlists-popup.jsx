@@ -3,13 +3,13 @@
 import { Button, Paper, Box, Typography } from "@mui/material";
 import { useEffect, useRef } from "react";
 
-export const PlaylistsPopup = ({
+export default function PlaylistsPopup({
   open,
   playlists, // object: { [id]: name }
   onSelectPlaylist, // (playlistId) => void
   onClose, // () => void
   style, // optional extra style overrides
-}) => {
+}) {
   const scrollRef = useRef(null); // for scrolling container
   const popupRef = useRef(null); // for detecting outside clicks
 
@@ -82,10 +82,12 @@ export const PlaylistsPopup = ({
             }}
             sx={{ justifyContent: "flex-start", textTransform: "none" }}
           >
-            {name}
+            <Typography variant="body2" sx={{ color: "white" }}>
+              {name}
+            </Typography>
           </Button>
         ))}
       </Box>
     </Paper>
   );
-};
+}

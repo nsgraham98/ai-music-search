@@ -5,8 +5,8 @@
 
 "use client";
 
-import React, { useState } from "react";
-import { useAudioPlayerContext } from "@/context/audio-player-context";
+import React, { useState, useRef } from "react";
+import axios from "axios";
 import {
   Switch,
   FormControlLabel,
@@ -20,24 +20,39 @@ import {
 } from "@mui/material";
 import { Search } from "lucide-react";
 import { useSearchContext } from "@/context/search-context";
-import axios from "axios";
+import ReplyIcon from "@mui/icons-material/Reply";
 
 const SearchBar = () => {
-  const [userQuery, setUserQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [aiResponse, setAiResponse] = useState(null);
   const [royaltyFree, setRoyaltyFree] = useState(true);
   const [error, setError] = useState(null);
-  const { setSearchResults } = useSearchContext();
+  const {
+    searchResults,
+    setSearchResults,
+    userQuery,
+    setUserQuery,
+    conversationHistory,
+    setConversationHistory,
+    isReplying,
+    setIsReplying,
+  } = useSearchContext();
 
-  async function handleSearch() {
+  async function handleSearch(userQuery, royaltyFree) {
     try {
+      setIsLoading(true);
+      setError(null);
+      console.log("conversationHistory before fetch:", conversationHistory);
+
       const response = await fetch("/api/openai", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ userQuery, royaltyFree }),
+        body: JSON.stringify({
+          conversationHistory: isReplying ? conversationHistory : [], // conversationHistory from context
+          latestUserQuery: userQuery, // latest user query
+        }),
       });
 
       if (!response.ok) {
@@ -45,23 +60,55 @@ const SearchBar = () => {
       }
 
       const data = await response.json();
-      console.log("Search results received -> DATA:", data);
+
+      // update contexts with new search results and AI response
       setSearchResults(data.jamendoResponse || []);
-      // setCurrentPlaylist({
-      //   id: "searchResults",
-      //   name: "Search Results",
-      //   public: false,
-      //   userID: "searchUserID",
-      //   description: "Playlist generated from search",
-      //   timeCreated: new Date().toISOString(),
-      //   timeUpdated: new Date().toISOString(),
-      //   tracks: data.jamendoResponse || [],
-      // });
       setAiResponse(data.aiResponse?.output_text || "Search completed");
+      // if not replying, start new conversation
+      if (!isReplying) {
+        setConversationHistory([
+          {
+            id: crypto.randomUUID(),
+            role: "user",
+            content: userQuery,
+            // tracks: [],
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: crypto.randomUUID(),
+            role: "assistant",
+            content: data.aiResponse?.output_text,
+            tags: data.tags || {},
+            // tracks: data.jamendoResponse || [],
+            createdAt: new Date().toISOString(),
+          },
+        ]);
+      } else {
+        // if replying, append to existing conversation
+        setConversationHistory((prev) => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            role: "user",
+            content: userQuery,
+            // tracks: [],
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: crypto.randomUUID(),
+            role: "assistant",
+            content: data.aiResponse?.output_text,
+            tags: data.tags || {},
+            // tracks: data.jamendoResponse || [],
+            createdAt: new Date().toISOString(),
+          },
+        ]);
+      }
     } catch (err) {
       console.error("Search error:", err);
       setError(err.message || "Failed to search. Please try again.");
     } finally {
+      setIsReplying(false);
       setIsLoading(false);
     }
   }
@@ -71,6 +118,17 @@ const SearchBar = () => {
       handleSearch();
     }
   };
+
+  const handleReplyPress = () => {
+    const newIsReplying = !isReplying; // store new state - we need to use it immediately, before setState takes effect
+    setIsReplying(newIsReplying);
+    if (newIsReplying) {
+      setUserQuery("");
+      inputRef.current.focus();
+    }
+  };
+
+  const inputRef = useRef(null);
 
   return (
     <Box display="flex" flexDirection="column" gap={2}>
@@ -91,6 +149,7 @@ const SearchBar = () => {
           onChange={(e) => setUserQuery(e.target.value)}
           onKeyDown={handleKeyPress}
           disabled={isLoading}
+          inputRef={inputRef}
           sx={{
             flex: 1,
             "& .MuiOutlinedInput-root": {
@@ -138,7 +197,7 @@ const SearchBar = () => {
         />
 
         <Button
-          onClick={handleSearch}
+          onClick={() => handleSearch(userQuery, royaltyFree)}
           variant="contained"
           disabled={isLoading || !userQuery.trim()}
           startIcon={!isLoading && <Search size={20} />}
@@ -194,6 +253,9 @@ const SearchBar = () => {
           alignItems: "center",
           border: "1px solid #444",
           transition: "border-color 0.3s",
+          display: "flex",
+          justifyContent: "space-between",
+          gap: 2,
           "&:hover": {
             borderColor: isLoading || aiResponse ? "#E03FD8" : "#444",
           },
@@ -204,12 +266,41 @@ const SearchBar = () => {
           sx={{
             color: isLoading ? "#888" : "white",
             fontStyle: !aiResponse && !isLoading ? "italic" : "normal",
+            flexGrow: 1,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
           }}
         >
           {isLoading
             ? "🎵 Searching for the perfect tracks..."
             : aiResponse || "Enter a search query to find music"}
         </Typography>
+        <Button
+          onClick={handleReplyPress}
+          variant={isReplying ? "contained" : "outlined"}
+          disabled={isLoading || !aiResponse}
+          sx={{
+            bgcolor: isReplying ? "#E03FD8" : "transparent",
+            color: isReplying ? "white" : "#E03FD8",
+            borderColor: "#E03FD8",
+          }}
+          startIcon={
+            <ReplyIcon
+              sx={{
+                color:
+                  isLoading || !aiResponse
+                    ? "#3A3A3A"
+                    : isReplying
+                      ? "white"
+                      : "#E03FD8",
+              }}
+            />
+          }
+        >
+          {isReplying && "Replying..."}
+          {!isReplying && "Reply"}
+        </Button>
       </Box>
     </Box>
   );

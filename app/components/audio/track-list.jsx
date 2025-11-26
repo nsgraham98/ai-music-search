@@ -12,18 +12,18 @@ import {
   Box,
 } from "@mui/material";
 import { BsMusicNoteBeamed } from "react-icons/bs";
-import { DownloadButton } from "./download-button";
 import {
   goToTrack,
   goToArtist,
   goToAlbum,
 } from "@/app/api/jamendo/jamendo-handler/go-to-jamendo";
-import { AddTrackToPlaylistButton } from "../playlist/add-track-to-playlist";
-import { DeleteTrackFromPlaylistButton } from "../playlist/delete-track-from-playlist";
+
 import { useState, useEffect } from "react";
+import TracklistMenu from "./track-list-menu";
 
 export const TrackList = ({
   tracks,
+  playlistId = "",
   variant = "default", // "search" | "playlist" | "default"
   // UI controls
   showDownload = true,
@@ -37,15 +37,13 @@ export const TrackList = ({
     useAudioPlayerContext();
 
   // const effectiveTracks = tracks ?? currentPlaylist?.tracks ?? [];
+  // const [effectiveTracks, setEffectiveTracks] = useState(tracks ?? []);
   const [effectiveTracks, setEffectiveTracks] = useState(tracks ?? []);
 
-  // useEffect(() => {
-  //   return () => {
-  //     if (clearOnUnmount) {
-  //       setEffectiveTracks([]); // <-- MUST be an array
-  //     }
-  //   };
-  // }, [clearOnUnmount]);
+  useEffect(() => {
+    console.log("TrackList mounted with tracks:", tracks);
+    setEffectiveTracks(tracks ?? []);
+  }, [tracks]);
 
   const handlePlay = (track) => {
     // default behaviour if no custom handler passed
@@ -76,29 +74,6 @@ export const TrackList = ({
   const handleAlbumOnClick = (track) => {
     goToAlbum(track);
   };
-
-  // if (!effectiveTracks || effectiveTracks.length === 0) {
-  //   return (
-  //     <Paper
-  //       elevation={3}
-  //       sx={{
-  //         bgcolor: "#4c4848",
-  //         color: "white",
-  //         overflowY: "auto",
-  //         borderRadius: 2,
-  //         width: "100%",
-  //         maxWidth: 900,
-  //         mx: "auto",
-  //       }}
-  //     >
-  //       <Typography variant="body1" color="white" textAlign="center" p={2}>
-  //         {variant === "search"
-  //           ? "No results found. Try a different search."
-  //           : "This playlist is empty."}
-  //       </Typography>
-  //     </Paper>
-  //   );
-  // }
 
   return (
     <Paper
@@ -212,23 +187,13 @@ export const TrackList = ({
                 </Box>
 
                 {/* Right Side: Actions – configurable per use case */}
-                <Box display="flex" alignItems="center" gap={1}>
-                  {showDownload && (
-                    <DownloadButton
-                      downloadUrl={track.audiodownload}
-                      downloadAllowed={track.audiodownload_allowed}
-                      filename={`${track.name}.mp3`}
-                    />
-                  )}
-
-                  {showAddButton && (
-                    <AddTrackToPlaylistButton trackId={track.id} />
-                  )}
-
-                  {showDeleteButton && (
-                    <DeleteTrackFromPlaylistButton trackId={track.id} />
-                  )}
-                </Box>
+                <TracklistMenu
+                  track={track}
+                  playlistId={playlistId}
+                  showAddButton={showAddButton}
+                  showDeleteButton={showDeleteButton}
+                  showDownload={showDownload}
+                />
               </Box>
             </ListItemButton>
           );

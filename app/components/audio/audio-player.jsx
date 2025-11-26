@@ -17,8 +17,11 @@ import { TrackInfo } from "./track-info";
 import { Controls } from "./controls";
 import { ProgressBar } from "./progress-bar";
 import { VolumeControl } from "./volume-control";
-import { DownloadButton } from "./download-button.jsx";
 import { useAudioPlayerContext } from "@/context/audio-player-context";
+import TracklistMenu from "@/app/components/audio/track-list-menu";
+
+// import { AddTrackToPlaylistButton } from "../playlist/add-track-to-playlist";
+// import { DeleteTrackFromPlaylistButton } from "../playlist/delete-track-from-playlist";
 
 export const AudioPlayer = () => {
   const { currentTrack, isMinimized, setIsMinimized } = useAudioPlayerContext();
@@ -267,10 +270,11 @@ export const AudioPlayer = () => {
         }}
       >
         <VolumeControl />
-        <DownloadButton
-          downloadUrl={currentTrack?.audiodownload}
-          downloadAllowed={currentTrack?.audiodownload_allowed}
-          filename={`${currentTrack?.name}.mp3`}
+        <TracklistMenu
+          track={currentTrack}
+          showAddButton={true}
+          showDeleteButton={false}
+          showDownload={true}
         />
         {/* <AddTrackToPlaylistButton trackId={currentTrack?.id} />
         <DeleteTrackFromPlaylistButton trackId={currentTrack?.id} /> */}

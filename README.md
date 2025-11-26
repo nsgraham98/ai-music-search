@@ -1,102 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# TUTTI – AI-Powered Royalty-Free Music Search
 
-## Getting Started
+Find curated, royalty-free tracks using natural language prompts powered by GPT-4o and the Jamendo API.
 
-First, run the development server:
+<a href="https://ai-music-search.vercel.app/" target="_blank">Go to TUTTI</a>
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Project Description
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+This web application allows users to search for royalty-free sounds using descriptive prompts (e.g. "lofi songs to study to", etc.), or search terms (e.g. "chill", "funky", "instrumental", etc.). The app leverages AI to enhance search accuracy and provides a clean, intuitive interface for browsing, downloading tracks, and creating playlists.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Natural-language music search**
+- **Listening/Playback**
+- **Download Tracks**
+- **The Sound Room**
+- **Create Playlists**
 
-## Learn More
+## Technologies Used
 
-To learn more about Next.js, take a look at the following resources:
+### Frontend
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **React**
+- **Next.js (App Router)**
+- **Material UI**
+- **Context API**
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Backend / Server
 
-## Deploy on Vercel
+- **Node.js**
+- **Next.js API Routes**
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Authentication & Security
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Firebase Authentication**
+- **OAuth2**
 
-TO DO:
+### Database
 
-# Royalty-Free Sound Search Web App
+- **Firebase Firestore**
+
+### External APIs
+
+- **OpenAI API GPT-4o**
+- **Jamendo**
+
+### Deployment
+
+- **Vercel**
+
+### DevOps / CI/CD
+
+- **GitHub Actions / Workflow**
+- **Git**
 
 ## Team Members
 
 - Nicholas Graham
 - Anne Marie Ala
-
-## Project Name
-
-**Royalty-Free Sound Search**
-
-## Project Description
-
-This web application allows users to search for royalty-free sounds using descriptive terms such as genre, tempo, mood (e.g., "ambient"), instrument, and more. The app leverages AI to enhance search accuracy and provides a clean, intuitive interface for browsing, favoriting, and downloading tracks.
-
-## Planned Features
-
-### Must-Have Features
-
-- ✅ AI-powered search bar for descriptive audio lookup
-- ✅ Result cards displaying title, tags, description, and artist
-- ✅ Download link for each sound
-- ✅ Playback functionality
-- ✅ Cloud-hosted sound data (S3)
-
-### Nice-to-Have Features
-
-- ⭐ Customizable favorites playlists (multiple allowed)
-- ⭐ Upload functionality
-- ⭐ User login system
-- ⭐ Dark mode toggle
-- ⭐ Server-side hosting (e.g., AWS, ngrok)
-- ⭐ Web scraping for additional sounds
-
-## Technologies Used
-
-- **Cloud Firestore**: User authentication
-- **OpenAI API**: AI-powered search parsing
-- **Amazon S3**: Sound storage and retrieval
-- **React.js / Tailwind CSS**: Frontend (assumed)
-- **Node.js / Express**: Backend (assumed)
-- **Ngrok / AWS EC2**: Hosting (optional)
-
-## Architectural Overview
-
-### Pages
-
-- **Search Page** (Home): Contains the AI search bar and displays results
-- **Favorites Page**: Shows saved playlists and links to specific favorite sets
-- **Playlist Page**: Displays sounds saved in a particular playlist
-- **Settings Page**: Options to toggle dark mode and update user info
-- **Login Page**: For user authentication
-
-### Key Components
-
-- **Search Bar**: AI-powered input field to interpret natural language queries
-- **Search Result Card**: Displays a single sound’s metadata
-- **Playback Bar**: Play, pause, and control audio output
-- **Favorites Dropdown**: Quickly access saved playlists
-- **Upload Form** _(optional)_: Add your own sounds
-- **Dark Mode Toggle**: Switch between light and dark themes
-
-## Use Case Diagram
+- Brody Wilson
+- Francis Thompson
+- Daetan Noskey

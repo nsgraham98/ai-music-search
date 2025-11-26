@@ -118,8 +118,12 @@ export default function PlaylistsPage() {
         }
       );
 
-      setPlaylists(
-        playlists?.map((p) => (p.id === dialog.playlist.id ? response.data : p))
+      setPlaylists((prev) =>
+        prev.map((p) =>
+          p.id === dialog.playlist.id
+            ? { ...p, ...response.data } // merge updated fields over existing fields
+            : p
+        )
       );
       setDialog({ open: false, type: "", playlist: null });
       setForm({ name: "", description: "", public: false });

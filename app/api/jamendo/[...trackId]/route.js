@@ -10,15 +10,20 @@ export async function GET(request, { params }) {
     });
   }
   const trackIds = Array.isArray(trackId) ? trackId.join("+") : trackId;
-  const url = `https://api.jamendo.com/v3.0/tracks/?client_id=${process.env.JAMENDO_CLIENT_ID}&id=${trackIds}`;
+  const url = `https://api.jamendo.com/v3.0/tracks/?client_id=${process.env.JAMENDO_CLIENT_ID}&limit=all&id=${trackIds}`;
 
   // Fetch track information from Jamendo API
   const response = await fetch(url);
   const data = await response.json();
+  // Remove waveform data from each track to reduce payload size
+  const cleaned = {
+    ...data,
+    results: data.results.map(({ waveform, ...rest }) => rest),
+  };
 
   if (!response.ok) {
     return new Response(JSON.stringify({ error: data.error }), { status: 500 });
   }
 
-  return new Response(JSON.stringify(data), { status: 200 });
+  return new Response(JSON.stringify(cleaned), { status: 200 });
 }

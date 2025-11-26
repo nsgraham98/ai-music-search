@@ -18,19 +18,15 @@ export const UserProfileContextProvider = ({ children }) => {
   // When auth user changes, fetch the profile
   useEffect(() => {
     const run = async () => {
-      console.log("UserProfileContext useEffect: authUser changed:", authUser);
       if (authUser?.uid) {
-        console.log("in useEffect authUser.uid = true:", authUser.uid);
         setLoadingProfile(true);
 
         // I need a way to get the authentication token from auth context
         const token = await authUser.getIdToken();
         const user = await fetchCurrentUserProfile(token); // no uid -> current user
-        console.log("useEffect: Fetched user profile:", user);
         setUserProfile(user ?? null);
         setProfileError(user ? null : "Profile not found");
       } else {
-        console.log("in useEffect authUser.uid = false");
         setUserProfile(null);
         setProfileError(null);
         setLoadingProfile(false);
@@ -59,7 +55,6 @@ export const UserProfileContextProvider = ({ children }) => {
       if (response.status === 404) return null;
 
       const result = await response.json();
-      console.log("fetchCurrentUserProfile GET /api/users result:", result);
 
       // Accept multiple shapes:
       // 1) { success: true, data: {...} }

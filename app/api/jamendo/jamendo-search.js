@@ -33,9 +33,14 @@ export async function getSongsJamendo(searchParams) {
     return;
   }
   const data = await response.json(); // Parse the response as JSON
-  console.log("🎵 Jamendo results received:", data.results.length, "tracks");
-  // console.log(data.results[0]);
-  return data;
+  // Remove waveform data from each track to reduce payload size
+  const cleaned = {
+    ...data,
+    results: data.results.map(({ waveform, ...rest }) => rest),
+  };
+  console.log("🎵 Jamendo results received:", cleaned.results.length, "tracks");
+  // console.log(cleaned.results[0]);
+  return cleaned;
 }
 
 // Creates a URLSearchParams object, to be used in the url for the fetch call
@@ -43,12 +48,13 @@ export async function getSongsJamendo(searchParams) {
 function createSearchString(searchArgsObj) {
   // initialize variables
   let flattenedTags;
+  let flattenedFuzzyTags;
   let dynamicSearchParams;
 
   const staticSearchParams = {
     client_id: process.env.JAMENDO_CLIENT_ID,
     format: "json",
-    limit: "all", // how many results to return - "all" returns all results, max 200
+    limit: "50", // how many results to return - "all" returns all results, max 200
     type: "single albumtrack",
     audioformat: "mp32",
     // boost: "popularity_month",
@@ -58,9 +64,13 @@ function createSearchString(searchArgsObj) {
   // so we flatten them into a single string with + between each tag
   // eg. fuzzytags = { genre: ["rock", "pop"], mood: ["happy"] }
   // becomes fuzzytags = "rock+pop+happy"
-  const flattenedFuzzyTags = Object.values(searchArgsObj.fuzzytags)
-    .flat()
-    .join("+");
+  if (searchArgsObj.fuzzytags) {
+    flattenedFuzzyTags = Object.values(searchArgsObj.fuzzytags)
+      .flat()
+      .join("+");
+  } else {
+    flattenedFuzzyTags = "";
+  }
 
   // if normal tags are included, flatten them too
   // these are considered as AND operation in search logic
@@ -72,12 +82,14 @@ function createSearchString(searchArgsObj) {
       tags: flattenedTags,
     };
   } else {
-    flattenedTags = searchArgsObj.fuzzytags; // if no tags, use fuzzytags
-    dynamicSearchParams = {
-      ...searchArgsObj,
-      fuzzytags: flattenedFuzzyTags,
-    };
+    flattenedTags = "";
   }
+  // combine flattened tags and fuzzytags into the search params
+  dynamicSearchParams = {
+    ...searchArgsObj,
+    fuzzytags: flattenedFuzzyTags,
+    tags: flattenedTags,
+  };
 
   // flattens any other dynamic tags
   const flattenedDynamicSearchParams = Object.fromEntries(

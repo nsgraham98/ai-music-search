@@ -2,14 +2,14 @@
 // Only shown to logged in users, otherwise login popup is shown
 // AudioPlayer component is located in the layout.jsx file so it's always visible to logged in users
 "use client";
-import SearchBar from "@/app/components/search-bar.jsx";
-import { Box, Typography, Paper } from "@mui/material";
+import SearchBar from "@/app/components/search/search-bar.jsx";
+import { Box, Typography, Paper, List } from "@mui/material";
 import { TrackList } from "@/app/components/audio/track-list.jsx";
 import { useSearchContext } from "@/context/search-context.jsx";
 import { useMemo } from "react";
 
 export default function HomePage() {
-  const { searchResults } = useSearchContext();
+  const { searchResults, conversationHistory, userQuery } = useSearchContext();
 
   // Build a stable key based on current results, so that the TrackList remounts when results change
   const trackListKey = useMemo(
@@ -19,6 +19,25 @@ export default function HomePage() {
 
   return (
     <>
+      {/* debug info */}
+      {/* <Typography variant="h3" color="white" gutterBottom>
+        {userQuery
+          ? `Search Results for: "${userQuery}"`
+          : "Welcome to AI Music Search"}
+      </Typography>
+      <Typography variant="h4" color="white" gutterBottom>
+        Conversation History
+      </Typography>
+      <List>
+        {conversationHistory.map((entry) => (
+          <Typography key={entry.id} variant="body2" color="white">
+            <b>{entry.role}:</b> {entry.content} | Tracks:{" "}
+            {entry.tracks[0]?.name || "None"}
+          </Typography>
+        ))}
+      </List> */}
+      {/* end debug info */}
+
       {/* Search Bar */}
       <Box
         sx={{

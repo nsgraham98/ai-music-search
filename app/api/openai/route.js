@@ -18,7 +18,10 @@ export async function POST(request) {
 
     console.log("🧠 Starting OpenAI search");
     const body = await request.json();
-    const result = await runOpenAISearch(body.userQuery); // main function to handle the OpenAI search logic
+    const result = await runOpenAISearch(
+      body.conversationHistory,
+      body.latestUserQuery
+    ); // main function to handle the OpenAI search logic
 
     // console.log("AI Response:", result.aiResponse);
     // console.log("Jamendo Response:", result.jamendoResponse);
@@ -28,6 +31,7 @@ export async function POST(request) {
       JSON.stringify({
         aiResponse: result.aiResponse,
         jamendoResponse: result.jamendoResponse,
+        tags: result.tags,
       }),
       {
         status: 200,
