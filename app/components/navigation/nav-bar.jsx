@@ -1,3 +1,4 @@
+// nav-bar.jsx
 "use client";
 import { Box } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
@@ -11,11 +12,24 @@ import { NavButton } from "./nav-button";
 export default function Navigation() {
   const { authUser } = useUserAuth();
 
-  const profilePath = authUser ? `/user/${authUser.uid}` : "/user"; // Redirect to generic user page if not logged in
-  const playlistsPath = authUser ? `/user/${authUser.uid}/playlists` : "/"; // Redirect to home if not logged in
+  const profilePath = authUser ? `/user/${authUser.uid}` : "/user";
+  const playlistsPath = authUser ? `/user/${authUser.uid}/playlists` : "/";
+  const soundRoomPath = authUser ? `/sound-room` : "/";
+  const settingsPath = authUser ? `/settings` : "/";
 
+  // Profile: /user/[id] but NOT /user/[id]/playlists etc.
   const isProfileActive = (pathname) =>
     pathname?.startsWith("/user/") && pathname.split("/").length === 3;
+
+  // Playlists: any nested playlists route
+  const isPlaylistsActive = (pathname) =>
+    authUser ? pathname?.startsWith(`/user/${authUser.uid}/playlists`) : false;
+
+  // Sound room: any nested sound-room route
+  const isSoundRoomActive = (pathname) => pathname?.startsWith("/sound-room");
+
+  // Settings: any nested settings route
+  const isSettingsActive = (pathname) => pathname?.startsWith("/settings");
 
   const navItems = [
     { label: "Home", path: "/", icon: <HomeIcon /> },
@@ -29,13 +43,20 @@ export default function Navigation() {
       label: "Playlists",
       path: playlistsPath,
       icon: <PlaylistPlayIcon />,
+      isActiveOverride: isPlaylistsActive,
     },
     {
       label: "The Sound Room",
-      path: "/sound-room",
+      path: soundRoomPath,
       icon: <SportsEsportsIcon />,
+      isActiveOverride: isSoundRoomActive,
     },
-    { label: "Settings", path: "/settings", icon: <SettingsIcon /> },
+    {
+      label: "Settings",
+      path: settingsPath,
+      icon: <SettingsIcon />,
+      isActiveOverride: isSettingsActive,
+    },
   ];
 
   return (

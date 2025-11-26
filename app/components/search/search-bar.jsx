@@ -117,6 +117,7 @@ const SearchBar = () => {
       handleSearch();
     }
   };
+
   const handleReplyPress = () => {
     const newIsReplying = !isReplying; // store new state - we need to use it immediately, before setState takes effect
     setIsReplying(newIsReplying);
