@@ -118,8 +118,10 @@ const SearchBar = () => {
     }
   };
   const handleReplyPress = () => {
-    setIsReplying(!isReplying);
-    if (isReplying) {
+    const newIsReplying = !isReplying; // store new state - we need to use it immediately, before setState takes effect
+    setIsReplying(newIsReplying);
+    if (newIsReplying) {
+      setUserQuery("");
       inputRef.current.focus();
     }
   };
@@ -249,6 +251,9 @@ const SearchBar = () => {
           alignItems: "center",
           border: "1px solid #444",
           transition: "border-color 0.3s",
+          display: "flex",
+          justifyContent: "space-between",
+          gap: 2,
           "&:hover": {
             borderColor: isLoading || aiResponse ? "#E03FD8" : "#444",
           },
@@ -259,13 +264,28 @@ const SearchBar = () => {
           sx={{
             color: isLoading ? "#888" : "white",
             fontStyle: !aiResponse && !isLoading ? "italic" : "normal",
+            flexGrow: 1,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
           }}
         >
           {isLoading
             ? "🎵 Searching for the perfect tracks..."
             : aiResponse || "Enter a search query to find music"}
         </Typography>
-        <Button onClick={handleReplyPress} startIcon={<ReplyIcon />}>
+        <Button
+          onClick={handleReplyPress}
+          variant={isReplying ? "contained" : "outlined"}
+          sx={{
+            bgcolor: isReplying ? "#E03FD8" : "transparent",
+            color: isReplying ? "white" : "#E03FD8",
+            borderColor: "#E03FD8",
+          }}
+          startIcon={
+            <ReplyIcon sx={{ color: isReplying ? "white" : "#E03FD8" }} />
+          }
+        >
           {isReplying && "Replying..."}
           {!isReplying && "Reply"}
         </Button>
