@@ -3,7 +3,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Box,
   Button,
@@ -18,8 +18,15 @@ import {
   DialogContent,
   DialogActions,
   TextField,
+  Menu,
+  MenuItem,
+  IconButton,
 } from "@mui/material";
-import { EmojiEvents as TrophyIcon } from "@mui/icons-material";
+import {
+  EmojiEvents as TrophyIcon,
+  History as HistoryIcon,
+  Close as CloseIcon,
+} from "@mui/icons-material";
 import LoginPopup from "@/app/components/login/login-popup";
 import { useUserAuth } from "@/context/auth-context";
 import { useParams } from "next/navigation";
@@ -29,9 +36,11 @@ import VotingInterface from "@/app/components/voting-interface";
 import RoundResults from "@/app/components/round-results";
 
 export default function GamePage() {
+  console.log("GamePage component rendering");
   const { authUser } = useUserAuth();
   const params = useParams();
   const gameId = params.id;
+  console.log("GamePage - authUser:", authUser?.uid, "gameId:", gameId);
 
   const [game, setGame] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -50,6 +59,12 @@ export default function GamePage() {
   const [customTheme, setCustomTheme] = useState("");
   const [themeDialogType, setThemeDialogType] = useState(""); // "start" or "next"
 
+  // Round history states
+  const [historicalRound, setHistoricalRound] = useState(null);
+  const [completedRounds, setCompletedRounds] = useState([]);
+  const [historyMenuAnchor, setHistoryMenuAnchor] = useState(null);
+  const hasFetchedRounds = useRef(false);
+
   useEffect(() => {
     if (authUser && gameId) {
       fetchGameDetails();
@@ -61,14 +76,29 @@ export default function GamePage() {
     if (game && game.status === "active" && game.current_round) {
       fetchCurrentRound();
     }
-  }, [game]);
+  }, [game?.status, game?.current_round]);
 
   useEffect(() => {
     // Fetch player names when game loads
     if (game && game.players) {
       fetchPlayerNames(game.players);
     }
-  }, [game?.players]);
+  }, [game?.players?.length]);
+
+  useEffect(() => {
+    // Fetch completed rounds when game first loads
+    console.log(
+      "Round history useEffect triggered. gameId:",
+      gameId,
+      "hasFetchedRounds:",
+      hasFetchedRounds.current
+    );
+    if (gameId && !hasFetchedRounds.current) {
+      hasFetchedRounds.current = true;
+      console.log("Calling fetchCompletedRounds...");
+      fetchCompletedRounds();
+    }
+  }, [gameId]);
 
   const fetchGameDetails = async () => {
     setLoading(true);
@@ -92,6 +122,45 @@ export default function GamePage() {
       setError("Failed to load game details");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchCompletedRounds = async () => {
+    try {
+      console.log("Fetching completed rounds for gameId:", gameId);
+      const response = await fetch(`/api/games/${gameId}/rounds`, {
+        method: "GET",
+        credentials: "include",
+      });
+
+      const data = await response.json();
+      console.log("Rounds API response:", data);
+      console.log("All rounds:", JSON.stringify(data.rounds, null, 2));
+
+      if (data.success) {
+        // Filter only rounds with status "completed"
+        const allRounds = Object.entries(data.rounds || {}).map(
+          ([roundId, round]) => ({
+            roundId,
+            status: round.status,
+            theme: round.theme,
+            ...round,
+          })
+        );
+        console.log("All rounds with status:", allRounds);
+
+        const completed = allRounds
+          .filter(
+            (round) =>
+              round.status === "completed" || round.status === "voting_closed"
+          )
+          .sort((a, b) => parseInt(a.roundId) - parseInt(b.roundId));
+
+        console.log("Completed rounds:", completed);
+        setCompletedRounds(completed);
+      }
+    } catch (error) {
+      console.error("Error fetching completed rounds:", error);
     }
   };
 
@@ -215,6 +284,44 @@ export default function GamePage() {
     setHasVoted(true);
     // Refresh the round data
     fetchCurrentRound();
+  };
+
+  const handleHistoryMenuOpen = (event) => {
+    setHistoryMenuAnchor(event.currentTarget);
+  };
+
+  const handleHistoryMenuClose = () => {
+    setHistoryMenuAnchor(null);
+  };
+
+  const handleSelectHistoricalRound = async (roundId) => {
+    setHistoryMenuAnchor(null);
+
+    try {
+      const response = await fetch(`/api/games/${gameId}/rounds/${roundId}`, {
+        method: "GET",
+        credentials: "include",
+      });
+
+      const data = await response.json();
+      console.log("Historical round API response:", data);
+
+      if (data.success) {
+        // Add the roundId to the round data for reference
+        const roundWithId = {
+          ...data.round,
+          roundId: roundId,
+        };
+        console.log("Setting historical round:", roundWithId);
+        setHistoricalRound(roundWithId);
+      }
+    } catch (error) {
+      console.error("Error fetching historical round:", error);
+    }
+  };
+
+  const handleCloseHistoricalView = () => {
+    setHistoricalRound(null);
   };
 
   const handleCloseVoting = async () => {
@@ -427,20 +534,71 @@ export default function GamePage() {
                   </Box>
                 )}
               </Box>
-              <Chip
-                label={getGameStatusText(game)}
-                sx={{
-                  backgroundColor: getGameStatusColor(game.status),
-                  color: game.status === "active" ? "#000" : "black",
-                  fontWeight: "bold",
-                  fontSize: "1rem",
-                  padding: "8px 16px",
-                  border: "1px solid #333",
-                  borderRadius: 1,
-                }}
-              />
-            </Box>
-
+              <Box display="flex" gap={2} alignItems="center">
+                {/* Round History Button */}
+                {completedRounds.length > 0 && (
+                  <>
+                    <Button
+                      variant="outlined"
+                      startIcon={<HistoryIcon />}
+                      onClick={handleHistoryMenuOpen}
+                      sx={{
+                        borderColor: "#E03FD8",
+                        color: "#E03FD8",
+                        textTransform: "none",
+                        fontWeight: "bold",
+                        "&:hover": {
+                          borderColor: "#c133b9",
+                          bgcolor: "rgba(224, 63, 216, 0.1)",
+                        },
+                      }}
+                    >
+                      Round History
+                    </Button>
+                    <Menu
+                      anchorEl={historyMenuAnchor}
+                      open={Boolean(historyMenuAnchor)}
+                      onClose={handleHistoryMenuClose}
+                      PaperProps={{
+                        sx: {
+                          bgcolor: "#2e2d2d",
+                          color: "white",
+                          border: "1px solid #444",
+                        },
+                      }}
+                    >
+                      {completedRounds.map((round) => (
+                        <MenuItem
+                          key={round.roundId}
+                          onClick={() =>
+                            handleSelectHistoricalRound(round.roundId)
+                          }
+                          sx={{
+                            "&:hover": {
+                              bgcolor: "rgba(224, 63, 216, 0.2)",
+                            },
+                          }}
+                        >
+                          Round {round.roundId}: {round.theme}
+                        </MenuItem>
+                      ))}
+                    </Menu>
+                  </>
+                )}
+                <Chip
+                  label={getGameStatusText(game)}
+                  sx={{
+                    backgroundColor: getGameStatusColor(game.status),
+                    color: game.status === "active" ? "#000" : "black",
+                    fontWeight: "bold",
+                    fontSize: "1rem",
+                    padding: "8px 16px",
+                    border: "1px solid #333",
+                    borderRadius: 1,
+                  }}
+                />
+              </Box>
+            </Box>{" "}
             {/* Join Code Display */}
             {game.join_code && game.status === "waiting_for_players" && (
               <Box
@@ -469,6 +627,65 @@ export default function GamePage() {
               </Box>
             )}
           </Paper>
+
+          {/* Historical Round Display */}
+          {historicalRound && (
+            <Paper
+              sx={{
+                bgcolor: "#2e2d2d",
+                color: "white",
+                p: 4,
+                mb: 4,
+                border: "2px solid #E03FD8",
+                position: "relative",
+              }}
+            >
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                mb={3}
+              >
+                <Box>
+                  <Chip
+                    label="Viewing History"
+                    sx={{
+                      bgcolor: "#E03FD8",
+                      color: "white",
+                      fontWeight: "bold",
+                      mb: 1,
+                    }}
+                  />
+                  <Typography variant="h4" fontWeight="bold">
+                    Round{" "}
+                    {historicalRound.roundId ||
+                      historicalRound.round_number ||
+                      ""}
+                    : {historicalRound.theme}
+                  </Typography>
+                </Box>
+                <IconButton
+                  onClick={handleCloseHistoricalView}
+                  sx={{
+                    color: "white",
+                    "&:hover": {
+                      bgcolor: "rgba(224, 63, 216, 0.2)",
+                    },
+                  }}
+                >
+                  <CloseIcon />
+                </IconButton>
+              </Box>
+              <RoundResults
+                roundData={historicalRound}
+                gameId={gameId}
+                roundNumber={
+                  historicalRound.roundId || historicalRound.round_number
+                }
+                allPlayers={game?.players || []}
+              />
+            </Paper>
+          )}
 
           {/* Game Content Based on Status */}
           <Paper
