@@ -20,7 +20,10 @@ export default function TracklistMenu({
   const [open, setOpen] = useState(false);
 
   return (
-    <Box onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
+    <Box
+      onMouseEnter={() => track && setOpen(true)}
+      onMouseLeave={() => track && setOpen(false)}
+    >
       {!open && <MenuIcon sx={{ color: "white" }} />}
       {open && track && (
         <Box
