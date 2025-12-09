@@ -151,7 +151,8 @@ const SearchBar = () => {
           disabled={isLoading}
           inputRef={inputRef}
           sx={{
-            flex: 1,
+            flex: { xs: "1 0 100%", sm: "1" },
+
             "& .MuiOutlinedInput-root": {
               color: "white",
               bgcolor: "#2e2d2d",
@@ -190,6 +191,8 @@ const SearchBar = () => {
           }
           label="Royalty-Free"
           sx={{
+            alignItems: "center",
+            flexGrow: { xs: 0.5, sm: 0 },
             color: "white",
             whiteSpace: "nowrap",
             m: 0,
@@ -202,6 +205,7 @@ const SearchBar = () => {
           disabled={isLoading || !userQuery.trim()}
           startIcon={!isLoading && <Search size={20} />}
           sx={{
+            flexGrow: { xs: 0.5, sm: 0 },
             bgcolor: "#E03FD8",
             "&:hover": {
               bgcolor: "#c133b9",
@@ -250,15 +254,13 @@ const SearchBar = () => {
           p: 2.5,
           minHeight: "60px",
           display: "flex",
-          alignItems: "center",
+          flexDirection: { xs: "column", sm: "row" }, // stack on mobile, row on desktop
+          alignItems: { xs: "flex-start", sm: "center" },
           border: "1px solid #444",
           transition: "border-color 0.3s",
-          display: "flex",
           justifyContent: "space-between",
           gap: 2,
-          "&:hover": {
-            borderColor: isLoading || aiResponse ? "#E03FD8" : "#444",
-          },
+          mb: 2,
         }}
       >
         <Typography
@@ -267,23 +269,30 @@ const SearchBar = () => {
             color: isLoading ? "#888" : "white",
             fontStyle: !aiResponse && !isLoading ? "italic" : "normal",
             flexGrow: 1,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
+            // allow wrapping & vertical growth:
+            whiteSpace: "normal",
+            overflow: "visible",
+            textOverflow: "unset",
+            wordBreak: "break-word",
           }}
         >
           {isLoading
             ? "🎵 Searching for the perfect tracks..."
             : aiResponse || "Enter a search query to find music"}
         </Typography>
+
         <Button
           onClick={handleReplyPress}
           variant={isReplying ? "contained" : "outlined"}
           disabled={isLoading || !aiResponse}
           sx={{
+            alignSelf: { xs: "flex-end", sm: "center" }, // right on mobile, centered in row on desktop
             bgcolor: isReplying ? "#E03FD8" : "transparent",
             color: isReplying ? "white" : "#E03FD8",
-            borderColor: "#E03FD8",
+            "&:hover": {
+              borderColor: isLoading || aiResponse ? "#E03FD8" : "white",
+            },
+            borderColor: "#B41DAC",
           }}
           startIcon={
             <ReplyIcon
@@ -298,8 +307,7 @@ const SearchBar = () => {
             />
           }
         >
-          {isReplying && "Replying..."}
-          {!isReplying && "Reply"}
+          {isReplying ? "Replying..." : "Reply"}
         </Button>
       </Box>
     </Box>
