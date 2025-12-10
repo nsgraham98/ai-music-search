@@ -115,7 +115,7 @@ const SearchBar = () => {
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter" && !isLoading) {
-      handleSearch();
+      handleSearch(userQuery, royaltyFree);
     }
   };
 
