@@ -81,19 +81,19 @@ export default function SettingsPage() {
       if (isDark) {
         document.body.classList.remove("light-mode");
         document.body.classList.add("dark-mode");
-        document.documentElement.style.setProperty(
-          "--background-color",
-          "#1a1a1a"
-        );
-        document.documentElement.style.setProperty("--text-color", "#ffffff");
+        // document.documentElement.style.setProperty(
+        //   "--background-color",
+        //   "#1a1a1a"
+        // );
+        // document.documentElement.style.setProperty("--text-color", "#ffffff");
       } else {
         document.body.classList.remove("dark-mode");
         document.body.classList.add("light-mode");
-        document.documentElement.style.setProperty(
-          "--background-color",
-          "#ffffff"
-        );
-        document.documentElement.style.setProperty("--text-color", "#000000");
+        // document.documentElement.style.setProperty(
+        //   "--background-color",
+        //   "#ffffff"
+        // );
+        // document.documentElement.style.setProperty("--text-color", "#000000");
       }
     }
   };

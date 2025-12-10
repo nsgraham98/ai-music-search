@@ -36,6 +36,7 @@ export const AudioPlayer = () => {
   if (isMobile) {
     return (
       <Box
+        className="audio-player"
         sx={{
           position: "fixed",
           bottom: 0,
@@ -105,6 +106,7 @@ export const AudioPlayer = () => {
   if (isTablet) {
     return (
       <Box
+        className="audio-player"
         sx={{
           position: "fixed",
           bottom: 0,
@@ -172,12 +174,14 @@ export const AudioPlayer = () => {
     );
   }
 
-  // Desktop Layout (Original Three-Column Layout)
+  // Desktop Layout (Default)
   return (
     <Box
+      className="audio-player"
       sx={{
         position: "fixed",
         bottom: 0,
+        // bgcolor: "#2e2d2d",
         bgcolor: "#2e2d2d",
         borderTop: "1px solid #444",
         zIndex: 100,

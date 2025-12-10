@@ -161,6 +161,10 @@ body.light-mode .MuiContainer-root {
 body.light-mode .MuiBox-root {
   background-color: transparent !important;
 }
+/* Audio Player - white background */
+body.light-mode .audio-player.MuiBox-root {
+  background-color: #ffffff !important;
+}
 
 /* Content boxes/cards - light grey */
 body.light-mode .MuiPaper-root {
