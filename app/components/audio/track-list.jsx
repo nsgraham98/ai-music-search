@@ -135,14 +135,19 @@ export const TrackList = ({
                 },
               }}
             >
+              {/* Outer Box to contain left and right sides */}
               <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="space-between"
-                width="100%"
+                sx={{
+                  overflow: "hidden",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  width: "100%",
+                  minWidth: 0,
+                }}
               >
                 {/* Left Side: Avatar + Text */}
-                <Box display="flex" alignItems="center" gap={2}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                   <ListItemAvatar
                     onClick={() => handleAlbumOnClick(track)}
                     sx={{ cursor: "pointer" }}
@@ -169,35 +174,55 @@ export const TrackList = ({
                     )}
                   </ListItemAvatar>
 
-                  <Box>
+                  {/* Text Info */}
+                  <Box
+                    sx={{
+                      minWidth: 0,
+                      flexShrink: 1,
+                      overflow: "hidden", // allows truncation inside this box only
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
+                    {/* Track Name */}
                     <Typography
                       variant="subtitle2"
                       fontWeight="bold"
-                      noWrap
                       onClick={() => handleTrackOnClick(track)}
                       sx={{
                         cursor: "pointer",
                         color: "white",
                         transition: "color 0.1s",
-                        "&:hover": {
-                          color: "#E03FD8",
-                        },
+                        "&:hover": { color: "#E03FD8" },
+
+                        /* ⭐ FLEXBOX ELLIPSIS TRIFECTA ⭐ */
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        minWidth: 0, // CRITICAL
+                        maxWidth: "100%", // extra safety for mobile
+                        flexShrink: 1,
                       }}
                     >
                       {track.name}
                     </Typography>
 
+                    {/* Artist Name */}
                     <Typography
                       variant="caption"
-                      noWrap
                       onClick={() => handleArtistOnClick(track)}
                       sx={{
                         cursor: "pointer",
                         color: "white",
                         transition: "color 0.1s",
-                        "&:hover": {
-                          color: "#E03FD8",
-                        },
+                        "&:hover": { color: "#E03FD8" },
+
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        minWidth: 0,
+                        maxWidth: "100%",
+                        flexShrink: 1,
                       }}
                     >
                       {track.artist_name}

@@ -82,12 +82,12 @@
   }
 
   /* Audio Player Layout - Stack Vertically */
-  .audio-player > div,
+  /* .audio-player > div,
   .audio-player .MuiBox-root {
     width: 100% !important;
     max-width: 100% !important;
     margin: 4px 0 !important;
-  }
+  } */
 
   /* Track Info in Player */
   .audio-player .track-info {

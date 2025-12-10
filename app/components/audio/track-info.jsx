@@ -12,23 +12,22 @@ import {
   goToAlbum,
 } from "@/app/api/jamendo/jamendo-handler/go-to-jamendo";
 
+// onClick handlers
+// goTo functions are in -> /app/api/jamendo/jamendo-handler/go-to-jamendo
+export const handleTrackOnClick = (track) => {
+  goToTrack(track);
+};
+export const handleArtistOnClick = (track) => {
+  goToArtist(track);
+};
+export const handleAlbumOnClick = (track) => {
+  goToAlbum(track);
+};
 export const TrackInfo = () => {
   const { currentTrack } = useAudioPlayerContext();
 
   // base case
   if (!currentTrack) return null;
-
-  // onClick handlers
-  // goTo functions are in -> /app/api/jamendo/jamendo-handler/go-to-jamendo
-  const handleTrackOnClick = (track) => {
-    goToTrack(track);
-  };
-  const handleArtistOnClick = (track) => {
-    goToArtist(track);
-  };
-  const handleAlbumOnClick = (track) => {
-    goToAlbum(track);
-  };
 
   return (
     <Box display="flex" alignItems="center" gap={2} sx={{ maxWidth: "100%" }}>
