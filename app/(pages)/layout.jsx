@@ -41,7 +41,33 @@ export default function RootLayout({ children }) {
           content="width=device-width, initial-scale=1, maximum-scale=1"
         />
       </head>
-      <body>
+      <body suppressHydrationWarning>
+        {/* Run script before React hydrates to set the right theme */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+        (function() {
+          try {
+            var stored = localStorage.getItem('darkMode');
+            var isDark = (stored === null) ? true : stored === 'true';
+            var body = document.body;
+            if (!body) return;
+            if (isDark) {
+              body.classList.add('dark-mode');
+              body.classList.remove('light-mode');
+            } else {
+              body.classList.add('light-mode');
+              body.classList.remove('dark-mode');
+            }
+          } catch (e) {
+            if (document.body) {
+              document.body.classList.add('dark-mode');
+            }
+          }
+        })();
+      `,
+          }}
+        />
         <Providers>
           <Box
             sx={{

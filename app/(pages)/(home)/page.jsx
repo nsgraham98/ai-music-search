@@ -46,6 +46,7 @@ export default function HomePage() {
           justifyContent: "space-between",
           alignItems: "center",
           mb: 2,
+          display: "flex",
         }}
       >
         <Box sx={{ width: "100%", maxWidth: "100%" }}>

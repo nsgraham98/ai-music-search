@@ -61,6 +61,7 @@ export default function Navigation() {
 
   return (
     <Box
+      className="nav-bar"
       sx={{
         bgcolor: "#2e2d2d",
         borderRadius: 2,
@@ -70,7 +71,7 @@ export default function Navigation() {
         justifyContent: "center",
         gap: 2,
         flexWrap: "wrap",
-        border: "1px solid #444",
+        // border: "1px solid #444",
         transition: "border-color 0.3s",
         "&:hover": {
           borderColor: "#888",

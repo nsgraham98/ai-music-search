@@ -139,50 +139,96 @@ a:hover {
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
-/* Light mode styles - Pure white background like home page */
+/* Light Mode — Warm Neutral Palette (slightly warm, modern, soft) */
 body.light-mode {
-  background-color: #ffffff !important;
+  /* Slightly warm off-white background */
+  background-color: #f6f5f3 !important;
   color: #1a1a1a;
 }
 
-/* Override any page-specific backgrounds */
+/* Structural wrappers adopt the page background */
 body.light-mode > div,
 body.light-mode #__next,
 body.light-mode main {
-  background-color: #ffffff !important;
+  background-color: #f6f5f3 !important;
 }
 
-/* Force all containers to have white background */
+/* Containers float above background */
 body.light-mode .MuiContainer-root {
-  background-color: #ffffff !important;
-}
-
-/* All Box components get white background */
-body.light-mode .MuiBox-root {
   background-color: transparent !important;
 }
 
-/* Content boxes/cards - light grey */
-body.light-mode .MuiPaper-root {
-  background-color: #f5f5f5 !important;
-  color: #1a1a1a !important;
-  border: 1px solid #e0e0e0 !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+body.light-mode .MuiBox-root {
+  background-color: #ffffff !important;
 }
 
+/* Audio Player — white surface with warm border + soft shadow */
+body.light-mode .audio-player.MuiBox-root {
+  background-color: #ffffff !important;
+  border: 1px solid #bdbab5 !important; /* warm grey border */
+}
+body.light-mode .nav-bar.MuiBox-root {
+  background-color: #ffffff !important;
+  border: 1px solid #bdbab5 !important; /* warm grey border */
+}
+body.light-mode .search-response-box.MuiBox-root {
+  background-color: #ffffff !important;
+  border: 1px solid #bdbab5 !important; /* warm grey border */
+}
+/* Paper / Surfaces (cards, panels, sheets) */
+body.light-mode .MuiPaper-root {
+  background-color: #ffffff !important;
+  color: #1a1a1a !important;
+  border: 1px solid #bdbab5 !important; /* warmer border */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Cards */
+body.light-mode .MuiCard-root {
+  background-color: #ffffff !important;
+  color: #1a1a1a !important;
+  border: 1px solid #bdbab5 !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04) !important;
+}
+
+body.light-mode .MuiCardContent-root {
+  background-color: transparent !important;
+}
+
+/* Typography */
 body.light-mode .MuiTypography-root {
   color: #1a1a1a !important;
 }
 
+/* Inputs */
+body.light-mode .MuiInputBase-root {
+  background-color: #ffffff !important;
+  color: #1a1a1a !important;
+  border-color: #d8d5ce !important; /* warmer */
+}
+
+body.light-mode .MuiOutlinedInput-notchedOutline {
+  border-color: #d8d5ce !important;
+}
+
+body.light-mode .MuiInputBase-input {
+  color: #1a1a1a !important;
+}
+
+body.light-mode .MuiInputLabel-root {
+  color: #6b6965 !important; /* warm grey */
+}
+
+/* Buttons */
 body.light-mode .MuiButton-outlined {
   color: #1a1a1a !important;
-  border-color: #d0d0d0 !important;
+  border-color: #d8d5ce !important;
   background-color: #ffffff !important;
 }
 
 body.light-mode .MuiButton-outlined:hover {
-  background-color: #f5f5f5 !important;
-  border-color: #a0a0a0 !important;
+  background-color: #f6f5f3 !important;
+  border-color: #bfbab3 !important;
 }
 
 body.light-mode .MuiButton-contained {
@@ -194,68 +240,24 @@ body.light-mode .MuiButton-contained:hover {
   background-color: #c133b9 !important;
 }
 
-/* Cards in light mode */
-body.light-mode .MuiCard-root {
-  background-color: #f5f5f5 !important;
-  color: #1a1a1a !important;
-  border: 1px solid #e0e0e0 !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
-}
-
-/* Card content areas should match */
-body.light-mode .MuiCardContent-root {
-  background-color: transparent !important;
-}
-
-/* Input fields in light mode */
-body.light-mode .MuiInputBase-root {
-  background-color: #ffffff !important;
-  color: #1a1a1a !important;
-  border-color: #d0d0d0 !important;
-}
-
-body.light-mode .MuiOutlinedInput-notchedOutline {
-  border-color: #d0d0d0 !important;
-}
-
-body.light-mode .MuiInputBase-input {
-  color: #1a1a1a !important;
-}
-
-body.light-mode .MuiInputLabel-root {
-  color: #666666 !important;
-}
-
-/* Icons in light mode */
+/* Icons */
 body.light-mode .MuiSvgIcon-root {
-  color: #666666 !important;
+  color: #6b6965 !important; /* warm grey */
 }
 
-body.light-mode .MuiButton-root .MuiSvgIcon-root {
-  color: inherit !important;
-}
-
-/* Chips in light mode */
-body.light-mode .MuiChip-root {
-  color: #ffffff !important;
-}
-
-/* Dialog in light mode */
+/* Dialogs */
 body.light-mode .MuiDialog-paper {
   background-color: #ffffff !important;
   color: #1a1a1a !important;
-  border: 1px solid #e0e0e0 !important;
+  border: 1px solid #e3e0da !important;
 }
 
-body.light-mode .MuiDialogTitle-root {
-  color: #1a1a1a !important;
-}
-
+body.light-mode .MuiDialogTitle-root,
 body.light-mode .MuiDialogContent-root {
   color: #1a1a1a !important;
 }
 
-/* Alert components */
+/* Alerts */
 body.light-mode .MuiAlert-root {
   color: #1a1a1a !important;
 }

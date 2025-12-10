@@ -17,10 +17,10 @@ import {
   BsShuffle,
 } from "react-icons/bs";
 
-import { Box, IconButton } from "@mui/material";
+import { Box, IconButton, Typography } from "@mui/material";
 import { useAudioPlayerContext } from "@/context/audio-player-context";
 
-export const Controls = () => {
+export const Controls = ({ isMobile = false }) => {
   const {
     currentTrack,
     audioRef, // ref for the <audio> element
@@ -165,52 +165,84 @@ export const Controls = () => {
   }, [isRepeat, handleNext, audioRef]); // dependencies
 
   return (
-    <Box display="flex" alignItems="center" gap={2}>
+    <>
       {/* Audio Element */}
       <audio
         src={currentTrack?.audio}
         ref={audioRef}
         onLoadedMetadata={onLoadedMetadata}
+        style={{ display: "none" }}
       />
+      {/* Controls */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          width: "100%",
+          maxWidth: {
+            xs: 260, // phones
+            sm: 300, // small tablets
+            md: 500, // larger tablets / small desktop
+            lg: 700, // desktop
+            xl: 900, // large desktop
+          },
+          gap: {
+            xs: 0.5, // 4px
+            sm: 0.5, // 8px
+            md: 1.5, // 12px
+            lg: 2, // 16px
+            xl: 2.5, // 20px
+          },
+          mx: "auto",
+        }}
+      >
+        {/* Repeat */}
+        <IconButton onClick={() => setIsRepeat((prev) => !prev)}>
+          <BsRepeat size={14} color={isRepeat ? "#f50" : ""} />
+        </IconButton>
 
-      {/* Repeat */}
-      <IconButton onClick={() => setIsRepeat((prev) => !prev)}>
-        <BsRepeat size={14} color={isRepeat ? "#f50" : "white"} />
-      </IconButton>
+        {/* Previous Track */}
+        <IconButton onClick={handlePrevious}>
+          <BsSkipStartFill size={20} />
+        </IconButton>
 
-      {/* Previous Track */}
-      <IconButton onClick={handlePrevious}>
-        <BsSkipStartFill size={20} color="white" />
-      </IconButton>
-
-      {/* Skip Backward */}
-      <IconButton onClick={skipBackward}>
-        <BsFillRewindFill size={20} color="white" />
-      </IconButton>
-
-      {/* Play / Pause */}
-      <IconButton onClick={() => setIsPlaying((prev) => !prev)} sx={{ mx: 1 }}>
-        {isPlaying ? (
-          <BsFillPauseFill size={40} color="white" />
-        ) : (
-          <BsFillPlayFill size={40} color="white" />
+        {/* Skip Backward */}
+        {!isMobile && (
+          <IconButton onClick={skipBackward}>
+            <BsFillRewindFill size={20} />
+          </IconButton>
         )}
-      </IconButton>
 
-      {/* Skip Forward */}
-      <IconButton onClick={skipForward}>
-        <BsFillFastForwardFill size={20} color="white" />
-      </IconButton>
+        {/* Play / Pause */}
+        <IconButton
+          onClick={() => setIsPlaying((prev) => !prev)}
+          sx={{ mx: 1 }}
+        >
+          {isPlaying ? (
+            <BsFillPauseFill size={40} />
+          ) : (
+            <BsFillPlayFill size={40} />
+          )}
+        </IconButton>
 
-      {/* Next Track */}
-      <IconButton onClick={handleNext}>
-        <BsSkipEndFill size={20} color="white" />
-      </IconButton>
+        {/* Skip Forward */}
+        {!isMobile && (
+          <IconButton onClick={skipForward}>
+            <BsFillFastForwardFill size={20} />
+          </IconButton>
+        )}
 
-      {/* Shuffle */}
-      <IconButton onClick={() => setIsShuffle((prev) => !prev)}>
-        <BsShuffle size={14} color={isShuffle ? "#f50" : "white"} />
-      </IconButton>
-    </Box>
+        {/* Next Track */}
+        <IconButton onClick={handleNext}>
+          <BsSkipEndFill size={20} />
+        </IconButton>
+
+        {/* Shuffle */}
+        <IconButton onClick={() => setIsShuffle((prev) => !prev)}>
+          <BsShuffle size={14} color={isShuffle ? "#f50" : ""} />
+        </IconButton>
+      </Box>
+    </>
   );
 };

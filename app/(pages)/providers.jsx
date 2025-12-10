@@ -8,6 +8,7 @@ import { AuthContextProvider } from "@/context/auth-context.jsx";
 import { UserProfileContextProvider } from "@/context/user-profile-context.jsx";
 import ClientErrorBoundary from "@/app/components/error-boundary-client.jsx";
 import { AudioPlayer } from "@/app/components/audio/audio-player.jsx";
+// import { AudioPlayer } from "@/app/components/mobile/audio-player-mobile.jsx";
 import { SearchContextProvider } from "@/context/search-context";
 
 export function Providers({ children }) {
