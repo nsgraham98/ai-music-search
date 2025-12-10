@@ -101,7 +101,9 @@ export const TrackList = ({
               onClick={() => handlePlay(track)}
               onKeyDown={(e) => e.key === "Enter" && handlePlay(track)}
               sx={{
+                /* Dark Mode (default) */
                 bgcolor: isActive ? "#a66646" : "transparent",
+                color: "#ffffff",
                 "&:hover": {
                   bgcolor: isActive ? "#a66646" : "#5a5555",
                 },
@@ -114,6 +116,23 @@ export const TrackList = ({
                   : "none",
                 px: 2,
                 py: 1,
+                /* light mode overrides */
+                ".light-mode &": {
+                  color: "#222222",
+
+                  bgcolor: isActive ? "#d6b69c" : "transparent",
+                  "&:hover": {
+                    bgcolor: isActive ? "#d6b69c" : "#e7e4e0",
+                  },
+
+                  border: isActive
+                    ? "1px solid #E03FD8"
+                    : "1px solid transparent",
+
+                  boxShadow: isActive
+                    ? "0 0 8px 1px rgba(224, 63, 216, 0.35)"
+                    : "none",
+                },
               }}
             >
               <Box

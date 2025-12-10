@@ -248,6 +248,7 @@ const SearchBar = () => {
 
       {/* AI Response Box */}
       <Box
+        className="search-response-box"
         sx={{
           bgcolor: "#2e2d2d",
           borderRadius: 2,
