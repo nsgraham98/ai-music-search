@@ -96,7 +96,7 @@ export const TrackList = ({
 
           return (
             <ListItemButton
-              key={track.id ?? index}
+              key={`${track.id ?? "no-id"}-${index}`}
               selected={isActive}
               onClick={() => handlePlay(track)}
               onKeyDown={(e) => e.key === "Enter" && handlePlay(track)}
