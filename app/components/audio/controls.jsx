@@ -164,6 +164,10 @@ export const Controls = ({ isMobile = false }) => {
     };
   }, [isRepeat, handleNext, audioRef]); // dependencies
 
+  const iconColor = {
+    color: "common.white", // dark mode default
+    ".light-mode &": { color: "common.black" },
+  };
   return (
     <>
       {/* Audio Element */}
@@ -198,18 +202,18 @@ export const Controls = ({ isMobile = false }) => {
         }}
       >
         {/* Repeat */}
-        <IconButton onClick={() => setIsRepeat((prev) => !prev)}>
+        <IconButton sx={iconColor} onClick={() => setIsRepeat((prev) => !prev)}>
           <BsRepeat size={14} color={isRepeat ? "#f50" : ""} />
         </IconButton>
 
         {/* Previous Track */}
-        <IconButton onClick={handlePrevious}>
+        <IconButton sx={iconColor} onClick={handlePrevious}>
           <BsSkipStartFill size={20} />
         </IconButton>
 
         {/* Skip Backward */}
         {!isMobile && (
-          <IconButton onClick={skipBackward}>
+          <IconButton sx={iconColor} onClick={skipBackward}>
             <BsFillRewindFill size={20} />
           </IconButton>
         )}
@@ -217,7 +221,7 @@ export const Controls = ({ isMobile = false }) => {
         {/* Play / Pause */}
         <IconButton
           onClick={() => setIsPlaying((prev) => !prev)}
-          sx={{ mx: 1 }}
+          sx={{ mx: 1, ...iconColor }}
         >
           {isPlaying ? (
             <BsFillPauseFill size={40} />
@@ -228,18 +232,21 @@ export const Controls = ({ isMobile = false }) => {
 
         {/* Skip Forward */}
         {!isMobile && (
-          <IconButton onClick={skipForward}>
+          <IconButton sx={iconColor} onClick={skipForward}>
             <BsFillFastForwardFill size={20} />
           </IconButton>
         )}
 
         {/* Next Track */}
-        <IconButton onClick={handleNext}>
+        <IconButton sx={iconColor} onClick={handleNext}>
           <BsSkipEndFill size={20} />
         </IconButton>
 
         {/* Shuffle */}
-        <IconButton onClick={() => setIsShuffle((prev) => !prev)}>
+        <IconButton
+          sx={iconColor}
+          onClick={() => setIsShuffle((prev) => !prev)}
+        >
           <BsShuffle size={14} color={isShuffle ? "#f50" : ""} />
         </IconButton>
       </Box>
