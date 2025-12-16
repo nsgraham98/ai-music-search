@@ -49,24 +49,21 @@ export default function PlaylistsPage() {
   const [submitting, setSubmitting] = useState(false);
 
   // Fetch all playlists for the user
-  useEffect(() => {
-    const fetchPlaylists = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get(
-          `/api/users/${authUser.uid}/playlists`
-        );
-        setPlaylists(response.data.playlists || []);
-      } catch (error) {
-        console.error("Error fetching playlists:", error);
-        showSnackbar("Failed to load playlists", "error");
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (authUser?.uid) {
-      fetchPlaylists();
+  const fetchPlaylists = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`/api/users/${authUser.uid}/playlists`);
+      setPlaylists(response.data.playlists || []);
+    } catch (error) {
+      console.error("Error fetching playlists:", error);
+      showSnackbar("Failed to load playlists", "error");
+    } finally {
+      setLoading(false);
     }
+  };
+  // call fetchPlaylists on component mount and when authUser changes
+  useEffect(() => {
+    if (authUser?.uid) fetchPlaylists();
   }, [authUser?.uid]);
 
   // Create new playlist
@@ -156,14 +153,15 @@ export default function PlaylistsPage() {
   };
 
   // Handle form submission
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (dialog.type === "create") {
-      handleCreatePlaylist();
+      await handleCreatePlaylist();
     } else if (dialog.type === "edit") {
-      handleEditPlaylist();
+      await handleEditPlaylist();
     } else if (dialog.type === "delete") {
-      handleDeletePlaylist();
+      await handleDeletePlaylist();
     }
+    await fetchPlaylists();
   };
 
   // Open dialog
@@ -300,7 +298,7 @@ export default function PlaylistsPage() {
                   alignItems="center"
                 >
                   <Typography variant="caption" color="#666">
-                    {playlist.tracks.length || 0} tracks
+                    {playlist.tracks?.length ?? 0} tracks
                   </Typography>
                   <Box
                     display="flex"
