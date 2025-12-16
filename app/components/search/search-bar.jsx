@@ -1,6 +1,5 @@
 // SearchBar component with MUI styling and loading state
 // sends user query to OpenAI API route (app/api/openai/route.js) and displays AI response
-
 // This is the where the front end meets the backend for the main functionality of the app
 
 "use client";
@@ -27,6 +26,7 @@ const SearchBar = () => {
   const [aiResponse, setAiResponse] = useState(null);
   const [royaltyFree, setRoyaltyFree] = useState(true);
   const [error, setError] = useState(null);
+
   const {
     searchResults,
     setSearchResults,
@@ -37,6 +37,8 @@ const SearchBar = () => {
     isReplying,
     setIsReplying,
   } = useSearchContext();
+
+  const inputRef = useRef(null);
 
   async function handleSearch(userQuery, royaltyFree) {
     try {
@@ -64,6 +66,9 @@ const SearchBar = () => {
       // update contexts with new search results and AI response
       setSearchResults(data.jamendoResponse || []);
       setAiResponse(data.aiResponse?.output_text || "Search completed");
+
+      const assistantText = data.aiResponse?.output_text || "Search completed";
+
       // if not replying, start new conversation
       if (!isReplying) {
         setConversationHistory([
@@ -71,15 +76,13 @@ const SearchBar = () => {
             id: crypto.randomUUID(),
             role: "user",
             content: userQuery,
-            // tracks: [],
             createdAt: new Date().toISOString(),
           },
           {
             id: crypto.randomUUID(),
             role: "assistant",
-            content: data.aiResponse?.output_text,
+            content: assistantText,
             tags: data.tags || {},
-            // tracks: data.jamendoResponse || [],
             createdAt: new Date().toISOString(),
           },
         ]);
@@ -91,15 +94,13 @@ const SearchBar = () => {
             id: crypto.randomUUID(),
             role: "user",
             content: userQuery,
-            // tracks: [],
             createdAt: new Date().toISOString(),
           },
           {
             id: crypto.randomUUID(),
             role: "assistant",
-            content: data.aiResponse?.output_text,
+            content: assistantText,
             tags: data.tags || {},
-            // tracks: data.jamendoResponse || [],
             createdAt: new Date().toISOString(),
           },
         ]);
@@ -124,11 +125,25 @@ const SearchBar = () => {
     setIsReplying(newIsReplying);
     if (newIsReplying) {
       setUserQuery("");
-      inputRef.current.focus();
+      inputRef.current?.focus();
     }
   };
 
-  const inputRef = useRef(null);
+  // ✅ New: robust display logic (not just aiResponse)
+  const lastAssistantMessage =
+    [...(conversationHistory || [])]
+      .reverse()
+      .find((m) => m?.role === "assistant")?.content || null;
+
+  const displayResponseText = isLoading
+    ? "🎵 Searching for the perfect tracks..."
+    : aiResponse
+      ? aiResponse
+      : lastAssistantMessage
+        ? lastAssistantMessage
+        : "Enter a search query to find music";
+
+  const hasAnyResponse = Boolean(aiResponse || lastAssistantMessage);
 
   return (
     <Box display="flex" flexDirection="column" gap={2}>
@@ -255,7 +270,7 @@ const SearchBar = () => {
           p: 2.5,
           minHeight: "60px",
           display: "flex",
-          flexDirection: { xs: "column", sm: "row" }, // stack on mobile, row on desktop
+          flexDirection: { xs: "column", sm: "row" },
           alignItems: { xs: "flex-start", sm: "center" },
           border: "1px solid #444",
           transition: "border-color 0.3s",
@@ -268,30 +283,27 @@ const SearchBar = () => {
           variant="body1"
           sx={{
             color: isLoading ? "#888" : "white",
-            fontStyle: !aiResponse && !isLoading ? "italic" : "normal",
+            fontStyle: !hasAnyResponse && !isLoading ? "italic" : "normal",
             flexGrow: 1,
-            // allow wrapping & vertical growth:
             whiteSpace: "normal",
             overflow: "visible",
             textOverflow: "unset",
             wordBreak: "break-word",
           }}
         >
-          {isLoading
-            ? "🎵 Searching for the perfect tracks..."
-            : aiResponse || "Enter a search query to find music"}
+          {displayResponseText}
         </Typography>
 
         <Button
           onClick={handleReplyPress}
           variant={isReplying ? "contained" : "outlined"}
-          disabled={isLoading || !aiResponse}
+          disabled={isLoading || !hasAnyResponse}
           sx={{
-            alignSelf: { xs: "flex-end", sm: "center" }, // right on mobile, centered in row on desktop
+            alignSelf: { xs: "flex-end", sm: "center" },
             bgcolor: isReplying ? "#E03FD8" : "transparent",
             color: isReplying ? "white" : "#E03FD8",
             "&:hover": {
-              borderColor: isLoading || aiResponse ? "#E03FD8" : "white",
+              borderColor: isLoading || hasAnyResponse ? "#E03FD8" : "white",
             },
             borderColor: "#B41DAC",
           }}
@@ -299,7 +311,7 @@ const SearchBar = () => {
             <ReplyIcon
               sx={{
                 color:
-                  isLoading || !aiResponse
+                  isLoading || !hasAnyResponse
                     ? "#3A3A3A"
                     : isReplying
                       ? "white"
@@ -314,4 +326,5 @@ const SearchBar = () => {
     </Box>
   );
 };
+
 export default SearchBar;
