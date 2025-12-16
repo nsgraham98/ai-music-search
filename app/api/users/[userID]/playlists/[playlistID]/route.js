@@ -121,33 +121,22 @@ export async function PATCH(request, { params }) {
         status: 401,
       });
     }
-    await playlistRef.set(payload, { merge: true });
-    await userProfileRef.set(
-      {
-        [`playlists.${playlistID}`]: payload.name,
-      },
-      { merge: true }
-    );
-    // const playlistRef = doc(db, "playlists", playlistID); // ✅ modular doc() helper
-    // const playlistSnap = await getDoc(playlistRef);
-    // if (!playlistSnap.exists()) {
-    //   return new Response(JSON.stringify({ error: "Playlist not found" }), {
-    //     status: 404,
-    //   });
-    // }
-    // if (playlistSnap.data().userID !== uid) {
-    //   return new Response(JSON.stringify({ error: "Unauthorized" }), {
-    //     status: 401,
-    //   });
-    // }
 
-    // await setDoc(
-    //   playlistRef,
-    //   {
-    //     ...payload,
-    //   },
-    //   { merge: true }
-    // );
+    // Use a batch to commit both updates (playlists and users collections) together
+    const batch = dbAdmin.batch();
+    // Patch playlist doc
+    batch.set(playlistRef, payload, { merge: true });
+
+    // Patch users/{uid}.playlists map as [playlistID: "playlist.name"]
+    if (name !== undefined) {
+      const playlistNamePath = new admin.firestore.FieldPath(
+        "playlists",
+        playlistID
+      );
+      batch.update(userProfileRef, { [playlistNamePath]: name });
+    }
+
+    await batch.commit();
 
     console.log("🎶 Playlist updated:", playlistID, payload);
     // return successful response to client
